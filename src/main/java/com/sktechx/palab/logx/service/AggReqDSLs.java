@@ -63,6 +63,62 @@ public class AggReqDSLs {
                 "}\n";
 
     }
-    final static String queryServiceAPPPV = "";
-    final static String queryServiceApiAppPV = "";
+
+
+    public final static String getQueryServiceAPPPV(long start, long end){
+        return "{\n" +
+                "  \"aggs\" : {\n" +
+                "    \"serviceRC\" : {\n" +
+                "      \"terms\" : {\n" +
+                "        \"field\" : \"svcId\"\n" +
+                "      },\n" +
+                "      \"aggs\" : {\n" +
+                "        \"appRC\" : {\n" +
+                "          \"terms\" : {\n" +
+                "            \"field\" : \"appId\"\n" +
+                "          }\n" +
+                "        }\n" +
+                "      }\n" +
+                "     }\n" +
+                "  },\n" +
+                "  \"query\" : {\n" +
+                "    \"range\" : {\n" +
+                "      \"@timestamp\": {\n" +
+                "        \"gte\": " + start + ",\n" +
+                "        \"lt\": " + end + "\n" +
+                "      }\n" +
+                "    }\n" +
+                "  }\n" +
+                "  \n" +
+                "}";
+    }
+
+
+    public final static String getQueryServiceUV(long start, long end) {
+        return "{\n" +
+                "  \"aggs\": {\n" +
+                "    \"svcRC\": {\n" +
+                "      \"terms\": {\n" +
+                "        \"field\": \"svcId\"\n" +
+                "      },\n" +
+                "      \"aggs\": {\n" +
+                "        \"uvCount\": {\n" +
+                "          \"terms\": {\n" +
+                "            \"field\": \"cltIp\"\n" +
+                "          }\n" +
+                "        }\n" +
+                "      }\n" +
+                "    }\n" +
+                "  },\n" +
+                "  \"query\": {\n" +
+                "    \"range\": {\n" +
+                "      \"@timestamp\": {\n" +
+                "        \"gte\": " + start + ",\n" +
+                "        \"lt\": " + end + "\n" +
+                "      }\n" +
+                "    }\n" +
+                "  }\n" +
+                "}";
+    }
+
 }

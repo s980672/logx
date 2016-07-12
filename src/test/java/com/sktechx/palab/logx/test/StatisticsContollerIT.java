@@ -1,61 +1,60 @@
 package com.sktechx.palab.logx.test;
 
 import com.google.common.collect.Lists;
-import com.sktechx.palab.logx.config.AbstractJUnit4SpringMvcTests;
+import com.jayway.restassured.RestAssured;
 import com.sktechx.palab.logx.config.Application;
 import com.sktechx.palab.logx.model.ServiceRequestCall;
 import com.sktechx.palab.logx.model.SvcAppRC;
 import com.sktechx.palab.logx.model.enumRCType;
 import com.sktechx.palab.logx.repository.ServiceRCRepository;
 import com.sktechx.palab.logx.repository.SvcAppRCRepository;
-import com.sktechx.palab.logx.service.StatisticsExcelExportService;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import com.sktechx.palab.logx.web.StatisticsController;
+import org.apache.http.HttpStatus;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
-/**
- * Created by 1002382 on 2016. 7. 6..
- */
+import static org.hamcrest.Matchers.is;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Application.class)
-public class ExcelExportTest extends AbstractJUnit4SpringMvcTests {
-    Logger logger = LoggerFactory.getLogger(ExcelExportTest.class);
+@WebAppConfiguration
+@IntegrationTest("server.port:9101")
+public class StatisticsContollerIT {
+
+	Logger logger = LoggerFactory.getLogger(StatisticsContollerIT.class);
+
+
+	@Value("${server.port}")
+	int port;
 
     @Autowired
-    StatisticsExcelExportService excelExportService;
+    ServiceRCRepository svcRcRepo;
+
+    @Autowired
+    SvcAppRCRepository svcAppRcRepo;
 
 
     @Autowired
-    ServiceRCRepository  svcRcRepo;
+    StatisticsController statisticsController;
 
+	@Before
+	public void setUp() throws UnsupportedEncodingException {
 
-
-
-    @Autowired
-    SvcAppRCRepository  svcAppRcRepo;
-
-    static XSSFWorkbook wb;
-
-
-
-    @Before
-    public void init(){
-        //create a workbook
-
-        wb = new XSSFWorkbook();
+		RestAssured.port=port;
 
 
         ///////////////////////////////////////////////////////////
@@ -76,34 +75,11 @@ public class ExcelExportTest extends AbstractJUnit4SpringMvcTests {
 
         svcRcRepo.save(rcs);
 
-        //////////////////////////////////////////////////////////////////////
-        // monthly
-
-        rcs.clear();
-
-        date = LocalDate.parse("201607", DateTimeFormat.forPattern("yyyyMM"));
-
-        rcs.add(new ServiceRequestCall(enumRCType.monthly, date.toDate(), "10004", 100047l));
-        rcs.add(new ServiceRequestCall(enumRCType.monthly, date.toDate(), "70004", 700047l));
-
-        date = date.plusMonths(1); //8월
-
-        rcs.add(new ServiceRequestCall(enumRCType.monthly, date.toDate(), "10004", 100048l));
-        rcs.add(new ServiceRequestCall(enumRCType.monthly, date.toDate(), "70004", 700048l));
-
-        date = date.plusMonths(1); //9월
-
-        rcs.add(new ServiceRequestCall(enumRCType.monthly, date.toDate(), "10004", 100049l));
-        rcs.add(new ServiceRequestCall(enumRCType.monthly, date.toDate(), "70004", 700049l));
-
-        svcRcRepo.save(rcs);
-
-
         ///////////////////////////////////////////////////////////
         //Test data for service app request call
 
-        date = LocalDate.parse("20160706", DateTimeFormat.forPattern("yyyyMMdd"));
-        //date = date.minusDays(1);
+
+        date = date.minusDays(1);
 
         List<SvcAppRC> svcAppRcs = Lists.newArrayList();
 
@@ -151,89 +127,34 @@ public class ExcelExportTest extends AbstractJUnit4SpringMvcTests {
         svcAppRcs.add(new SvcAppRC(enumRCType.daily, date.toDate(), "10073", "400102021",1735l));
         svcAppRcs.add(new SvcAppRC(enumRCType.daily, date.toDate(), "10073", "400102030",1736l));
 
-        svcAppRcRepo.save(svcAppRcs);
-
-
-        ///////////////////////////////////////////////////////////////////////////////////
-        // montly svc app pv
-
-        svcAppRcs.clear();
-        date = LocalDate.parse("201607", DateTimeFormat.forPattern("yyyyMM"));
-
-        svcAppRcs.add(new SvcAppRC(enumRCType.monthly, date.toDate(), "10004", "400001020", 18l));
-        svcAppRcs.add(new SvcAppRC(enumRCType.monthly, date.toDate(), "10002", "400001020", 2l));
-        date = date.plusMonths(1);//8
-        svcAppRcs.add(new SvcAppRC(enumRCType.monthly, date.toDate(), "10004", "400001020", 19l));
-        svcAppRcs.add(new SvcAppRC(enumRCType.monthly, date.toDate(), "10002", "400001020", 2l));
-        date = date.plusMonths(1);//9
-        svcAppRcs.add(new SvcAppRC(enumRCType.monthly, date.toDate(), "10004", "400001020", 20l));
-        svcAppRcs.add(new SvcAppRC(enumRCType.monthly, date.toDate(), "10002", "400001020", 2l));
-        date = date.plusMonths(1);//10
-        svcAppRcs.add(new SvcAppRC(enumRCType.monthly, date.toDate(), "10004", "400001020",21l));
-        svcAppRcs.add(new SvcAppRC(enumRCType.monthly, date.toDate(), "10002", "400001020", 2l));
-        date = date.plusMonths(1);//11
-        svcAppRcs.add(new SvcAppRC(enumRCType.monthly, date.toDate(), "10004", "400001020",22l));
-        svcAppRcs.add(new SvcAppRC(enumRCType.monthly, date.toDate(), "10002", "400001020", 2l));
-        date = date.plusMonths(1);//12
-        svcAppRcs.add(new SvcAppRC(enumRCType.monthly, date.toDate(), "10004", "400001020", 23l));
-        svcAppRcs.add(new SvcAppRC(enumRCType.monthly, date.toDate(), "10002", "400001020", 2l));
-
 
         svcAppRcRepo.save(svcAppRcs);
 
 
-    }
+	}
 
-    @After
-    public void afterAllTests() throws IOException {
-        wb.close();
-    }
-
-    @Test
-    public void getMontlySvcAppPv() throws IOException {
-
-        FileOutputStream fileOut = new FileOutputStream("stat_monthly_svc_app_pv.xlsx");
-
-        wb = excelExportService.exportExcel("weather", "app", null, enumRCType.monthly, "201607", "201612", true);
-
-        wb.write(fileOut);
-    }
-
-    @Test
-    public void getMonthlySvcPV() throws IOException {
-
-        FileOutputStream fileOut = new FileOutputStream("stat_monthly_svc_pv.xlsx");
-
-        wb = excelExportService.exportExcel("weather", null, null, enumRCType.monthly, "201607", "201609", true);
+	@Test
+	public void healthEndpoint_isAvailableToEveryone() {
+		RestAssured.given().
+				header("Content-Type", "application/json").
+				when().get("/health").
+				then().statusCode(HttpStatus.SC_OK).body("status", is("UP"));
+	}
 
 
+	@Test
+	public void canDownloadExcelFile() {
 
-        wb.write(fileOut);
-    }
+		RestAssured.given().
+				//header("Content-Type", "application/json").
+                param("startDate", "20160706").
+                param("endDate", "20160707").
+                param("option1","app").
+                param("service","").
+                when().
+				get("/stats/{period}/pv","daily").
+                then().statusCode(HttpStatus.SC_OK);
 
-
-    @Test
-    public void getSvcPV() throws IOException {
-
-        FileOutputStream fileOut = new FileOutputStream("stat_daily_svc_pv.xlsx");
-
-        wb = excelExportService.exportExcel("weather", null, null, enumRCType.daily, "20160706", "20160707", true);
-
-
-
-        wb.write(fileOut);
-    }
-
-
-    @Test
-    public void getSvcAppPv() throws IOException {
-
-        FileOutputStream fileOut = new FileOutputStream("stat_daily_svc_app_pv.xlsx");
-
-        wb = excelExportService.exportExcel("weather", "app", null, enumRCType.daily, "20160706", "20160707", true);
-
-        wb.write(fileOut);
-    }
-
+	}
 
 }

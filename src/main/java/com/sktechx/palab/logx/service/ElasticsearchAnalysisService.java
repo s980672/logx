@@ -2,14 +2,17 @@ package com.sktechx.palab.logx.service;
 
 import com.sktechx.palab.logx.model.RequestCall;
 import com.sktechx.palab.logx.model.ServiceRequestCall;
+import com.sktechx.palab.logx.model.SvcAppRC;
 import com.sktechx.palab.logx.model.enumRCType;
 import com.sktechx.palab.logx.repository.RequestCallRepository;
 import com.sktechx.palab.logx.repository.ServiceRCRepository;
+import com.sktechx.palab.logx.repository.SvcAppRCRepository;
 import io.searchbox.client.JestClient;
 import io.searchbox.core.Search;
 import io.searchbox.core.SearchResult;
 import io.searchbox.core.search.aggregation.TermsAggregation;
 import io.searchbox.params.SearchType;
+import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,8 +44,12 @@ public class ElasticsearchAnalysisService {
     @Autowired
     ServiceRCRepository svcRCRepo;
 
+    @Autowired
+    SvcAppRCRepository svcAppRCRepo;
 
-    public void generatePV(Long start, Long end){
+
+
+    public void generatePV(Long start, Long end) throws IOException {
 
 
         
@@ -56,12 +63,12 @@ public class ElasticsearchAnalysisService {
 
     }
 
-    public void generateSVCPV(Long start, Long end){
+    public void generateSVCPV(Long start, Long end) throws IOException {
 
         ///////////////////////////////////////////////////////////////////////////////
         //service pv
 
-        SearchResult response = getResult(AggReqDSLs.getQueryServicePV(start , end));
+        SearchResult response = getResult(AggReqDSLs.getQueryServicePV(start, end));
 
 
         TermsAggregation svcPV = response.getAggregations().getTermsAggregation("serviceRC");
@@ -75,28 +82,83 @@ public class ElasticsearchAnalysisService {
         });
     }
 
-    public SearchResult getResult(String queryString){
+    public void generateSvcAppPV(long start, long end) throws IOException {
+        SearchResult result = getResult(AggReqDSLs.getQueryServiceAPPPV(start, end));
+
+        TermsAggregation svcPV = result.getAggregations().getTermsAggregation("serviceRC");
+
+        svcPV.getBuckets().stream().forEach(svc-> {
+
+            TermsAggregation appRC = svc.getTermsAggregation("appRC");
+
+            appRC.getBuckets().stream().forEach(app -> {
+
+                SvcAppRC svcAppPV = new SvcAppRC(enumRCType.daily, new Date(start), svc.getKey(), app.getKey(), app.getCount());
+
+                logger.debug("##########################");
+                logger.debug("SvcAppPV : {}", svcAppPV);
+                logger.debug("##########################");
+
+                svcAppRCRepo.save(svcAppPV);
+            });
+
+
+        });
+    }
+
+
+    public SearchResult getResult(String queryString) throws IOException {
 
         Search.Builder searchBuilder = new Search.Builder(queryString).addIndex(INDEX).addType(INDEX_TYPE).setSearchType(SearchType.COUNT);
 
         //addIndex("filebeat-2016-w26").addType("log").setSearchType(SearchType.COUNT);
 
         SearchResult response = null;
-        try {
 
-            response = client.execute(searchBuilder.build());
+        response = client.execute(searchBuilder.build());
 
-        } catch (IOException e) {
 
-            logger.error(e.getLocalizedMessage());
-
-            e.printStackTrace();
-
-        }
 
         logger.debug(response.getJsonString());
 
         return response;
     }
 
+    public void generateSvcPVForMonth() {
+
+        LocalDate start = new LocalDate().withDayOfMonth(1);
+        start = start.minusMonths(1);
+        LocalDate end = new LocalDate().withDayOfMonth(1).minusDays(1);
+
+        final LocalDate finalStart = start;
+
+
+        svcRCRepo.findDistinctSvcId().stream().forEach(svc -> {
+
+            ServiceRequestCall svcRC = new ServiceRequestCall();
+
+            svcRC.getId().setRcType(enumRCType.monthly);
+            svcRC.getId().setReqDt(finalStart.toDate());
+            svcRC.getId().setSvcId(svc);
+
+            svcRCRepo.findByRcTypeAndBetweenDates(enumRCType.daily, finalStart.toDate(), end.toDate()).stream().
+                    filter(pv -> pv.getId().getSvcId().equals(svc)).forEach(pv -> {
+
+                logger.debug("pv : {}", pv);
+
+
+                svcRC.setCount(svcRC.getCount() + pv.getCount());
+
+
+            });
+
+            logger.debug("svcRC : {}", svcRC);
+
+            svcRCRepo.save(svcRC);
+
+        });
+
+
+
+    }
 }

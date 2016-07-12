@@ -5,36 +5,33 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Entity
-@Table(name="service_pv")
+@Table(name="svc_app_pv")
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-public class ServiceRequestCall implements Serializable {
+public class SvcAppRC implements Serializable {
 
 
     @EmbeddedId
-    ServiceRCPK id;
+    SvcAppRCPK id;
 
 
-    public ServiceRequestCall() {
-        id = new ServiceRCPK();
-
+    public SvcAppRC() {
     }
 
-    public ServiceRequestCall(enumRCType rcType, Date reqDt, String svcId, long count) {
+    public SvcAppRC(enumRCType rcType, Date reqDt, String svcId, String appId, long count) {
 
-        id = new ServiceRCPK(rcType, reqDt, svcId);
+        id = new SvcAppRCPK(rcType, reqDt, svcId, appId);
 
         this.count = count;
     }
 
 
-
-    private long count;
-
-    public ServiceRCPK getId() {
+    public SvcAppRCPK getId() {
         return id;
     }
 
-    public long getCount() {
+    private long count;
+
+    public Long getCount() {
         return count;
     }
 
@@ -45,7 +42,7 @@ public class ServiceRequestCall implements Serializable {
 
     @Override
     public String toString() {
-        return "ServiceRequestCall{" +
+        return "SvcAppRC{" +
                 "id=" + id +
                 ", count=" + count +
                 '}';

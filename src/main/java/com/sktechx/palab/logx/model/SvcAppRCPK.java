@@ -9,15 +9,15 @@ import java.util.Date;
  */
 
 @Embeddable
-public class ServiceRCPK implements Serializable{
+public class SvcAppRCPK implements Serializable{
 
-    public ServiceRCPK(){};
+    public SvcAppRCPK(){};
 
-    public ServiceRCPK(enumRCType rcType, Date reqDt, String svcId) {
+    public SvcAppRCPK(enumRCType rcType, Date reqDt, String svcId, String appId) {
         this.rcType = rcType;
         this.reqDt = reqDt;
+        this.appId = appId;
         this.svcId = svcId;
-
     }
 
     @Enumerated(EnumType.STRING)
@@ -26,6 +26,15 @@ public class ServiceRCPK implements Serializable{
     @Temporal(TemporalType.DATE)
     private Date reqDt;
 
+    private String appId;
+
+    public String getAppId() {
+        return appId;
+    }
+
+    public void setAppId(String appId) {
+        this.appId = appId;
+    }
 
     private String svcId;
 
@@ -58,12 +67,13 @@ public class ServiceRCPK implements Serializable{
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ServiceRCPK)) return false;
+        if (!(o instanceof SvcAppRCPK)) return false;
 
-        ServiceRCPK that = (ServiceRCPK) o;
+        SvcAppRCPK that = (SvcAppRCPK) o;
 
         if (getRcType() != that.getRcType()) return false;
         if (getReqDt() != null ? !getReqDt().equals(that.getReqDt()) : that.getReqDt() != null) return false;
+        if (getAppId() != null ? !getAppId().equals(that.getAppId()) : that.getAppId() != null) return false;
         return !(getSvcId() != null ? !getSvcId().equals(that.getSvcId()) : that.getSvcId() != null);
 
     }
@@ -72,15 +82,17 @@ public class ServiceRCPK implements Serializable{
     public int hashCode() {
         int result = getRcType() != null ? getRcType().hashCode() : 0;
         result = 31 * result + (getReqDt() != null ? getReqDt().hashCode() : 0);
+        result = 31 * result + (getAppId() != null ? getAppId().hashCode() : 0);
         result = 31 * result + (getSvcId() != null ? getSvcId().hashCode() : 0);
         return result;
     }
 
     @Override
     public String toString() {
-        return "ServiceRCPK{" +
+        return "SvcAppRCPK{" +
                 "rcType=" + rcType +
                 ", reqDt=" + reqDt +
+                ", appId='" + appId + '\'' +
                 ", svcId='" + svcId + '\'' +
                 '}';
     }

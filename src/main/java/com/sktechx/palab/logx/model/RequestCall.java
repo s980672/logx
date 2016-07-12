@@ -12,7 +12,7 @@ public class RequestCall implements Serializable {
     public RequestCall() {
     }
 
-    public RequestCall(enumRCType type, Date reqDt, Long count) {
+    public RequestCall(enumRCType type, Date reqDt, long count) {
         key = new RequestCallPK(type, reqDt);
         this.count = count;
     }
@@ -25,13 +25,13 @@ public class RequestCall implements Serializable {
         return key;
     }
 
-    private Long count;
+    private long count;
 
-    public Long getCount() {
+    public long getCount() {
         return count;
     }
 
-    public void setCount(Long count) {
+    public void setCount(long count) {
         this.count = count;
     }
 }

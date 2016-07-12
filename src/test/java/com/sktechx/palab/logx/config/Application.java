@@ -1,11 +1,12 @@
-package com.sktechx.palab.logx.test;
+package com.sktechx.palab.logx.config;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.sktechx.palab.logx.service.ElasticsearchAnalysisService;
-import com.sktechx.palab.logx.service.ExcelExportService;
+import com.sktechx.palab.logx.service.StatisticsExcelExportService;
+import com.sktechx.palab.logx.web.StatisticsController;
 import io.searchbox.client.JestClient;
 import io.searchbox.client.JestClientFactory;
 import io.searchbox.client.config.HttpClientConfig;
@@ -40,8 +41,8 @@ public class Application
     }
 
     @Bean
-    public ExcelExportService excelExportService() {
-        return new ExcelExportService();
+    public StatisticsExcelExportService excelExportService() {
+        return new StatisticsExcelExportService();
     }
 
     @Value("${elasticsearch.search.endpoint}")
@@ -72,6 +73,16 @@ public class Application
         return client;
     }
 
+    @Bean
+    StatisticsExcelExportService statisticsExcelExportService(){
+        return new StatisticsExcelExportService();
+    }
+
+
+    @Bean
+    public StatisticsController statisticsController(){
+        return new StatisticsController();
+    }
 
     @Bean
     public ElasticsearchAnalysisService esService(){
@@ -85,7 +96,7 @@ public class Application
         return new StringHttpMessageConverter( Charset.forName( "UTF-8" ) );
     }
 
-   
+
     @Bean
     MappingJackson2HttpMessageConverter converter()
     {

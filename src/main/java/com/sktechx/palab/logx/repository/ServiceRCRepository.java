@@ -19,7 +19,7 @@ public interface ServiceRCRepository extends JpaRepository<ServiceRequestCall, S
     List<ServiceRequestCall> findByRcTypeAndBetweenDates(@Param("rcType") enumRCType rcType, @Param("start") Date start, @Param("end") Date end);
 
     @Query("select distinct rc.id.svcId from ServiceRequestCall rc")
-    List<String> findDistinctKeySvcId();
+    List<String> findDistinctSvcId();
 
     List<ServiceRequestCall> findAll();
 }

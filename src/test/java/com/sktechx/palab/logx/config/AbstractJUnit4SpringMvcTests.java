@@ -1,4 +1,4 @@
-package com.sktechx.palab.logx.test;
+package com.sktechx.palab.logx.config;
 
 
 import com.google.gson.*;
