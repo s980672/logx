@@ -10,13 +10,13 @@
 		</filter>
 	</appender>
 	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>${HOME}/logs/ms-product.log</file>
+		<file>${HOME}/logs/oc-stat.log</file>
 		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
 			<Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</Pattern>
 		</encoder>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<!-- rollover daily -->
-			<fileNamePattern>${HOME}/logs/%d{yyyy-MM-dd}/ms-product-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+			<fileNamePattern>${HOME}/logs/%d{yyyy-MM-dd}/oc-stat-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
 			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
 				<!-- or whenever the file size reaches 100MB -->
 				<maxFileSize>100MB</maxFileSize>
@@ -24,7 +24,7 @@
 		</rollingPolicy>
 	</appender>
 
-	<logger name="com.skplanet.msproduct" level="DEBUG" />
+	<logger name="com.sktechx.palab.logx" level="DEBUG" />
 	<logger name="org.apache.http.wire" level="WARN" />
 	<logger name="org.springframework" level="WARN" />
     <logger name="org.springframework.cache" level="DEBUG" />
