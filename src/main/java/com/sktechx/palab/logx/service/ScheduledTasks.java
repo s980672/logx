@@ -29,8 +29,8 @@ public class ScheduledTasks {
 
     //매일 그날의 request call 수를 저장한다
     //매일 0시 5분에 전날 request call를 조회 및 저장
-    //@Scheduled(cron="0 5 12 1/1 * *")
-    @Scheduled(cron="0/3 * * * * *")
+    @Scheduled(cron="0 5 12 1/1 * *")
+    //@Scheduled(cron="0/3 * * * * *")
     public void savecDailyPV() {
 
         // daily pv
@@ -96,8 +96,8 @@ public class ScheduledTasks {
     }
 
     //매월 1일 0시 5분 마다
-    //@Scheduled(cron="0 5 0 1 1/1 ? *")
-    @Scheduled(cron="0/3 * * * * *")
+    @Scheduled(cron="0 5 0 1 1/1 ?")
+    //@Scheduled(cron="0/3 * * * * *")
     public void saveMonthlyPV() {
         logger.debug("=========================");
         logger.debug("start every monthly!!");
