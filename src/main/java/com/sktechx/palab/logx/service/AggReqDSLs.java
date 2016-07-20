@@ -1,9 +1,14 @@
 package com.sktechx.palab.logx.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Created by 1002382 on 2016. 7. 7..
  */
 public class AggReqDSLs {
+
+    private static Logger logger = LoggerFactory.getLogger(AggReqDSLs.class);
 
     public final static String getQueryPV(String interval) {
 
@@ -11,7 +16,7 @@ public class AggReqDSLs {
                 "  \"aggs\": {\n" +
                 "    \"serviceRC_over_time\": {\n" +
                 "      \"date_histogram\": {\n" +
-                "        \"field\": \"@timestamp\",\n" +
+                "        \"field\": \"reqDt\",\n" +
                 "        \"interval\": \"" + interval + "\"\n" +
                 "      }\n" +
                 "    }\n" +
@@ -23,18 +28,24 @@ public class AggReqDSLs {
     start/end는 epoch이후에 millisecond 단위
     일배치에 사용
      */
-    public final static String getQueryPVDuringPeriod(long start, long end) {
+    public final static String getQueryPVDuringPeriod(String start, String end) {
 
-        return "{\n" +
+
+
+        String str ="{\n" +
                 "  \"query\": {\n" +
                 "    \"range\": {\n" +
-                "      \"@timestamp\": {\n" +
-                "        \"lt\": " + end + " ,\n" +
-                "        \"gte\": " + start + "\n" +
+                "      \"reqDt\": {\n" +
+                "        \"gte\": \"" + start + "\",\n" +
+                "        \"lt\": \"" + end + "\"\n" +
                 "      }\n" +
                 "    }\n" +
                 "  }\n" +
                 "}\n";
+
+        logger.debug(str);
+
+        return str;
 
     }
 
@@ -42,7 +53,7 @@ public class AggReqDSLs {
     start/end는 epoch이후에 millisecond 단위
     일배치에 사용
      */
-    public final static String getQueryServicePV(long start, long end) {
+    public final static String getQueryServicePV(String start, String end) {
 
         return "{\n" +
                 "  \"aggs\": {\n" +
@@ -54,9 +65,9 @@ public class AggReqDSLs {
                 "  },\n" +
                 "  \"query\": {\n" +
                 "    \"range\": {\n" +
-                "      \"@timestamp\": {\n" +
-                "        \"lt\": " + end + " ,\n" +
-                "        \"gte\": " + start + "\n" +
+                "      \"reqDt\": {\n" +
+                "        \"gte\": \"" + start + "\", \n" +
+                "        \"lt\": \"" + end + "\" \n" +
                 "      }\n" +
                 "    }\n" +
                 "  }\n" +
@@ -65,7 +76,7 @@ public class AggReqDSLs {
     }
 
 
-    public final static String getQueryServiceAPPPV(long start, long end){
+    public final static String getQueryServiceAPPPV(String start, String end){
         return "{\n" +
                 "  \"aggs\" : {\n" +
                 "    \"serviceRC\" : {\n" +
@@ -83,9 +94,9 @@ public class AggReqDSLs {
                 "  },\n" +
                 "  \"query\" : {\n" +
                 "    \"range\" : {\n" +
-                "      \"@timestamp\": {\n" +
-                "        \"gte\": " + start + ",\n" +
-                "        \"lt\": " + end + "\n" +
+                "      \"reqDt\": {\n" +
+                "        \"gte\": \"" + start + "\",\n" +
+                "        \"lt\": \"" + end + "\"\n" +
                 "      }\n" +
                 "    }\n" +
                 "  }\n" +
@@ -94,7 +105,7 @@ public class AggReqDSLs {
     }
 
 
-    public final static String getQueryServiceUV(long start, long end) {
+    public final static String getQueryServiceUV(String start, String end) {
         return "{\n" +
                 "  \"aggs\": {\n" +
                 "    \"svcRC\": {\n" +
@@ -112,9 +123,9 @@ public class AggReqDSLs {
                 "  },\n" +
                 "  \"query\": {\n" +
                 "    \"range\": {\n" +
-                "      \"@timestamp\": {\n" +
-                "        \"gte\": " + start + ",\n" +
-                "        \"lt\": " + end + "\n" +
+                "      \"reqDt\": {\n" +
+                "        \"gte\": \"" + start + "\",\n" +
+                "        \"lt\": \"" + end + "\"\n" +
                 "      }\n" +
                 "    }\n" +
                 "  }\n" +

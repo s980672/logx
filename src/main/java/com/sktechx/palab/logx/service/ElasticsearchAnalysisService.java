@@ -19,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -33,7 +35,7 @@ public class ElasticsearchAnalysisService {
     @Autowired
     private JestClient client;
 
-    private final String INDEX = "logx";
+    private final String INDEX = "bulk-gateway-log";
     private final String INDEX_TYPE = "log";
 
 
@@ -49,7 +51,7 @@ public class ElasticsearchAnalysisService {
 
 
 
-    public void generatePV(Long start, Long end) throws IOException {
+    public void generatePV(String start, String end) throws IOException, ParseException {
 
 
         
@@ -57,13 +59,13 @@ public class ElasticsearchAnalysisService {
 
         logger.debug("total : {}", response.getTotal());
 
-        RequestCall rc = new RequestCall(enumRCType.daily, new Date(start), new Long(response.getTotal()));
+        RequestCall rc = new RequestCall(enumRCType.daily, start, new Long(response.getTotal()));
 
         rcRepo.save(rc);
 
     }
 
-    public void generateSVCPV(Long start, Long end) throws IOException {
+    public void generateSVCPV(String start, String end) throws IOException, ParseException {
 
         ///////////////////////////////////////////////////////////////////////////////
         //service pv
@@ -73,19 +75,26 @@ public class ElasticsearchAnalysisService {
 
         TermsAggregation svcPV = response.getAggregations().getTermsAggregation("serviceRC");
 
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = sdf.parse(start);
+
         svcPV.getBuckets().stream().forEach(b -> {
 
-            ServiceRequestCall svcRC = new ServiceRequestCall(enumRCType.daily, new Date(start), b.getKey(), b.getCount());
+            ServiceRequestCall svcRC = new ServiceRequestCall(enumRCType.daily, date, b.getKey(), b.getCount());
 
             svcRCRepo.save(svcRC);
 
         });
     }
 
-    public void generateSvcAppPV(long start, long end) throws IOException {
+    public void generateSvcAppPV(String start, String end) throws IOException, ParseException {
         SearchResult result = getResult(AggReqDSLs.getQueryServiceAPPPV(start, end));
 
         TermsAggregation svcPV = result.getAggregations().getTermsAggregation("serviceRC");
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = sdf.parse(start);
+
 
         svcPV.getBuckets().stream().forEach(svc-> {
 
@@ -93,7 +102,7 @@ public class ElasticsearchAnalysisService {
 
             appRC.getBuckets().stream().forEach(app -> {
 
-                SvcAppRC svcAppPV = new SvcAppRC(enumRCType.daily, new Date(start), svc.getKey(), app.getKey(), app.getCount());
+                SvcAppRC svcAppPV = new SvcAppRC(enumRCType.daily, date, svc.getKey(), app.getKey(), app.getCount());
 
                 logger.debug("##########################");
                 logger.debug("SvcAppPV : {}", svcAppPV);

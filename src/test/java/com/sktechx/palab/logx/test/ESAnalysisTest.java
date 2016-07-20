@@ -14,6 +14,7 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.IOException;
+import java.text.ParseException;
 
 /**
  * Created by 1002382 on 2016. 7. 6..
@@ -39,15 +40,14 @@ public class ESAnalysisTest extends AbstractJUnit4SpringMvcTests {
 
 
     @Test
-    public void getServicePV() throws IOException {
+    public void getServicePV() throws IOException, ParseException {
 
 
         //////////////////////////////////
         //특정일에만 데이터가 있어서 테스트 날짜
-        //for test
-        long end = 1467176400000l;
-        long start = 1467172800000l;
-        //////////////////////////////////
+        String start = "2016-07-14";
+        String end = "2016-07-15";
+
 
         try {
             esService.generatePV(start, end);

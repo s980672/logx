@@ -1,5 +1,7 @@
 package com.sktechx.palab.logx.service;
 
+import org.joda.time.LocalDate;
+import org.joda.time.format.DateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +10,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Calendar;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 /**
  * Created by 1002382 on 2016. 7. 7..
@@ -29,50 +32,28 @@ public class ScheduledTasks {
 
     //매일 그날의 request call 수를 저장한다
     //매일 0시 5분에 전날 request call를 조회 및 저장
-    @Scheduled(cron="0 5 12 1/1 * *")
-    //@Scheduled(cron="0/3 * * * * *")
-    public void savecDailyPV() {
+    //@Scheduled(cron="0 5 12 1/1 * *")
+    @Scheduled(cron="0/30 * * * * *")
+    public void savecDailyPV() throws ParseException {
 
         // daily pv
         //전날 pv를 구한다
-        Calendar cal = Calendar.getInstance();
-
-        cal.set(Calendar.HOUR_OF_DAY, 0);
-        cal.set(Calendar.MINUTE, 0);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MILLISECOND, 0);
-
-
-        long end = cal.getTimeInMillis();
-
-        logger.debug("today : {}", cal.getTime());
-
-        cal.add(cal.DATE, -1);
-
-        long start = cal.getTimeInMillis();
-
-        logger.debug("yesterday : {}", cal.getTime());
-
-        logger.debug("start ~ end :  {} ~ {}", start, end);
-
-        //////////////////////////////////
-        //특정일에만 데이터가 있어서 테스트 날짜
-        //for test
-        //6/29
-        end = 1467176400000l;
-        start = 1467172800000l;
-        //////////////////////////////////
-
-        //6/30
-        end = 1467298800000l;
-        start = 1467212400000l;
 
         try {
-            esService.generatePV(start, end);
 
-            esService.generateSVCPV(start, end);
+            LocalDate startDate = LocalDate.parse("2016-07-14", DateTimeFormat.forPattern("yyyy-MM-dd"));
+            LocalDate endDate = LocalDate.parse("2016-07-15", DateTimeFormat.forPattern("yyyy-MM-dd"));
 
-            esService.generateSvcAppPV(start, end);
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            String date1 = sdf.format(startDate);
+            String date2 = sdf.format(endDate);
+
+            esService.generatePV(date1, date2);
+
+            esService.generateSVCPV(date1, date2);
+
+            esService.generateSvcAppPV(date1, date2);
 
 
         } catch (IOException e) {

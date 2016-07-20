@@ -2,6 +2,8 @@ package com.sktechx.palab.logx.model;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @Entity
@@ -17,6 +19,14 @@ public class RequestCall implements Serializable {
         this.count = count;
     }
 
+    public RequestCall(enumRCType type, String reqDt, long count) throws ParseException {
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = sdf.parse(reqDt);
+        key = new RequestCallPK(type, date);
+        this.count = count;
+
+    }
 
     @EmbeddedId
     RequestCallPK key;
