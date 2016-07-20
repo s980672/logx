@@ -1,11 +1,13 @@
 package com.sktechx.palab.logx.service;
 
+import com.google.common.collect.Lists;
 import com.sktechx.palab.logx.model.ServiceRequestCall;
 import com.sktechx.palab.logx.model.SvcAppRC;
 import com.sktechx.palab.logx.model.enumRCType;
 import com.sktechx.palab.logx.repository.RequestCallRepository;
 import com.sktechx.palab.logx.repository.ServiceRCRepository;
 import com.sktechx.palab.logx.repository.SvcAppRCRepository;
+import com.sktechx.palab.logx.repository.SvcRepository;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.joda.time.Days;
 import org.joda.time.LocalDate;
@@ -38,6 +40,10 @@ public class StatisticsExcelExportService {
     @Autowired
     SvcAppRCRepository svcAppRcRepo;
 
+    @Autowired
+    SvcRepository svcRepo;
+
+
     /*
     option1 : none/app/api/error
     option2 : none/api/app
@@ -50,24 +56,13 @@ public class StatisticsExcelExportService {
      */
     public XSSFWorkbook exportExcel(String svc, String option1, String option2, enumRCType rcType, String start, String end, boolean isPV) {
 
+        LocalDate startDate = LocalDate.parse(start, DateTimeFormat.forPattern("yyyyMMdd"));
+        LocalDate endDate = LocalDate.parse(end, DateTimeFormat.forPattern("yyyyMMdd"));
 
-        LocalDate startDate;
-        LocalDate endDate;
-
-        if ( rcType == enumRCType.daily ) {
-            startDate = LocalDate.parse(start, DateTimeFormat.forPattern("yyyyMMdd"));
-            endDate = LocalDate.parse(end, DateTimeFormat.forPattern("yyyyMMdd"));
-        }else{
-            startDate = LocalDate.parse(start, DateTimeFormat.forPattern("yyyyMM"));
-            endDate = LocalDate.parse(end, DateTimeFormat.forPattern("yyyyMM"));
-        }
-
-
-        String sheetName = null;
         ExportExcelUtil excelUtil = new ExportExcelUtil();
 
 
-        sheetName = svc + "_" + (StringUtils.isEmpty(option1) ? "":option1+"_") + rcType + "_pv";
+        String sheetName = svc + "_" + (StringUtils.isEmpty(option1) ? "":option1+"_") + rcType + "_pv";
 
         logger.debug("================================");
         logger.debug("sheet name : {}", sheetName);
@@ -88,8 +83,20 @@ public class StatisticsExcelExportService {
                 logger.debug("start : {} , end : {}", startDate.toDate(), endDate.toDate());
 
                 List<ServiceRequestCall> rcs = svcRCRepo.findByRcTypeAndBetweenDates(rcType, startDate.toDate(), endDate.toDate());
-                List<String> svcIds = svcRCRepo.findDistinctSvcId();
-                excelUtil.createDataForSvcPV(sheetName, rcs, svcIds);
+
+                List<com.sktechx.palab.logx.model.Service> svcs = Lists.newArrayList();
+
+                svcRCRepo.findDistinctSvcId().stream().forEach(s -> {
+
+                    logger.debug("s : {}", s);
+
+                    svcs.add(svcRepo.findOne(s));
+
+                    logger.debug("svcs : {}", svcs);
+
+                });
+
+                excelUtil.createDataForSvcPV(sheetName, rcs, svcs);
 
 
             } else if (option1.equals("app") && StringUtils.isEmpty(option2)) {

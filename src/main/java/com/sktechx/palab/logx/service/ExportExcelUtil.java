@@ -24,9 +24,6 @@ public class ExportExcelUtil extends abstractExportExcel {
 
     Logger logger = LoggerFactory.getLogger(ExportExcelUtil.class);
 
-
-
-
     /*
     sheetName = {svcName}_2015-07_{daily}_pv_20160708
     sheetName = {svcName}_2015_{monthly}_pv_20160708
@@ -139,52 +136,59 @@ public class ExportExcelUtil extends abstractExportExcel {
     }
 
 
+    private class ExcelRow{
+        public int row;
+        public int col;
+        public long total;
+        public ExcelRow(int row, int col, long total){
+            this.row = row; this.col=col; this.total=total;
+        }
 
-    public void createDataForSvcPV(String sheetName, List<ServiceRequestCall> lst, List<String> lstSvc) {
+    }
+
+    public void createDataForSvcPV(String sheetName, List<ServiceRequestCall> lst, List<com.sktechx.palab.logx.model.Service> lstSvc) {
 
         Sheet sheet = getSheet(sheetName);
 
         CellStyle style = getDataStyle();
 
-
-
-        final Integer[] nRow = {3};
-        final Integer[] nCol = {1};
-        final Long[] total = {0l};
-
+        ExcelRow ex = new ExcelRow(3, 1, 0);
 
         //row당 data 갯수
         int nPeriod = lst.size()/lstSvc.size();
 
         lstSvc.stream().forEach(s -> {
 
+            logger.debug("svc : {}", s);
 
-            nCol[0]=1;
+            ex.col = 1;
 
-            setCellValue(sheet, ++nRow[0], nCol[0], s, style);
+            //엑셀에 출력 시에는 서비스 이름으로 출력
+            setCellValue(sheet, ++ex.row, ex.col, s.getName(), style);
 
-            lst.stream().filter(r -> r.getId().getSvcId().equals(s)).forEach(r -> {
+            lst.stream().filter(r -> r.getId().getSvcId().equals(s.getSvcId())).forEach(r -> {
 
+                ex.total += r.getCount();
 
-                total[0] += r.getCount();
+                setCellValue(sheet, ex.row, ++ex.col, r.getCount() + "", style);
 
-                setCellValue(sheet, nRow[0], ++nCol[0], r.getCount() + "", style);
-
-                logger.debug("row-col-value: {}-{}-{}", nRow[0], nCol[0], r.getCount());
+                logger.debug("row-col-value: {}-{}-{}", ex.row, ex.col, r.getCount());
 
                 //TODO +1은 헤더가 서비스 만 있을 경우임 변수화 필요
-                if ( nCol[0] == nPeriod+1 ){
+                //합계 처리
+                if (ex.col == nPeriod + 1) {
 
-                    logger.debug("row-col-total: {}-{}-{}", nRow[0], ++nCol[0], total[0]);
+                    setCellValue(sheet, ex.row, ++ex.col, ex.total + "", style);
 
-                    setCellValue(sheet, nRow[0], nCol[0] , total[0]+"", style);
+                    logger.debug("row-col-total: {}-{}-{}", ex.row, ex.col, ex.total);
 
-                    total[0]=0l;
+                    ex.total = 0l;
                 }
 
             });
         });
     }
+
 
     public void createDataForSvcAppPV(String sheetName, List<SvcAppRC> lst, int nDataCnt, List<String> appIds, List<String> svcIds) {
 

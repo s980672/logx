@@ -5,6 +5,8 @@ import com.sktechx.palab.logx.repository.RequestCallRepository;
 import com.sktechx.palab.logx.service.StatisticsExcelExportService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +24,8 @@ import java.util.Calendar;
 @RequestMapping("/stats/")
 public class StatisticsController {
 
+    Logger logger = LoggerFactory.getLogger(StatisticsController.class);
+
     @Autowired
     RequestCallRepository rcRepo;
 
@@ -36,24 +40,28 @@ public class StatisticsController {
                                    @RequestParam String startDate, @RequestParam String endDate, HttpServletResponse response) throws IOException {
 
 
+        logger.debug("service : {} ", service);
+        logger.debug("option1 : {} option2: {}", option1, option2);
+        logger.debug("startDate : {} endDate: {}", startDate, endDate);
+
         enumRCType rcType = enumRCType.valueOf(period);
 
         XSSFWorkbook workbook = statisticsExcelExportService.exportExcel(service, option1, option2, rcType, startDate, endDate, true);
 
         Calendar today = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
         String date = sdf.format(today.getTime());
 
-        String excelFileName = "stat_pv" + (StringUtils.isEmpty(service)?"":"_" + service )
-                + (StringUtils.isEmpty(option1)?"":"_" + option1 )
-                + (StringUtils.isEmpty(option2)?"":"_" + option2 ) + "_"+ date+".xlsx";
+        String excelFileName = "stat_pv" + (StringUtils.isEmpty(service) ? "" : "_" + service)
+                + (StringUtils.isEmpty(option1) ? "" : "_" + option1)
+                + (StringUtils.isEmpty(option2) ? "" : "_" + option2) + "_" + date + ".xlsx";
 
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment; filename=" + excelFileName);
 
         ByteArrayOutputStream outByteStream = new ByteArrayOutputStream();
         workbook.write(outByteStream);
-        byte [] outArray = outByteStream.toByteArray();
+        byte[] outArray = outByteStream.toByteArray();
 
         response.setContentLength(outArray.length);
         response.setHeader("Expires:", "0"); // eliminates browser caching

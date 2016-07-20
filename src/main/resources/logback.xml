@@ -25,7 +25,6 @@
 	</appender>
 
 	<logger name="com.sktechx.palab.logx" level="DEBUG" />
-	<logger name="com.sktechx.palab.logx.service" level="DEBUG" />
 	<logger name="org.apache.http.wire" level="WARN" />
 	<logger name="org.springframework" level="WARN" />
     <logger name="org.springframework.cache" level="DEBUG" />
