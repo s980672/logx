@@ -2,11 +2,11 @@ package com.sktechx.palab.logx.service;
 
 import com.google.common.collect.Lists;
 import com.sktechx.palab.logx.model.ServiceRequestCall;
-import com.sktechx.palab.logx.model.SvcAppRC;
+import com.sktechx.palab.logx.model.SvcOption1RC;
 import com.sktechx.palab.logx.model.enumRCType;
 import com.sktechx.palab.logx.repository.RequestCallRepository;
 import com.sktechx.palab.logx.repository.ServiceRCRepository;
-import com.sktechx.palab.logx.repository.SvcAppRCRepository;
+import com.sktechx.palab.logx.repository.SvcOption1RCRepository;
 import com.sktechx.palab.logx.repository.SvcRepository;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.joda.time.Days;
@@ -38,7 +38,7 @@ public class StatisticsExcelExportService {
     ServiceRCRepository svcRCRepo;
 
     @Autowired
-    SvcAppRCRepository svcAppRcRepo;
+    SvcOption1RCRepository svcAppRcRepo;
 
     @Autowired
     SvcRepository svcRepo;
@@ -106,7 +106,7 @@ public class StatisticsExcelExportService {
                 tableName = "APP별 Request Call";
 
                 excelUtil.createHeader(sheetName, tableName, rcType, startDate, endDate, headers);
-                List<SvcAppRC> rcs = svcAppRcRepo.findByRcTypeAndBetween(rcType, startDate.toDate(), endDate.toDate());
+                List<SvcOption1RC> rcs = svcAppRcRepo.findByRcTypeAndBetween(rcType, startDate.toDate(), endDate.toDate());
 
 
                 int dataCnt = 0;

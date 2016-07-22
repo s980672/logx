@@ -8,30 +8,29 @@ import java.util.Date;
 
 @Entity
 @Table(name="pv")
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-public class RequestCall implements Serializable {
+public class ReqCall implements Serializable {
 
-    public RequestCall() {
+    public ReqCall() {
     }
 
-    public RequestCall(enumRCType type, Date reqDt, long count) {
-        key = new RequestCallPK(type, reqDt);
+    public ReqCall(enumRCType type, Date reqDt, long count) {
+        key = new ReqCallPK(type, reqDt);
         this.count = count;
     }
 
-    public RequestCall(enumRCType type, String reqDt, long count) throws ParseException {
+    public ReqCall(enumRCType type, String reqDt, long count) throws ParseException {
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Date date = sdf.parse(reqDt);
-        key = new RequestCallPK(type, date);
+        key = new ReqCallPK(type, date);
         this.count = count;
 
     }
 
     @EmbeddedId
-    RequestCallPK key;
+    ReqCallPK key;
 
-    public RequestCallPK getKey() {
+    public ReqCallPK getKey() {
         return key;
     }
 

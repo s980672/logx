@@ -1,5 +1,6 @@
 package com.sktechx.palab.logx.service;
 
+import com.sktechx.palab.logx.model.enumOption1Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +31,7 @@ public class ScheduledTasks {
     //매일 그날의 request call 수를 저장한다
     //매일 0시 5분에 전날 request call를 조회 및 저장
     //@Scheduled(cron="0 5 12 1/1 * *")
-//    @Scheduled(cron="0/30 * * * * *")
+    @Scheduled(cron="0/30 * * * * *")
     public void savecDailyPV() throws ParseException {
 
         // daily pv
@@ -38,14 +39,19 @@ public class ScheduledTasks {
 
         try {
 
-            String date1 = "2016-07-14";
-            String date2 = "2016-07-15";
+            String date1 = "2016-07-17";
+            String date2 = "2016-07-18";
 
             esService.generatePV(date1, date2);
 
             esService.generateSVCPV(date1, date2);
 
-            esService.generateSvcAppPV(date1, date2);
+            esService.generateSvcOption1PV(enumOption1Type.APP, date1, date2);
+
+            esService.generateErrorCount(date1, date2);
+
+            esService.generateErrorSvcCount(date1, date2);
+
 
 
         } catch (IOException e) {

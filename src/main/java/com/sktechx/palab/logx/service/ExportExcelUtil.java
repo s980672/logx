@@ -1,7 +1,7 @@
 package com.sktechx.palab.logx.service;
 
 import com.sktechx.palab.logx.model.ServiceRequestCall;
-import com.sktechx.palab.logx.model.SvcAppRC;
+import com.sktechx.palab.logx.model.SvcOption1RC;
 import com.sktechx.palab.logx.model.enumRCType;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -190,7 +190,7 @@ public class ExportExcelUtil extends abstractExportExcel {
     }
 
 
-    public void createDataForSvcAppPV(String sheetName, List<SvcAppRC> lst, int nDataCnt, List<String> appIds, List<String> svcIds) {
+    public void createDataForSvcAppPV(String sheetName, List<SvcOption1RC> lst, int nDataCnt, List<String> appIds, List<String> svcIds) {
 
         Sheet sheet = getSheet(sheetName);
         if ( sheet == null ) {
@@ -221,7 +221,7 @@ public class ExportExcelUtil extends abstractExportExcel {
                 setCellValue(sheet, ++nRow[0], nCol[0], app, style);
                 setCellValue(sheet, nRow[0], ++nCol[0], svc, style);
 
-                lst.stream().filter(rc -> rc.getId().getAppId().equals(app) && rc.getId().getSvcId().equals(svc)).forEach(r -> {
+                lst.stream().filter(rc -> rc.getId().getOption1().equals(app) && rc.getId().getSvcId().equals(svc)).forEach(r -> {
 
                     total[nIdx[0]] += r.getCount();
 

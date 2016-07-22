@@ -4,10 +4,11 @@ import com.google.common.collect.Lists;
 import com.jayway.restassured.RestAssured;
 import com.sktechx.palab.logx.config.Application;
 import com.sktechx.palab.logx.model.ServiceRequestCall;
-import com.sktechx.palab.logx.model.SvcAppRC;
+import com.sktechx.palab.logx.model.SvcOption1RC;
+import com.sktechx.palab.logx.model.enumOption1Type;
 import com.sktechx.palab.logx.model.enumRCType;
 import com.sktechx.palab.logx.repository.ServiceRCRepository;
-import com.sktechx.palab.logx.repository.SvcAppRCRepository;
+import com.sktechx.palab.logx.repository.SvcOption1RCRepository;
 import com.sktechx.palab.logx.web.StatisticsController;
 import org.apache.http.HttpStatus;
 import org.joda.time.LocalDate;
@@ -45,7 +46,7 @@ public class StatisticsContollerIT {
     ServiceRCRepository svcRcRepo;
 
     @Autowired
-    SvcAppRCRepository svcAppRcRepo;
+    SvcOption1RCRepository svcAppRcRepo;
 
 
     @Autowired
@@ -81,51 +82,47 @@ public class StatisticsContollerIT {
 
         date = date.minusDays(1);
 
-        List<SvcAppRC> svcAppRcs = Lists.newArrayList();
+        List<SvcOption1RC> svcAppRcs = Lists.newArrayList();
 
-        svcAppRcs.add(new SvcAppRC(enumRCType.daily, date.toDate(), "10004", "400001020",1l));
-        svcAppRcs.add(new SvcAppRC(enumRCType.daily, date.toDate(), "10004", "400001540",2l));
-        svcAppRcs.add(new SvcAppRC(enumRCType.daily, date.toDate(), "10004", "400002323",3l));
-        svcAppRcs.add(new SvcAppRC(enumRCType.daily, date.toDate(), "10004", "400023201",4l));
-        svcAppRcs.add(new SvcAppRC(enumRCType.daily, date.toDate(), "10004", "400102021",5l));
-        svcAppRcs.add(new SvcAppRC(enumRCType.daily, date.toDate(), "10004", "400102030", 6l));
-
-        svcAppRcs.add(new SvcAppRC(enumRCType.daily, date.toDate(), "10020", "400001020",201l));
-        svcAppRcs.add(new SvcAppRC(enumRCType.daily, date.toDate(), "10020", "400001540",202l));
-        svcAppRcs.add(new SvcAppRC(enumRCType.daily, date.toDate(), "10020", "400002323",203l));
-        svcAppRcs.add(new SvcAppRC(enumRCType.daily, date.toDate(), "10020", "400023201",204l));
-        svcAppRcs.add(new SvcAppRC(enumRCType.daily, date.toDate(), "10020", "400102021", 205l));
-        svcAppRcs.add(new SvcAppRC(enumRCType.daily, date.toDate(), "10020", "400102030", 206l));
-
-        svcAppRcs.add(new SvcAppRC(enumRCType.daily, date.toDate(), "10073", "400001020",731l));
-        svcAppRcs.add(new SvcAppRC(enumRCType.daily, date.toDate(), "10073", "400001540",732l));
-        svcAppRcs.add(new SvcAppRC(enumRCType.daily, date.toDate(), "10073", "400002323",733l));
-        svcAppRcs.add(new SvcAppRC(enumRCType.daily, date.toDate(), "10073", "400023201",734l));
-        svcAppRcs.add(new SvcAppRC(enumRCType.daily, date.toDate(), "10073", "400102021",735l));
-        svcAppRcs.add(new SvcAppRC(enumRCType.daily, date.toDate(), "10073", "400102030",736l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily, enumOption1Type.APP, date.toDate(), "10004", "400001020",1l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily, enumOption1Type.APP,date.toDate(), "10004", "400001540",2l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily, enumOption1Type.APP,date.toDate(), "10004", "400002323",3l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily, enumOption1Type.APP,date.toDate(), "10004", "400023201",4l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily, enumOption1Type.APP,date.toDate(), "10004", "400102021",5l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily, enumOption1Type.APP,date.toDate(), "10004", "400102030", 6l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily, enumOption1Type.APP,date.toDate(), "10020", "400001020",201l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily, enumOption1Type.APP,date.toDate(), "10020", "400001540",202l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily, enumOption1Type.APP,date.toDate(), "10020", "400002323",203l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily, enumOption1Type.APP,date.toDate(), "10020", "400023201",204l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily, enumOption1Type.APP,date.toDate(), "10020", "400102021", 205l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily, enumOption1Type.APP,date.toDate(), "10020", "400102030", 206l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily, enumOption1Type.APP,date.toDate(), "10073", "400001020",731l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily, enumOption1Type.APP,date.toDate(), "10073", "400001540",732l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily, enumOption1Type.APP,date.toDate(), "10073", "400002323",733l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily, enumOption1Type.APP,date.toDate(), "10073", "400023201",734l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily, enumOption1Type.APP,date.toDate(), "10073", "400102021",735l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily, enumOption1Type.APP,date.toDate(), "10073", "400102030",736l));
 
         date = date.plusDays(1);
 
-        svcAppRcs.add(new SvcAppRC(enumRCType.daily, date.toDate(), "10004", "400001020",11l));
-        svcAppRcs.add(new SvcAppRC(enumRCType.daily, date.toDate(), "10004", "400001540",12l));
-        svcAppRcs.add(new SvcAppRC(enumRCType.daily, date.toDate(), "10004", "400002323",13l));
-        svcAppRcs.add(new SvcAppRC(enumRCType.daily, date.toDate(), "10004", "400023201",14l));
-        svcAppRcs.add(new SvcAppRC(enumRCType.daily, date.toDate(), "10004", "400102021",15l));
-        svcAppRcs.add(new SvcAppRC(enumRCType.daily, date.toDate(), "10004", "400102030", 16l));
-
-        svcAppRcs.add(new SvcAppRC(enumRCType.daily, date.toDate(), "10020", "400001020",1201l));
-        svcAppRcs.add(new SvcAppRC(enumRCType.daily, date.toDate(), "10020", "400001540",1202l));
-        svcAppRcs.add(new SvcAppRC(enumRCType.daily, date.toDate(), "10020", "400002323",1203l));
-        svcAppRcs.add(new SvcAppRC(enumRCType.daily, date.toDate(), "10020", "400023201",1204l));
-        svcAppRcs.add(new SvcAppRC(enumRCType.daily, date.toDate(), "10020", "400102021", 1205l));
-        svcAppRcs.add(new SvcAppRC(enumRCType.daily, date.toDate(), "10020", "400102030", 1206l));
-
-        svcAppRcs.add(new SvcAppRC(enumRCType.daily, date.toDate(), "10073", "400001020",1731l));
-        svcAppRcs.add(new SvcAppRC(enumRCType.daily, date.toDate(), "10073", "400001540",1732l));
-        svcAppRcs.add(new SvcAppRC(enumRCType.daily, date.toDate(), "10073", "400002323",1733l));
-        svcAppRcs.add(new SvcAppRC(enumRCType.daily, date.toDate(), "10073", "400023201",1734l));
-        svcAppRcs.add(new SvcAppRC(enumRCType.daily, date.toDate(), "10073", "400102021",1735l));
-        svcAppRcs.add(new SvcAppRC(enumRCType.daily, date.toDate(), "10073", "400102030",1736l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily,enumOption1Type.APP, date.toDate(), "10004", "400001020",11l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily,enumOption1Type.APP, date.toDate(), "10004", "400001540",12l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily,enumOption1Type.APP, date.toDate(), "10004", "400002323",13l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily,enumOption1Type.APP, date.toDate(), "10004", "400023201",14l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily,enumOption1Type.APP, date.toDate(), "10004", "400102021",15l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily,enumOption1Type.APP, date.toDate(), "10004", "400102030", 16l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily,enumOption1Type.APP, date.toDate(), "10020", "400001020",1201l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily,enumOption1Type.APP, date.toDate(), "10020", "400001540",1202l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily,enumOption1Type.APP, date.toDate(), "10020", "400002323",1203l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily,enumOption1Type.APP, date.toDate(), "10020", "400023201",1204l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily,enumOption1Type.APP, date.toDate(), "10020", "400102021", 1205l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily,enumOption1Type.APP, date.toDate(), "10020", "400102030", 1206l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily,enumOption1Type.APP, date.toDate(), "10073", "400001020",1731l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily,enumOption1Type.APP, date.toDate(), "10073", "400001540",1732l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily,enumOption1Type.APP, date.toDate(), "10073", "400002323",1733l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily,enumOption1Type.APP, date.toDate(), "10073", "400023201",1734l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily,enumOption1Type.APP, date.toDate(), "10073", "400102021",1735l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily,enumOption1Type.APP,date.toDate(), "10073", "400102030",1736l));
 
 
         svcAppRcRepo.save(svcAppRcs);

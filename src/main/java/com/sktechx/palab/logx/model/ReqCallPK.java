@@ -9,11 +9,11 @@ import java.util.Date;
  */
 
 @Embeddable
-public class RequestCallPK implements Serializable{
+public class ReqCallPK implements Serializable{
 
-    public RequestCallPK(){};
+    public ReqCallPK(){};
 
-    public RequestCallPK(enumRCType rcType, Date reqDt) {
+    public ReqCallPK(enumRCType rcType, Date reqDt) {
         this.rcType = rcType;
         this.reqDt = reqDt;
     }
@@ -27,9 +27,9 @@ public class RequestCallPK implements Serializable{
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof RequestCallPK)) return false;
+        if (!(o instanceof ReqCallPK)) return false;
 
-        RequestCallPK that = (RequestCallPK) o;
+        ReqCallPK that = (ReqCallPK) o;
 
         if (getRcType() != that.getRcType()) return false;
         return !(getReqDt() != null ? !getReqDt().equals(that.getReqDt()) : that.getReqDt() != null);

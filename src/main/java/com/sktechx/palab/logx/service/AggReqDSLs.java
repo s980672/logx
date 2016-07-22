@@ -76,7 +76,7 @@ public class AggReqDSLs {
     }
 
 
-    public final static String getQueryServiceAPPPV(String start, String end){
+    public final static String getQueryServiceOption1PV(String otpion1Field, String start, String end){
         return "{\n" +
                 "  \"aggs\" : {\n" +
                 "    \"serviceRC\" : {\n" +
@@ -84,9 +84,9 @@ public class AggReqDSLs {
                 "        \"field\" : \"svcId\"\n" +
                 "      },\n" +
                 "      \"aggs\" : {\n" +
-                "        \"appRC\" : {\n" +
+                "        \"option1RC\" : {\n" +
                 "          \"terms\" : {\n" +
-                "            \"field\" : \"appId\"\n" +
+                "            \"field\" : \""+otpion1Field+"\"\n" +
                 "          }\n" +
                 "        }\n" +
                 "      }\n" +
@@ -132,4 +132,82 @@ public class AggReqDSLs {
                 "}";
     }
 
+    /*
+    reponse code 200대의 성공 요청은 제외한다
+     */
+    public static String getQueryErrorCount(String start, String end) {
+        return
+                "{\n" +
+                "  \"aggs\": {\n" +
+                "    \"errorCount\": {\n" +
+                "      \"terms\": {\n" +
+                "        \"field\": \"responseCode\"\n" +
+                "      }\n" +
+                "    }\n" +
+                "  },\n" +
+                "  \"query\": {\n" +
+                "    \"bool\": {\n" +
+                "      \"must_not\": [\n" +
+                "        {\n" +
+                "          \"terms\": {\n" +
+                "            \"responseCode\": [\"200\",\"201\"]\n" +
+                "          }\n" +
+                "        }\n" +
+                "      ],\n" +
+                "      \"must\": [\n" +
+                "        {\n" +
+                "          \"range\": {\n" +
+                "            \"reqDt\": {\n" +
+                "              \"gte\": \"" + start + "\",\n" +
+                "              \"lt\": \"" + end + "\"\n" +
+                "            }\n" +
+                "          }\n" +
+                "        }\n" +
+                "      ]\n" +
+                "    }\n" +
+                "  }\n" +
+                "}";
+    }
+
+    public static String getQueryErrorSvcCount(String start, String end) {
+        return
+                "{\n" +
+                "  \"aggs\" : {\n" +
+                "    \"errorCount\" : {\n" +
+                "      \"terms\" : {\n" +
+                "        \"field\" : \"responseCode\"\n" +
+                "      },\n" +
+                "      \"aggs\" : {\n" +
+                "        \"svcId\" : {\n" +
+                "          \"terms\" : {\n" +
+                "            \"field\" : \"svcId\"\n" +
+                "          }\n" +
+                "        }\n" +
+                "      }\n" +
+                "     }\n" +
+                "  },\n" +
+                "  \"query\": {\n" +
+                "    \"bool\": {\n" +
+                "      \"must_not\": [\n" +
+                "        {\n" +
+                "          \"terms\": {\n" +
+                "            \"responseCode\": [\"200\",\"201\"]\n" +
+                "          }\n" +
+                "        }\n" +
+                "      ],\n" +
+                "      \"must\": [\n" +
+                "        {\n" +
+                "          \"range\": {\n" +
+                "            \"reqDt\": {\n" +
+                "              \"gte\": \"" + start + "\",\n" +
+                "              \"lt\": \"" + end + "\"\n" +
+                "            }\n" +
+                "          }\n" +
+                "        }\n" +
+                "      ]\n" +
+                "    }\n" +
+                "  }\n" +
+                "\n" +
+                "}";
+    }
 }

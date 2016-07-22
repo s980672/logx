@@ -1,12 +1,7 @@
 package com.sktechx.palab.logx.service;
 
-import com.sktechx.palab.logx.model.RequestCall;
-import com.sktechx.palab.logx.model.ServiceRequestCall;
-import com.sktechx.palab.logx.model.SvcAppRC;
-import com.sktechx.palab.logx.model.enumRCType;
-import com.sktechx.palab.logx.repository.RequestCallRepository;
-import com.sktechx.palab.logx.repository.ServiceRCRepository;
-import com.sktechx.palab.logx.repository.SvcAppRCRepository;
+import com.sktechx.palab.logx.model.*;
+import com.sktechx.palab.logx.repository.*;
 import io.searchbox.client.JestClient;
 import io.searchbox.core.Search;
 import io.searchbox.core.SearchResult;
@@ -47,19 +42,58 @@ public class ElasticsearchAnalysisService {
     ServiceRCRepository svcRCRepo;
 
     @Autowired
-    SvcAppRCRepository svcAppRCRepo;
+    SvcOption1RCRepository svcOption1RCRep;
+
+    @Autowired
+    ErrorCountRepository errCntRepo;
 
 
+    @Autowired
+    ErrorSvcCountRepository errSvcCntRepo;
 
+
+    public void generateErrorSvcCount(String start, String end) throws IOException, ParseException {
+
+        SearchResult res = getResult(AggReqDSLs.getQueryErrorSvcCount(start, end));
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = sdf.parse(start);
+
+        res.getAggregations().getTermsAggregation("errorCount").getBuckets().stream().forEach(err->{
+
+            err.getTermsAggregation("svcId").getBuckets().stream().forEach(svc -> {
+
+                ErrSvcCount esc = new ErrSvcCount(enumRCType.daily, date, svc.getKey(), err.getKey(), svc.getCount());
+                errSvcCntRepo.save(esc);
+            });
+        });
+    }
+
+
+    public void generateErrorCount(String start, String end) throws IOException, ParseException {
+        SearchResult res = getResult(AggReqDSLs.getQueryErrorCount(start, end));
+
+        logger.debug("total : {}", res.getTotal());
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = sdf.parse(start);
+
+        res.getAggregations().getTermsAggregation("errorCount").getBuckets().stream().forEach(er-> {
+            ErrorCount ec = new ErrorCount(enumRCType.daily, date, er.getKey(), er.getCount());
+            errCntRepo.save(ec);
+        });
+
+    }
     public void generatePV(String start, String end) throws IOException, ParseException {
 
 
-        
+
+
         SearchResult response = getResult(AggReqDSLs.getQueryPVDuringPeriod(start, end));
 
         logger.debug("total : {}", response.getTotal());
 
-        RequestCall rc = new RequestCall(enumRCType.daily, start, new Long(response.getTotal()));
+        ReqCall rc = new ReqCall(enumRCType.daily, start, new Long(response.getTotal()));
 
         rcRepo.save(rc);
 
@@ -87,8 +121,16 @@ public class ElasticsearchAnalysisService {
         });
     }
 
-    public void generateSvcAppPV(String start, String end) throws IOException, ParseException {
-        SearchResult result = getResult(AggReqDSLs.getQueryServiceAPPPV(start, end));
+    public void generateSvcOption1PV(enumOption1Type opType, String start, String end) throws IOException, ParseException {
+
+        String optionField = null;
+        if(opType == enumOption1Type.API){
+            optionField = "apiPath";
+        }else{
+            optionField = "appKey";
+        }
+
+        SearchResult result = getResult(AggReqDSLs.getQueryServiceOption1PV(optionField, start, end));
 
         TermsAggregation svcPV = result.getAggregations().getTermsAggregation("serviceRC");
 
@@ -98,17 +140,17 @@ public class ElasticsearchAnalysisService {
 
         svcPV.getBuckets().stream().forEach(svc-> {
 
-            TermsAggregation appRC = svc.getTermsAggregation("appRC");
+            TermsAggregation appRC = svc.getTermsAggregation("option1RC");
 
             appRC.getBuckets().stream().forEach(app -> {
 
-                SvcAppRC svcAppPV = new SvcAppRC(enumRCType.daily, date, svc.getKey(), app.getKey(), app.getCount());
+                SvcOption1RC svcOp1PV = new SvcOption1RC(enumRCType.daily, opType, date, svc.getKey(), app.getKey(), app.getCount());
 
                 logger.debug("##########################");
-                logger.debug("SvcAppPV : {}", svcAppPV);
+                logger.debug("SvcAppPV : {}", svcOp1PV);
                 logger.debug("##########################");
 
-                svcAppRCRepo.save(svcAppPV);
+                svcOption1RCRep.save(svcOp1PV);
             });
 
 
@@ -116,17 +158,11 @@ public class ElasticsearchAnalysisService {
     }
 
 
-    public SearchResult getResult(String queryString) throws IOException {
+    private SearchResult getResult(String queryString) throws IOException {
 
         Search.Builder searchBuilder = new Search.Builder(queryString).addIndex(INDEX).addType(INDEX_TYPE).setSearchType(SearchType.COUNT);
 
-        //addIndex("filebeat-2016-w26").addType("log").setSearchType(SearchType.COUNT);
-
-        SearchResult response = null;
-
-        response = client.execute(searchBuilder.build());
-
-
+        SearchResult response = client.execute(searchBuilder.build());
 
         logger.debug(response.getJsonString());
 

@@ -5,27 +5,26 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Entity
-@Table(name="svc_app_pv")
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-public class SvcAppRC implements Serializable {
+@Table(name="svc_option1_pv")
+public class SvcOption1RC implements Serializable {
 
 
     @EmbeddedId
-    SvcAppRCPK id;
+    SvcOption1RCPK id;
 
 
-    public SvcAppRC() {
+    public SvcOption1RC() {
     }
 
-    public SvcAppRC(enumRCType rcType, Date reqDt, String svcId, String appId, long count) {
+    public SvcOption1RC(enumRCType rcType, enumOption1Type opType, Date reqDt, String svcId, String option1, long count) {
 
-        id = new SvcAppRCPK(rcType, reqDt, svcId, appId);
+        id = new SvcOption1RCPK(rcType, opType, reqDt, svcId, option1);
 
         this.count = count;
     }
 
 
-    public SvcAppRCPK getId() {
+    public SvcOption1RCPK getId() {
         return id;
     }
 

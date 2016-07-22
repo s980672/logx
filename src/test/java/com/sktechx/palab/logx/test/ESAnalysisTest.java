@@ -2,8 +2,13 @@ package com.sktechx.palab.logx.test;
 
 import com.sktechx.palab.logx.config.AbstractJUnit4SpringMvcTests;
 import com.sktechx.palab.logx.config.Application;
-import com.sktechx.palab.logx.repository.SvcAppRCRepository;
+import com.sktechx.palab.logx.model.enumOption1Type;
+import com.sktechx.palab.logx.repository.ErrorCountRepository;
+import com.sktechx.palab.logx.repository.ErrorSvcCountRepository;
+import com.sktechx.palab.logx.repository.SvcOption1RCRepository;
 import com.sktechx.palab.logx.service.ElasticsearchAnalysisService;
+import org.joda.time.LocalDate;
+import org.joda.time.format.DateTimeFormat;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,7 +34,13 @@ public class ESAnalysisTest extends AbstractJUnit4SpringMvcTests {
 
 
     @Autowired
-    SvcAppRCRepository svcAppRCRepo;
+    SvcOption1RCRepository svcOption1RCRepo;
+
+    @Autowired
+    ErrorCountRepository errCntRepo;
+
+    @Autowired
+    ErrorSvcCountRepository errSvcCntRepo;
 
 
     @Before
@@ -45,20 +56,29 @@ public class ESAnalysisTest extends AbstractJUnit4SpringMvcTests {
 
         //////////////////////////////////
         //특정일에만 데이터가 있어서 테스트 날짜
-        String start = "2016-07-14";
-        String end = "2016-07-15";
+        LocalDate startD = LocalDate.parse("2016-07-17", DateTimeFormat.forPattern("yyyy-MM-dd"));
+        String start = startD.toString(); //"2016-07-18";
+        String end = startD.plusDays(1).toString();
 
+        logger.debug("start : {}, end : {}", start, end);
 
         try {
             esService.generatePV(start, end);
 
             esService.generateSVCPV(start, end);
 
-            esService.generateSvcAppPV(start, end);
+            esService.generateSvcOption1PV(enumOption1Type.APP, start, end);
 
+            esService.generateErrorCount(start, end);
+
+            esService.generateErrorSvcCount(start, end);
 
             logger.debug("==============================");
-            svcAppRCRepo.findAll().stream().forEach(pv -> logger.debug(pv.toString()));
+            svcOption1RCRepo.findAll().stream().forEach(pv -> logger.debug(pv.toString()));
+            logger.debug("==============================");
+            errCntRepo.findAll().stream().forEach(err -> logger.debug(err.toString()));
+            logger.debug("==============================");
+            errSvcCntRepo.findAll().stream().forEach(err -> logger.debug(err.toString()));
             logger.debug("==============================");
 
         } catch (IOException e) {
