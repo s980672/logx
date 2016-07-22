@@ -1,6 +1,6 @@
 package com.sktechx.palab.logx.service;
 
-import com.sktechx.palab.logx.model.enumOption1Type;
+import com.sktechx.palab.logx.model.enumOptionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,12 +46,11 @@ public class ScheduledTasks {
 
             esService.generateSVCPV(date1, date2);
 
-            esService.generateSvcOption1PV(enumOption1Type.APP, date1, date2);
+            esService.generateSvcOption1PV(enumOptionType.APP, date1, date2);
+            esService.generateSvcOption1PV(enumOptionType.API, date1, date2);
+            esService.generateSvcOption1PV(enumOptionType.ERROR, date1, date2);
 
             esService.generateErrorCount(date1, date2);
-
-            esService.generateErrorSvcCount(date1, date2);
-
 
 
         } catch (IOException e) {

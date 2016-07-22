@@ -147,13 +147,13 @@ public class AggReqDSLs {
                 "  },\n" +
                 "  \"query\": {\n" +
                 "    \"bool\": {\n" +
-                "      \"must_not\": [\n" +
-                "        {\n" +
-                "          \"terms\": {\n" +
-                "            \"responseCode\": [\"200\",\"201\"]\n" +
-                "          }\n" +
-                "        }\n" +
-                "      ],\n" +
+//                "      \"must_not\": [\n" +
+//                "        {\n" +
+//                "          \"terms\": {\n" +
+//                "            \"responseCode\": [\"200\",\"201\"]\n" +
+//                "          }\n" +
+//                "        }\n" +
+//                "      ],\n" +
                 "      \"must\": [\n" +
                 "        {\n" +
                 "          \"range\": {\n" +
@@ -173,14 +173,14 @@ public class AggReqDSLs {
         return
                 "{\n" +
                 "  \"aggs\" : {\n" +
-                "    \"errorCount\" : {\n" +
+                "    \"serviceRC\" : {\n" +
                 "      \"terms\" : {\n" +
-                "        \"field\" : \"responseCode\"\n" +
+                "        \"field\" : \"svcId\"\n" +
                 "      },\n" +
                 "      \"aggs\" : {\n" +
-                "        \"svcId\" : {\n" +
+                "        \"option1RC\" : {\n" +
                 "          \"terms\" : {\n" +
-                "            \"field\" : \"svcId\"\n" +
+                "            \"field\" : \"responseCode\"\n" +
                 "          }\n" +
                 "        }\n" +
                 "      }\n" +
@@ -188,13 +188,13 @@ public class AggReqDSLs {
                 "  },\n" +
                 "  \"query\": {\n" +
                 "    \"bool\": {\n" +
-                "      \"must_not\": [\n" +
-                "        {\n" +
-                "          \"terms\": {\n" +
-                "            \"responseCode\": [\"200\",\"201\"]\n" +
-                "          }\n" +
-                "        }\n" +
-                "      ],\n" +
+//                "      \"must_not\": [\n" +
+//                "        {\n" +
+//                "          \"terms\": {\n" +
+//                "            \"responseCode\": [\"200\",\"201\"]\n" +
+//                "          }\n" +
+//                "        }\n" +
+//                "      ],\n" +
                 "      \"must\": [\n" +
                 "        {\n" +
                 "          \"range\": {\n" +

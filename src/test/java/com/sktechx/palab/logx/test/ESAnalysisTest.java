@@ -2,7 +2,7 @@ package com.sktechx.palab.logx.test;
 
 import com.sktechx.palab.logx.config.AbstractJUnit4SpringMvcTests;
 import com.sktechx.palab.logx.config.Application;
-import com.sktechx.palab.logx.model.enumOption1Type;
+import com.sktechx.palab.logx.model.enumOptionType;
 import com.sktechx.palab.logx.repository.ErrorCountRepository;
 import com.sktechx.palab.logx.repository.ErrorSvcCountRepository;
 import com.sktechx.palab.logx.repository.SvcOption1RCRepository;
@@ -67,11 +67,12 @@ public class ESAnalysisTest extends AbstractJUnit4SpringMvcTests {
 
             esService.generateSVCPV(start, end);
 
-            esService.generateSvcOption1PV(enumOption1Type.APP, start, end);
+            esService.generateSvcOption1PV(enumOptionType.APP, start, end);
+            esService.generateSvcOption1PV(enumOptionType.API, start, end);
+            esService.generateSvcOption1PV(enumOptionType.ERROR, start, end);
 
             esService.generateErrorCount(start, end);
 
-            esService.generateErrorSvcCount(start, end);
 
             logger.debug("==============================");
             svcOption1RCRepo.findAll().stream().forEach(pv -> logger.debug(pv.toString()));

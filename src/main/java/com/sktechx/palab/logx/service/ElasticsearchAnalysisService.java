@@ -52,24 +52,7 @@ public class ElasticsearchAnalysisService {
     ErrorSvcCountRepository errSvcCntRepo;
 
 
-    public void generateErrorSvcCount(String start, String end) throws IOException, ParseException {
-
-        SearchResult res = getResult(AggReqDSLs.getQueryErrorSvcCount(start, end));
-
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Date date = sdf.parse(start);
-
-        res.getAggregations().getTermsAggregation("errorCount").getBuckets().stream().forEach(err->{
-
-            err.getTermsAggregation("svcId").getBuckets().stream().forEach(svc -> {
-
-                ErrSvcCount esc = new ErrSvcCount(enumRCType.daily, date, svc.getKey(), err.getKey(), svc.getCount());
-                errSvcCntRepo.save(esc);
-            });
-        });
-    }
-
-
+    //서비스 구분없이 에러 코드 별 갯수
     public void generateErrorCount(String start, String end) throws IOException, ParseException {
         SearchResult res = getResult(AggReqDSLs.getQueryErrorCount(start, end));
 
@@ -121,16 +104,22 @@ public class ElasticsearchAnalysisService {
         });
     }
 
-    public void generateSvcOption1PV(enumOption1Type opType, String start, String end) throws IOException, ParseException {
+    public void generateSvcOption1PV(enumOptionType opType, String start, String end) throws IOException, ParseException {
 
-        String optionField = null;
-        if(opType == enumOption1Type.API){
-            optionField = "apiPath";
-        }else{
-            optionField = "appKey";
+        String queryDsl = null;
+        switch(opType){
+            case API:
+                queryDsl = AggReqDSLs.getQueryServiceOption1PV("apiPath", start, end);
+                break;
+            case APP:
+                queryDsl = AggReqDSLs.getQueryServiceOption1PV("appKey", start, end);
+                break;
+            case ERROR:
+                queryDsl = AggReqDSLs.getQueryErrorSvcCount(start, end);
         }
 
-        SearchResult result = getResult(AggReqDSLs.getQueryServiceOption1PV(optionField, start, end));
+        SearchResult result = getResult(queryDsl);
+
 
         TermsAggregation svcPV = result.getAggregations().getTermsAggregation("serviceRC");
 
@@ -147,7 +136,7 @@ public class ElasticsearchAnalysisService {
                 SvcOption1RC svcOp1PV = new SvcOption1RC(enumRCType.daily, opType, date, svc.getKey(), app.getKey(), app.getCount());
 
                 logger.debug("##########################");
-                logger.debug("SvcAppPV : {}", svcOp1PV);
+                logger.debug("SvcOption1PV : {}", svcOp1PV);
                 logger.debug("##########################");
 
                 svcOption1RCRep.save(svcOp1PV);

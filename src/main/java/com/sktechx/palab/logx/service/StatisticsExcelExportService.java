@@ -3,15 +3,14 @@ package com.sktechx.palab.logx.service;
 import com.google.common.collect.Lists;
 import com.sktechx.palab.logx.model.ServiceRequestCall;
 import com.sktechx.palab.logx.model.SvcOption1RC;
+import com.sktechx.palab.logx.model.enumOptionType;
 import com.sktechx.palab.logx.model.enumRCType;
 import com.sktechx.palab.logx.repository.RequestCallRepository;
 import com.sktechx.palab.logx.repository.ServiceRCRepository;
 import com.sktechx.palab.logx.repository.SvcOption1RCRepository;
 import com.sktechx.palab.logx.repository.SvcRepository;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.joda.time.Days;
 import org.joda.time.LocalDate;
-import org.joda.time.Months;
 import org.joda.time.format.DateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,59 +98,79 @@ public class StatisticsExcelExportService {
                 excelUtil.createDataForSvcPV(sheetName, rcs, svcs);
 
 
-            } else if (option1.equals("app") && StringUtils.isEmpty(option2)) {
-                //headers.put(1, "APP 명");
-                headers.put(1, "APP ID");
-                headers.put(2, "서비스");
-                tableName = "APP별 Request Call";
+            }
+            else if (option1.equals("app")){
 
-                excelUtil.createHeader(sheetName, tableName, rcType, startDate, endDate, headers);
-                List<SvcOption1RC> rcs = svcAppRcRepo.findByRcTypeAndBetween(rcType, startDate.toDate(), endDate.toDate());
-
-
-                int dataCnt = 0;
-                if ( rcType == enumRCType.daily ) {
-                    Days days = Days.daysBetween(startDate, endDate);
-                    dataCnt = days.getDays() + 1;
-                }else {
-                    Months months = Months.monthsBetween(startDate, endDate);
-                    dataCnt = months.getMonths() + 1;
-                }
-
-
-
-                excelUtil.createDataForSvcAppPV(sheetName, rcs, dataCnt, svcAppRcRepo.findDistinctAppIdByRcType(rcType), svcAppRcRepo.findDistinctSvcIdByRcType(rcType) );
-
-
-            } else if (option1.equals("app") && option2.equals("api")) {
+                tableName = "APP별 Request Count";
                 headers.put(1, "APP 명");
                 headers.put(2, "APP ID");
-                headers.put(3, "서비스");
-                headers.put(4, "API 명");
 
-                tableName = "APP별 Request Call";
+                if( option2.equals("api")){
+                    headers.put(3, "API 명");
+
+                }else{ //option2가 없는 경우
+                    headers.put(3, "서비스");
+
+                    List<SvcOption1RC> rcs = svcAppRcRepo.findByRcTypeAndBetween(rcType, startDate.toDate(), endDate.toDate());
+                    excelUtil.createDate2(sheetName, rcs ,enumOptionType.APP, svcAppRcRepo.findDistinctOption1ByRcType(rcType),
+                            null, svcAppRcRepo.findDistinctSvcIdByRcType(rcType));
+
+                }
                 excelUtil.createHeader(sheetName, tableName, rcType, startDate, endDate, headers);
-
-
-            } else if (option1.equals("api") && StringUtils.isEmpty(option2)) {
+            }
+            else if ( option1.equals("api")){
+                tableName = "API별 Request Count";
                 headers.put(1, "서비스");
                 headers.put(2, "API 명");
-                tableName = "API별 Request Call";
+
+                //API_APP
+                if( option2.equals("app")){
+                    headers.put(3, "APP 명");
+                    headers.put(4, "APP ID");
+
+
+                }
+                else{ //API   //option2가 없는 경우
+
+                    List<SvcOption1RC> rcs = svcAppRcRepo.findByRcTypeAndBetween(rcType, startDate.toDate(), endDate.toDate());
+                    excelUtil.createDate2(sheetName, rcs ,enumOptionType.API, svcAppRcRepo.findDistinctOption1ByRcType(rcType),
+                            null, svcAppRcRepo.findDistinctSvcIdByRcType(rcType));
+                }
+
                 excelUtil.createHeader(sheetName, tableName, rcType, startDate, endDate, headers);
 
 
-            } else if (option1.equals("api") && option2.equals("app")) {
-                headers.put(1, "서비스");
-                headers.put(2, "API 명");
-                headers.put(3, "APP 명");
-                headers.put(4, "APP ID");
-                tableName = "API별 Request Call";
+
+            }
+            else if (option1.equals("error")) {
+
+
+                tableName = "Error Count";
+
+                if ( option2.equals("app")) {
+                    //ERROR_APP
+                    headers.put(1, "Error Code");
+                    headers.put(2, "APP 명");
+                    headers.put(2, "APP ID");
+                }else if ( option2.equals("api")){
+                    //ERROR_API
+                    headers.put(1, "Error Code");
+                    headers.put(2, "API 명");
+                }else{
+                    //ERROR_NONE
+                    headers.put(1, "Error Code");
+                    headers.put(2, "서비스");
+
+                    List<SvcOption1RC> rcs = svcAppRcRepo.findByRcTypeAndBetween(rcType, startDate.toDate(), endDate.toDate());
+                    excelUtil.createDate2(sheetName, rcs, enumOptionType.ERROR, svcAppRcRepo.findDistinctOption1ByRcType(rcType),
+                            null, svcAppRcRepo.findDistinctSvcIdByRcType(rcType));
+
+
+                }
+
                 excelUtil.createHeader(sheetName, tableName, rcType, startDate, endDate, headers);
-
-
-            } else if (option1.equals("error")) {
-
-                //TODO
+                //TODO excel 상단에 [서비스: tmap] 또는 [서비스 : 전체 서비스] 찍기
+                //error는 상세코드가 없으므로 소계는 찍지 않는다
             }
 
             return excelUtil.getWorkBook();

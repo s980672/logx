@@ -22,7 +22,7 @@ public interface SvcOption1RCRepository extends JpaRepository<SvcOption1RC, SvcO
     List<String> findDistinctSvcIdByRcType(@Param("rcType")enumRCType rcType);
 
     @Query("select distinct rc.id.option1 from SvcOption1RC rc where rc.id.rcType= :rcType order by rc.id.option1")
-    List<String> findDistinctAppIdByRcType(@Param("rcType")enumRCType rcType);
+    List<String> findDistinctOption1ByRcType(@Param("rcType") enumRCType rcType);
 
     List<SvcOption1RC> findAll();
 

@@ -2,6 +2,7 @@ package com.sktechx.palab.logx.service;
 
 import com.sktechx.palab.logx.model.ServiceRequestCall;
 import com.sktechx.palab.logx.model.SvcOption1RC;
+import com.sktechx.palab.logx.model.enumOptionType;
 import com.sktechx.palab.logx.model.enumRCType;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -190,11 +191,139 @@ public class ExportExcelUtil extends abstractExportExcel {
     }
 
 
+    /*
+    nDataCnt : 엑셀의 기간 갯수 - 실제 데이터 갯수
+     */
+
+    public void createDate2(String sheetName, Object dataLst, enumOptionType opType, List<String> opt1, List<String> opt2, List<String> svcs){
+
+
+        Sheet sheet = getSheet(sheetName);
+        if ( sheet == null ) {
+            logger.error("excel sheet is null");
+            throw new NullPointerException("Excel sheet is null!");
+        }
+
+        CellStyle style = getDataStyle();
+
+        ExcelRow ex = new ExcelRow(4, 1, 0);
+
+        switch(opType){
+            case APP:
+                List<SvcOption1RC> lst = (List<SvcOption1RC>) dataLst;
+
+                opt1.stream().forEach(op1 -> {
+                    svcs.stream().forEach(svc -> {
+
+                        setCellValue(sheet, ex.row, ex.col++, op1, style);
+                        setCellValue(sheet, ex.row, ex.col++, /*TODO app id*/"APP ID", style);
+                        setCellValue(sheet, ex.row, ex.col++, /*TODO service name*/svc, style);
+
+                        lst.stream().filter(d -> d.getId().getOption1().equals(op1) && d.getId().getSvcId().equals(svc)).forEach(d -> {
+                            setCellValue(sheet, ex.row, ex.col++, d.getCount() + "", style);
+                            ex.total += d.getCount();
+                        });
+
+                        //합계 - app만 기준1인 경우 소계가 없음
+                        setCellValue(sheet, ex.row, ex.col, ex.total + "", style);
+
+                        //한 행이 돌고 초기화
+                        ex.total = 0;
+                        ex.row++;
+                        ex.col = 1;
+
+                    });
+                });
+
+                //TODO 앱명과 앱 id 머지 필요
+                break;
+
+            case API:
+
+                List<SvcOption1RC> lstApis = (List<SvcOption1RC>) dataLst;
+
+                svcs.stream().forEach(svc->{
+                    opt1.stream().forEach(op1->{
+
+                        setCellValue(sheet, ex.row, ex.col++, /*TODO service name*/svc ,style);
+                        setCellValue(sheet, ex.row, ex.col++, op1 ,style); //TODO API 명
+
+                        lstApis.stream().filter( d-> d.getId().getOption1().equals(op1) && d.getId().getSvcId().equals(svc)).forEach(d -> {
+                            setCellValue(sheet, ex.row, ex.col++, d.getCount() + "", style);
+                            ex.total += d.getCount();
+                        });
+
+                        //합계 - app만 기준1인 경우 소계가 없음
+                        setCellValue(sheet, ex.row, ex.col, ex.total+"", style);
+
+                        //한 행이 돌고 초기화
+                        ex.total = 0;
+                        ex.row++;
+                        ex.col = 1;
+
+                    });
+                });
+
+                break;
+            case ERROR:
+
+                List<SvcOption1RC> lstErrs = (List<SvcOption1RC>) dataLst;
+
+                opt1.stream().forEach(op1->{
+                    svcs.stream().forEach(svc->{
+                        setCellValue(sheet, ex.row, ex.col++, /*TODO service name*/svc ,style);
+
+                        setCellValue(sheet, ex.row, ex.col++, op1 ,style); //에러 코드
+
+                        lstErrs.stream().filter( d-> d.getId().getOption1().equals(op1) && d.getId().getSvcId().equals(svc)).forEach(d -> {
+                            setCellValue(sheet, ex.row, ex.col++, d.getCount() + "", style);
+                            ex.total += d.getCount();
+                        });
+
+                        //합계 - 에러 상세코드가 빠지면서 소계 제외
+                        setCellValue(sheet, ex.row, ex.col, ex.total+"", style);
+
+                        //한 행이 돌고 초기화
+                        ex.total = 0;
+                        ex.row++;
+                        ex.col = 1;
+
+                    });
+
+                    //서비스 컬럼 병합 - 같은 서비스 끼리 병합함
+                    sheet.addMergedRegion(new CellRangeAddress(4, ex.row-1, 2, 2));
+
+                });
+
+
+                break;
+            case APP_API:
+                //HEADER : APP 명 - APP ID - API 명 -------------------------소계 - 합계
+                //app 명, app id 병합
+                break;
+            case API_APP:
+                //HEADER : 서비스 - API 명 - APP 명 - APP ID-------------------------소계 - 합계
+                // 서비스 병합, API 명 병합
+                break;
+            case ERROR_APP:
+                //HEADER : ERROR code - APP 명 - APP ID -----------------------  소계 - 합계
+                //error code 병합
+                break;
+
+            case ERROR_API:
+                //HEADER : ERROR code - API 명 -----------------------  소계 - 합계
+                //error code 병합
+
+                break;
+
+        }
+    }
+
     public void createDataForSvcAppPV(String sheetName, List<SvcOption1RC> lst, int nDataCnt, List<String> appIds, List<String> svcIds) {
 
         Sheet sheet = getSheet(sheetName);
         if ( sheet == null ) {
-            logger.error("excel shhet is null");
+            logger.error("excel sheet is null");
             throw new NullPointerException("Excel sheet is null!");
         }
 
