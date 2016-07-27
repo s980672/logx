@@ -1,6 +1,7 @@
 package com.sktechx.palab.logx.service;
 
 import com.sktechx.palab.logx.model.enumOptionType;
+import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,23 +39,28 @@ public class ScheduledTasks {
         //전날 pv를 구한다
 
 
-        String date1 = "2016-07-17";
-        String date2 = "2016-07-18";
+        LocalDate startDate = new LocalDate("2016-05-01");
+        LocalDate endDate = new LocalDate("2016-05-30");
 
-        esService.generatePV(date1, date2);
+        for (LocalDate date = startDate;
+                date.isBefore(endDate) || date.isEqual(endDate); date.plusDays(1))
+        {
 
-        esService.generateSVCPV(date1, date2);
+            esService.generatePV(startDate.toString(), endDate.toString());
 
-        esService.generateSvcOption1PV(enumOptionType.APP, date1, date2);
-        esService.generateSvcOption1PV(enumOptionType.API, date1, date2);
-        esService.generateSvcOption1PV(enumOptionType.ERROR, date1, date2);
+            esService.generateSVCPV(startDate.toString(), endDate.toString());
 
-        esService.generateSvcOption2PV(enumOptionType.API_APP, date1, date2);
-        esService.generateSvcOption2PV(enumOptionType.APP_API, date1, date2);
-        esService.generateSvcOption2PV(enumOptionType.ERROR_APP, date1, date2);
-        esService.generateSvcOption2PV(enumOptionType.ERROR_API, date1, date2);
+            esService.generateSvcOption1PV(enumOptionType.APP, startDate.toString(), endDate.toString());
+            esService.generateSvcOption1PV(enumOptionType.API, startDate.toString(), endDate.toString());
+            esService.generateSvcOption1PV(enumOptionType.ERROR, startDate.toString(), endDate.toString());
 
-        //esService.generateErrorCount(date1, date2);
+            esService.generateSvcOption2PV(enumOptionType.API_APP, startDate.toString(), endDate.toString());
+            esService.generateSvcOption2PV(enumOptionType.APP_API, startDate.toString(), endDate.toString());
+            esService.generateSvcOption2PV(enumOptionType.ERROR_APP, startDate.toString(), endDate.toString());
+            esService.generateSvcOption2PV(enumOptionType.ERROR_API, startDate.toString(), endDate.toString());
+
+        }
+        //esService.generateErrorCount(startDate.toString(), endDate.toString());
 
 
 
