@@ -2,6 +2,7 @@ package com.sktechx.palab.logx.repository;
 
 import com.sktechx.palab.logx.model.SvcOption1RC;
 import com.sktechx.palab.logx.model.SvcOption1RCPK;
+import com.sktechx.palab.logx.model.enumOptionType;
 import com.sktechx.palab.logx.model.enumRCType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -26,4 +27,9 @@ public interface SvcOption1RCRepository extends JpaRepository<SvcOption1RC, SvcO
 
     List<SvcOption1RC> findAll();
 
+    @Query("select rc from SvcOption1RC rc where rc.id.opType=:opType and rc.id.rcType = :rcType and rc.id.reqDt between :start and :end order by rc.id.reqDt")
+    List<SvcOption1RC> findByOpTypeAndRcTypeAndBetween(@Param("opType") enumOptionType opType, @Param("rcType")enumRCType rcType, @Param("start")Date start, @Param("end")Date end);
+
+    @Query("select distinct rc.id.option1 from SvcOption1RC rc where rc.id.opType=:opType and rc.id.rcType= :rcType order by rc.id.option1")
+    List<String> findDistinctOption1ByRcTypeAndOpType(@Param("rcType")enumRCType rcType, @Param("opType") enumOptionType opType);
 }

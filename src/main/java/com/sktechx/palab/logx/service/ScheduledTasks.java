@@ -32,33 +32,31 @@ public class ScheduledTasks {
     //매일 0시 5분에 전날 request call를 조회 및 저장
     //@Scheduled(cron="0 5 12 1/1 * *")
     @Scheduled(cron="0/30 * * * * *")
-    public void savecDailyPV() throws ParseException {
+    public void savecDailyPV() throws ParseException, IOException {
 
         // daily pv
         //전날 pv를 구한다
 
-        try {
 
-            String date1 = "2016-07-17";
-            String date2 = "2016-07-18";
+        String date1 = "2016-07-17";
+        String date2 = "2016-07-18";
 
-            esService.generatePV(date1, date2);
+        esService.generatePV(date1, date2);
 
-            esService.generateSVCPV(date1, date2);
+        esService.generateSVCPV(date1, date2);
 
-            esService.generateSvcOption1PV(enumOptionType.APP, date1, date2);
-            esService.generateSvcOption1PV(enumOptionType.API, date1, date2);
-            esService.generateSvcOption1PV(enumOptionType.ERROR, date1, date2);
+        esService.generateSvcOption1PV(enumOptionType.APP, date1, date2);
+        esService.generateSvcOption1PV(enumOptionType.API, date1, date2);
+        esService.generateSvcOption1PV(enumOptionType.ERROR, date1, date2);
 
-            esService.generateErrorCount(date1, date2);
+        esService.generateSvcOption2PV(enumOptionType.API_APP, date1, date2);
+        esService.generateSvcOption2PV(enumOptionType.APP_API, date1, date2);
+        esService.generateSvcOption2PV(enumOptionType.ERROR_APP, date1, date2);
+        esService.generateSvcOption2PV(enumOptionType.ERROR_API, date1, date2);
+
+        //esService.generateErrorCount(date1, date2);
 
 
-        } catch (IOException e) {
-
-            logger.error(e.getLocalizedMessage());
-
-            e.printStackTrace();
-        }
 
     }
 

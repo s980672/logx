@@ -1,30 +1,32 @@
 package com.sktechx.palab.logx.model;
 
-import javax.persistence.*;
+import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Date;
 
 @Entity
-@Table(name="svc_option1_pv")
-public class SvcOption1RC implements Serializable {
+@Table(name="svc_option2_pv")
+public class SvcOption2RC implements Serializable {
 
 
     @EmbeddedId
-    SvcOption1RCPK id;
+    SvcOption2RCPK id;
 
 
-    public SvcOption1RC() {
+    public SvcOption2RC() {
     }
 
-    public SvcOption1RC(enumRCType rcType, enumOptionType opType, Date reqDt, String svcId, String option1, long count) {
+    public SvcOption2RC(enumRCType rcType, enumOptionType opType, Date reqDt, String svcId, String option1, String option2, long count) {
 
-        id = new SvcOption1RCPK(rcType, opType, reqDt, svcId, option1);
+        id = new SvcOption2RCPK(rcType, opType, reqDt, svcId, option1, option2);
 
         this.count = count;
     }
 
 
-    public SvcOption1RCPK getId() {
+    public SvcOption2RCPK getId() {
         return id;
     }
 
@@ -41,9 +43,9 @@ public class SvcOption1RC implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof SvcOption1RC)) return false;
+        if (!(o instanceof SvcOption2RC)) return false;
 
-        SvcOption1RC that = (SvcOption1RC) o;
+        SvcOption2RC that = (SvcOption2RC) o;
 
         return getId().equals(that.getId());
 
@@ -56,7 +58,7 @@ public class SvcOption1RC implements Serializable {
 
     @Override
     public String toString() {
-        return "SvcOption1RC{" +
+        return "SvcOption2RC{" +
                 "id=" + id +
                 ", count=" + count +
                 '}';

@@ -1,14 +1,8 @@
 package com.sktechx.palab.logx.service;
 
 import com.google.common.collect.Lists;
-import com.sktechx.palab.logx.model.ServiceRequestCall;
-import com.sktechx.palab.logx.model.SvcOption1RC;
-import com.sktechx.palab.logx.model.enumOptionType;
-import com.sktechx.palab.logx.model.enumRCType;
-import com.sktechx.palab.logx.repository.RequestCallRepository;
-import com.sktechx.palab.logx.repository.ServiceRCRepository;
-import com.sktechx.palab.logx.repository.SvcOption1RCRepository;
-import com.sktechx.palab.logx.repository.SvcRepository;
+import com.sktechx.palab.logx.model.*;
+import com.sktechx.palab.logx.repository.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
@@ -21,6 +15,8 @@ import org.springframework.util.StringUtils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.sktechx.palab.logx.model.enumOptionType.*;
 
 /**
  * Created by 1002382 on 2016. 7. 8..
@@ -37,12 +33,38 @@ public class StatisticsExcelExportService {
     ServiceRCRepository svcRCRepo;
 
     @Autowired
-    SvcOption1RCRepository svcAppRcRepo;
+    SvcOption1RCRepository svcOption1RcRepo;
 
     @Autowired
     SvcRepository svcRepo;
 
+    @Autowired
+    SvcOption2RCRepository svcOption2RcRepo;
 
+
+    private enumOptionType ConvertOption1Option2ToOpType(String op1, String op2) {
+
+        if ( StringUtils.isEmpty(op1) && StringUtils.isEmpty(op2)){
+            return SVC;
+        }
+        else if (op1.equals("APP") && StringUtils.isEmpty(op2)) {
+            return APP;
+        } else if (op1.equals("API") && StringUtils.isEmpty(op2)) {
+            return API;
+        } else if (op1.equals("ERROR") && StringUtils.isEmpty(op2)) {
+            return ERROR;
+        } else if (op1.equals("APP") && op2.equals("API")){
+            return APP_API;
+        } else if (op1.equals("API") && op2.equals("APP")){
+            return API_APP;
+        } else if (op1.equals("ERROR") && op2.equals("APP")){
+            return ERROR_APP;
+        } else if (op1.equals("ERROR") && op2.equals("API")){
+            return ERROR_API;
+        }
+        return SVC;
+
+    }
     /*
     option1 : none/app/api/error
     option2 : none/api/app
@@ -60,6 +82,8 @@ public class StatisticsExcelExportService {
 
         ExportExcelUtil excelUtil = new ExportExcelUtil();
 
+        //비어있는 날짜에 "0"을 찍기위해 날짜 비교 로직 추가
+        excelUtil.setRcTypeAndStartEndDate(rcType, startDate, endDate);
 
         String sheetName = svc + "_" + (StringUtils.isEmpty(option1) ? "":option1+"_") + rcType + "_pv";
 
@@ -67,119 +91,138 @@ public class StatisticsExcelExportService {
         logger.debug("sheet name : {}", sheetName);
         logger.debug("startDate - endDate : {} ~ {}", startDate, endDate);
 
-        if (isPV) {
 
-            Map<Integer, String> headers = new HashMap<>();
-
-            String tableName = "서비스 Request Call";
-
-
-            if (StringUtils.isEmpty(option1) && StringUtils.isEmpty(option2)) {
-                headers.put(1, "서비스");
-
-                excelUtil.createHeader(sheetName, tableName, rcType, startDate, endDate, headers);
-
-                logger.debug("start : {} , end : {}", startDate.toDate(), endDate.toDate());
-
-                List<ServiceRequestCall> rcs = svcRCRepo.findByRcTypeAndBetweenDates(rcType, startDate.toDate(), endDate.toDate());
-
-                List<com.sktechx.palab.logx.model.Service> svcs = Lists.newArrayList();
-
-                svcRCRepo.findDistinctSvcId().stream().forEach(s -> {
-
-                    logger.debug("s : {}", s);
-
-                    svcs.add(svcRepo.findOne(s));
-
-                    logger.debug("svcs : {}", svcs);
-
-                });
-
-                excelUtil.createDataForSvcPV(sheetName, rcs, svcs);
-
-
-            }
-            else if (option1.equals("app")){
-
-                tableName = "APP별 Request Count";
+        enumOptionType opType = ConvertOption1Option2ToOpType(option1, option2);
+        switch(opType){
+            case APP:
+                Map<Integer, String> headers = new HashMap<>();
+                String tableName = "APP별 Request Count";
                 headers.put(1, "APP 명");
                 headers.put(2, "APP ID");
+                headers.put(3, "서비스");
 
-                if( option2.equals("api")){
-                    headers.put(3, "API 명");
+                excelUtil.createHeader(sheetName, tableName, rcType, startDate, endDate, headers, svc.equals("ALL"));
 
-                }else{ //option2가 없는 경우
-                    headers.put(3, "서비스");
+                List<SvcOption1RC> rcs = svcOption1RcRepo.findByOpTypeAndRcTypeAndBetween(opType, rcType, startDate.toDate(), endDate.toDate());
+                excelUtil.createDate2(sheetName, rcs, APP, svcOption1RcRepo.findDistinctOption1ByRcTypeAndOpType(rcType, opType),
+                        null, svc.equals("ALL") ? svcOption1RcRepo.findDistinctSvcIdByRcType(rcType) : Lists.newArrayList(svc));
 
-                    List<SvcOption1RC> rcs = svcAppRcRepo.findByRcTypeAndBetween(rcType, startDate.toDate(), endDate.toDate());
-                    excelUtil.createDate2(sheetName, rcs ,enumOptionType.APP, svcAppRcRepo.findDistinctOption1ByRcType(rcType),
-                            null, svcAppRcRepo.findDistinctSvcIdByRcType(rcType));
 
-                }
-                excelUtil.createHeader(sheetName, tableName, rcType, startDate, endDate, headers);
-            }
-            else if ( option1.equals("api")){
+                break;
+            case API:
+                headers = new HashMap<>();
                 tableName = "API별 Request Count";
                 headers.put(1, "서비스");
                 headers.put(2, "API 명");
 
-                //API_APP
-                if( option2.equals("app")){
-                    headers.put(3, "APP 명");
-                    headers.put(4, "APP ID");
+                excelUtil.createHeader(sheetName, tableName, rcType, startDate, endDate, headers, false);
+
+                rcs = svcOption1RcRepo.findByOpTypeAndRcTypeAndBetween(opType, rcType, startDate.toDate(), endDate.toDate());
+                excelUtil.createDate2(sheetName, rcs, API, svcOption1RcRepo.findDistinctOption1ByRcTypeAndOpType(rcType, opType),
+                        null, svc.equals("ALL") ? svcOption1RcRepo.findDistinctSvcIdByRcType(rcType) : Lists.newArrayList(svc));
 
 
-                }
-                else{ //API   //option2가 없는 경우
+                break;
+            case APP_API:
+                headers = new HashMap<>();
+                tableName = "APP별 Request Count";
+                headers.put(1, "APP 명");
+                headers.put(2, "APP ID");
+                headers.put(3, "API 명");
+                excelUtil.createHeader(sheetName, tableName, rcType, startDate, endDate, headers, true);
 
-                    List<SvcOption1RC> rcs = svcAppRcRepo.findByRcTypeAndBetween(rcType, startDate.toDate(), endDate.toDate());
-                    excelUtil.createDate2(sheetName, rcs ,enumOptionType.API, svcAppRcRepo.findDistinctOption1ByRcType(rcType),
-                            null, svcAppRcRepo.findDistinctSvcIdByRcType(rcType));
-                }
+                List<SvcOption2RC> rcsAppApi = svcOption2RcRepo.findBySvcIdAndOpTypeAndRcTypeAndBetween(svc, opType, rcType, startDate.toDate(), endDate.toDate());
 
-                excelUtil.createHeader(sheetName, tableName, rcType, startDate, endDate, headers);
-
+                excelUtil.createDate2(sheetName, rcsAppApi, APP_API, svcOption2RcRepo.findDistinctOption1ByRcTypeAndOpType(rcType, opType),
+                        svcOption2RcRepo.findDistinctOption2ByRcTypeAndOpType(rcType, opType),
+                        svc.equals("ALL") ? svcOption2RcRepo.findDistinctSvcIdByRcTypeAndOpType(rcType, opType) : Lists.newArrayList(svc));
 
 
-            }
-            else if (option1.equals("error")) {
+                break;
+            case API_APP:
+                headers = new HashMap<>();
+                tableName = "API별 Request Count";
+                headers.put(1, "서비스");
+                headers.put(2, "API 명");
+                headers.put(3, "APP 명");
+                headers.put(4, "APP ID");
+                excelUtil.createHeader(sheetName, tableName, rcType, startDate, endDate, headers, true);
+
+                //TODO 서비스별로 구분되는  option1과 option2
+                //service와 option1이 그룹핑해서 distinct 필요
+                List<SvcOption2RC> rcsApiApp = svcOption2RcRepo.findByOpTypeAndRcTypeAndBetween(opType, rcType, startDate.toDate(), endDate.toDate());
+
+                excelUtil.createDate2(sheetName, rcsApiApp, API_APP, null, null,
+                        svc.equals("ALL") ? svcOption2RcRepo.findDistinctSvcIdByRcTypeAndOpTypeAndBetween(rcType, opType, startDate.toDate(), endDate.toDate()) : Lists.newArrayList(svc));
 
 
+
+                break;
+            case ERROR:
+                headers = new HashMap<>();
                 tableName = "Error Count";
+                //ERROR_NONE
+                headers.put(1, "Error Code");
+                headers.put(2, "서비스");
 
-                if ( option2.equals("app")) {
-                    //ERROR_APP
-                    headers.put(1, "Error Code");
-                    headers.put(2, "APP 명");
-                    headers.put(2, "APP ID");
-                }else if ( option2.equals("api")){
-                    //ERROR_API
-                    headers.put(1, "Error Code");
-                    headers.put(2, "API 명");
-                }else{
-                    //ERROR_NONE
-                    headers.put(1, "Error Code");
-                    headers.put(2, "서비스");
+                excelUtil.createHeader(sheetName, tableName, rcType, startDate, endDate, headers, false);
 
-                    List<SvcOption1RC> rcs = svcAppRcRepo.findByRcTypeAndBetween(rcType, startDate.toDate(), endDate.toDate());
-                    excelUtil.createDate2(sheetName, rcs, enumOptionType.ERROR, svcAppRcRepo.findDistinctOption1ByRcType(rcType),
-                            null, svcAppRcRepo.findDistinctSvcIdByRcType(rcType));
+                List<SvcOption1RC> rcsErr = svcOption1RcRepo.findByOpTypeAndRcTypeAndBetween(ERROR, rcType, startDate.toDate(), endDate.toDate());
+                excelUtil.createDate2(sheetName, rcsErr, ERROR, svcOption1RcRepo.findDistinctOption1ByRcTypeAndOpType(rcType, opType),
+                        null,svc.equals("ALL") ? svcOption1RcRepo.findDistinctSvcIdByRcType(rcType) : Lists.newArrayList(svc));
+
+                break;
+            case ERROR_APP:
+                headers = new HashMap<>();
+                tableName = "Error Count";
+                //ERROR_APP
+                headers.put(1, "Error Code");
+                headers.put(2, "APP 명");
+                headers.put(3, "APP ID");
+                excelUtil.createHeader(sheetName, tableName, rcType, startDate, endDate, headers, true);
+
+                List<SvcOption2RC> rcsErrApp = svcOption2RcRepo.findBySvcIdAndOpTypeAndRcTypeAndBetween(svc, opType, rcType, startDate.toDate(), endDate.toDate());
+                excelUtil.createDate2(sheetName, rcsErrApp, ERROR_APP, svcOption2RcRepo.findDistinctOption1ByRcTypeAndOpType(rcType, opType),
+                        svcOption2RcRepo.findDistinctOption2ByRcTypeAndOpType(rcType, opType),
+                        svcOption2RcRepo.findDistinctSvcIdByRcType(rcType));
+
+                break;
+            case ERROR_API:
+                headers = new HashMap<>();
+                tableName = "Error Count";
+                //ERROR_API
+                headers.put(1, "Error Code");
+                headers.put(2, "API 명");
+                excelUtil.createHeader(sheetName, tableName, rcType, startDate, endDate, headers, true);
+                List<SvcOption2RC> rcsErrApi = svcOption2RcRepo.findBySvcIdAndOpTypeAndRcTypeAndBetween(svc, opType, rcType, startDate.toDate(), endDate.toDate());
+                excelUtil.createDate2(sheetName, rcsErrApi, ERROR_API,
+                        svcOption2RcRepo.findDistinctOption1BySvcIdAndRcTypeAndOpTypeAndBetween(svc, rcType, opType, startDate.toDate(), endDate.toDate()),
+                        svcOption2RcRepo.findDistinctOption2BySvcIdAndRcTypeAndOpTypeAndBetween(svc, rcType, opType, startDate.toDate(), endDate.toDate()),
+                        Lists.newArrayList(svc));
+                        //svcOption2RcRepo.findDistinctSvcIdByRcType(rcType));
 
 
+                break;
+
+            case SVC: //서비스별 Request Count option1/option2가 없는 경우
+                headers = new HashMap<>();
+                tableName = "서비스 별 Request Count";
+                headers.put(1, "서비스");
+                List<ServiceRequestCall> listSvcRC;
+                if( svc.equals("ALL")) {
+                    listSvcRC = svcRCRepo.findByRcTypeAndBetweenDates(rcType, startDate.toDate(), endDate
+                            .toDate());
+                }else {
+                    listSvcRC = svcRCRepo.findBySvcIdAndRcTypeAndBetween(svc, rcType, startDate.toDate(), endDate.toDate());
                 }
+                excelUtil.createHeader(sheetName, tableName, rcType, startDate, endDate, headers, true);
+                excelUtil.createDate2(sheetName, listSvcRC, SVC, null, null,
+                        svc.equals("ALL") ? svcRCRepo.findDistinctSvcIdByRcType(rcType) : Lists.newArrayList(svc));
 
-                excelUtil.createHeader(sheetName, tableName, rcType, startDate, endDate, headers);
-                //TODO excel 상단에 [서비스: tmap] 또는 [서비스 : 전체 서비스] 찍기
-                //error는 상세코드가 없으므로 소계는 찍지 않는다
-            }
-
-            return excelUtil.getWorkBook();
-
-        } //UV TODO
-        else{
-
+                break;
         }
 
-        return null;
+        return excelUtil.getWorkBook();
+
     }
 }

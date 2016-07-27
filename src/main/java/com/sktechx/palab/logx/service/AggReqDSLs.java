@@ -169,6 +169,39 @@ public class AggReqDSLs {
                 "}";
     }
 
+    public static String getQueryOption1Option2AllSvcPV(String option1, String option2, String start, String end){
+        return "{\n" +
+                "  \"aggs\": {\n" +
+                "    \"option1RC\": {\n" +
+                "      \"terms\": {\n" +
+                "        \"field\": \""+option1+"\"\n" +
+                "      },\n" +
+                "      \"aggs\": {\n" +
+                "        \"option2RC\": {\n" +
+                "          \"terms\": {\n" +
+                "            \"field\": \""+option2+"\"\n" +
+                "          }\n" +
+                "        }\n" +
+                "      }\n" +
+                "    }\n" +
+                "  },\n" +
+                "  \"query\": {\n" +
+                "    \"bool\": {\n" +
+                "      \"must\": [\n" +
+                "        {\n" +
+                "          \"range\": {\n" +
+                "            \"reqDt\": {\n" +
+                "              \"gte\": \"2016-07-17\",\n" +
+                "              \"lt\": \"2016-07-18\"\n" +
+                "            }\n" +
+                "          }\n" +
+                "        }\n" +
+                "      ]\n" +
+                "    }\n" +
+                "  }\n" +
+                "} ";
+    }
+
     public static String getQueryErrorSvcCount(String start, String end) {
         return
                 "{\n" +
@@ -208,6 +241,46 @@ public class AggReqDSLs {
                 "    }\n" +
                 "  }\n" +
                 "\n" +
+                "}";
+    }
+
+    public static String getQueryServiceOption2PV(String option1, String option2, String start, String end) {
+        return "{\n" +
+                "  \"aggs\": {\n" +
+                "    \"serviceRC\": {\n" +
+                "      \"terms\": {\n" +
+                "        \"field\": \"svcId\"\n" +
+                "      },\n" +
+                "      \"aggs\": {\n" +
+                "        \"option1RC\": {\n" +
+                "          \"terms\": {\n" +
+                "            \"field\": \""+option1+"\"\n" +
+                "          },\n" +
+                "          \"aggs\": {\n" +
+                "            \"option2RC\": {\n" +
+                "              \"terms\": {\n" +
+                "                \"field\": \""+option2+"\"\n" +
+                "              }\n" +
+                "            }\n" +
+                "          }\n" +
+                "        }\n" +
+                "      }\n" +
+                "    }\n" +
+                "  },\n" +
+                "  \"query\": {\n" +
+                "    \"bool\": {\n" +
+                "      \"must\": [\n" +
+                "        {\n" +
+                "          \"range\": {\n" +
+                "            \"reqDt\": {\n" +
+                "              \"gte\": \"" + start + "\",\n" +
+                "              \"lt\": \"" + end + "\"\n" +
+                "            }\n" +
+                "          }\n" +
+                "        }\n" +
+                "      ]\n" +
+                "    }\n" +
+                "  }\n" +
                 "}";
     }
 }

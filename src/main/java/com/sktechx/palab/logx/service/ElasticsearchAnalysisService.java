@@ -45,6 +45,9 @@ public class ElasticsearchAnalysisService {
     SvcOption1RCRepository svcOption1RCRep;
 
     @Autowired
+    SvcOption2RCRepository svcOption2RCRep;
+
+    @Autowired
     ErrorCountRepository errCntRepo;
 
 
@@ -61,7 +64,7 @@ public class ElasticsearchAnalysisService {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Date date = sdf.parse(start);
 
-        res.getAggregations().getTermsAggregation("errorCount").getBuckets().stream().forEach(er-> {
+        res.getAggregations().getTermsAggregation("errorCount").getBuckets().stream().forEach(er -> {
             ErrorCount ec = new ErrorCount(enumRCType.daily, date, er.getKey(), er.getCount());
             errCntRepo.save(ec);
         });
@@ -102,6 +105,82 @@ public class ElasticsearchAnalysisService {
             svcRCRepo.save(svcRC);
 
         });
+    }
+
+    public void generateSvcOption2PV(enumOptionType opType, String start, String end) throws IOException, ParseException {
+
+        String queryDsl = null;
+        String queryOption1Option2AllSvcPV = null;
+        switch(opType){
+            case API_APP:
+                queryDsl = AggReqDSLs.getQueryServiceOption2PV("appKey", "apiPath", start, end);
+                break;
+            case APP_API:
+                queryDsl = AggReqDSLs.getQueryServiceOption2PV("apiPath", "appKey", start, end);
+                queryOption1Option2AllSvcPV = AggReqDSLs.getQueryOption1Option2AllSvcPV("appKey", "apiPath", start, end);
+                break;
+            case ERROR_API:
+                queryDsl = AggReqDSLs.getQueryServiceOption2PV("responseCode", "apiPath", start, end);
+                queryOption1Option2AllSvcPV = AggReqDSLs.getQueryOption1Option2AllSvcPV("responseCode", "apiPath", start, end);
+                break;
+            case ERROR_APP:
+                queryDsl = AggReqDSLs.getQueryServiceOption2PV("responseCode", "appKey", start, end);
+                queryOption1Option2AllSvcPV = AggReqDSLs.getQueryOption1Option2AllSvcPV("responseCode", "appKey", start, end);
+        }
+
+        logger.debug(queryDsl);
+
+        SearchResult result = getResult(queryDsl);
+
+
+        TermsAggregation svcPV = result.getAggregations().getTermsAggregation("serviceRC");
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = sdf.parse(start);
+
+
+        svcPV.getBuckets().stream().forEach(svc-> {
+
+            TermsAggregation op1RC = svc.getTermsAggregation("option1RC");
+
+            op1RC.getBuckets().stream().forEach(op1 -> {
+
+                TermsAggregation op2RC = op1.getTermsAggregation("option2RC");
+                op2RC.getBuckets().stream().forEach(op2 -> {
+
+                    SvcOption2RC svcOp2PV = new SvcOption2RC(enumRCType.daily, opType, date, svc.getKey(), op1.getKey(), op2.getKey(), op2.getCount());
+                    logger.debug("##########################");
+                    logger.debug("SvcOption2PV : {}", svcOp2PV);
+                    logger.debug("##########################");
+
+                    svcOption2RCRep.save(svcOp2PV);
+                });
+
+
+
+            });
+
+        });
+
+
+        if ( queryOption1Option2AllSvcPV == null ) return;
+
+        //service 구분이 없는 경우 = 모든 서비스의 경우
+        //opType이 ERROR-APP, ERROR-API, APP-API인 경우만 해당
+        result = getResult(queryOption1Option2AllSvcPV);
+
+        TermsAggregation option1RC = result.getAggregations().getTermsAggregation("option1RC");
+
+        option1RC.getBuckets().stream().forEach(op1->{
+            op1.getTermsAggregation("option2RC").getBuckets().stream().forEach(op2->{
+
+                SvcOption2RC svcOp2PV = new SvcOption2RC(enumRCType.daily, opType, date, "ALL", op1.getKey(), op2.getKey(), op2.getCount());
+
+                svcOption2RCRep.save(svcOp2PV);
+            });
+        });
+
+
     }
 
     public void generateSvcOption1PV(enumOptionType opType, String start, String end) throws IOException, ParseException {
