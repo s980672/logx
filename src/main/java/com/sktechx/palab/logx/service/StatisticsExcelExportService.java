@@ -131,12 +131,15 @@ public class StatisticsExcelExportService {
                 headers.put(3, "API 명");
                 excelUtil.createHeader(sheetName, tableName, rcType, startDate, endDate, headers, true);
 
-                List<SvcOption2RC> rcsAppApi = svcOption2RcRepo.findBySvcIdAndOpTypeAndRcTypeAndBetween(svc, opType, rcType, startDate.toDate(), endDate.toDate());
+                List<SvcOption2RC> rcsAppApi=null;
+                if ( svc.equals("ALL")){
+                    rcsAppApi = svcOption2RcRepo.findByOpTypeAndRcTypeAndBetween(opType, rcType, startDate.toDate(), endDate.toDate());
 
-                excelUtil.createDate2(sheetName, rcsAppApi, APP_API, svcOption2RcRepo.findDistinctOption1ByRcTypeAndOpType(rcType, opType),
-                        svcOption2RcRepo.findDistinctOption2ByRcTypeAndOpType(rcType, opType),
-                        svc.equals("ALL") ? svcOption2RcRepo.findDistinctSvcIdByRcTypeAndOpType(rcType, opType) : Lists.newArrayList(svc));
+                }else{
+                    rcsAppApi = svcOption2RcRepo.findBySvcIdAndOpTypeAndRcTypeAndBetween(svc, opType, rcType, startDate.toDate(), endDate.toDate());
+                }
 
+                excelUtil.createDate2(sheetName, rcsAppApi, APP_API, null,null,null);
 
                 break;
             case API_APP:
@@ -148,8 +151,6 @@ public class StatisticsExcelExportService {
                 headers.put(4, "APP ID");
                 excelUtil.createHeader(sheetName, tableName, rcType, startDate, endDate, headers, true);
 
-                //TODO 서비스별로 구분되는  option1과 option2
-                //service와 option1이 그룹핑해서 distinct 필요
                 List<SvcOption2RC> rcsApiApp = svcOption2RcRepo.findByOpTypeAndRcTypeAndBetween(opType, rcType, startDate.toDate(), endDate.toDate());
 
                 excelUtil.createDate2(sheetName, rcsApiApp, API_APP, null, null,

@@ -217,6 +217,7 @@ public class ExportExcelUtil extends abstractExportExcel {
 
         if ( startDate == null || endDate == null ) {
             logger.error("Set first StartDate and EndDate");
+
         }
 
         Sheet sheet = getSheet(sheetName);
@@ -389,7 +390,7 @@ public class ExportExcelUtil extends abstractExportExcel {
                 //app 명, app id 병합
                 List<SvcOption2RC> lstAppApi = (List<SvcOption2RC>) dataLst;
 
-
+                createAppApi(sheet, lstAppApi, opType, rcType);
 
                 break;
 
@@ -399,7 +400,7 @@ public class ExportExcelUtil extends abstractExportExcel {
                 // 서비스 병합, API 명 병합
                 List<SvcOption2RC> lstApiApp = (List<SvcOption2RC>) dataLst;
 
-                createAppOption2(sheet, svcs, lstApiApp, opType, rcType);
+                createApiApp(sheet, svcs, lstApiApp, opType, rcType);
 
                 break;
             case ERROR_APP:
@@ -407,7 +408,7 @@ public class ExportExcelUtil extends abstractExportExcel {
                 //error code 병합
 
                 List<SvcOption2RC> lstErrApp = (List<SvcOption2RC>) dataLst;
-                createErrorOption2(sheet, lstErrApp, opt1, opt2, opType, rcType);
+                createErrorOption2(sheet, lstErrApp, opType, rcType);
 
                 break;
 
@@ -416,14 +417,14 @@ public class ExportExcelUtil extends abstractExportExcel {
                 //error code 병합
                 List<SvcOption2RC> lstErrApi = (List<SvcOption2RC>) dataLst;
 
-                createErrorOption2(sheet, lstErrApi, opt1, opt2, opType, rcType);
+                createErrorOption2(sheet, lstErrApi, opType, rcType);
 
                 break;
 
         }
     }
 
-    private void createAppOption2(Sheet sheet, List<String> lstSvc, List<SvcOption2RC> lst, enumOptionType opType, enumRCType rcType ) {
+    private void createApiApp(Sheet sheet, List<String> lstSvc, List<SvcOption2RC> lst, enumOptionType opType, enumRCType rcType ) {
 
         final int[] mergeSvcRow = {4};
 
@@ -452,6 +453,107 @@ public class ExportExcelUtil extends abstractExportExcel {
         });
 
     }
+
+    private void createAppApi(Sheet sheet, List<SvcOption2RC> lst, enumOptionType opType, enumRCType rcType ){
+
+        Set opt1 = Sets.newHashSet();
+        Set opt2 = Sets.newHashSet();
+        lst.stream().map(rc -> rc.getId().getOption1()).forEach(op1-> { opt1.add(op1); });
+        lst.stream().map(rc -> rc.getId().getOption2()).forEach(op2-> opt2.add(op2));
+
+
+        CellStyle style = getDataStyle();
+
+        ExcelRow ex = new ExcelRow(4, 1, 0);
+
+        ExcelRow mergeEx = new ExcelRow(4, 1, 0);
+
+
+        Map<Date, Long> map = Maps.newTreeMap();
+
+        opt1.stream().forEach(op1 -> { //APP KEY
+
+            mergeEx.row = ex.row;
+
+            opt2.stream().forEach(op2 -> { //API KEY
+
+                //한 행에 해당하는 데이터가 lstErr에 있음
+                lst.stream().filter(d -> d.getId().getRcType() == rcType && d.getId().getOpType() == opType &&
+                        d.getId().getOption1().equals(op1) &&
+                        d.getId().getOption2().equals(op2)).forEach(d -> {
+                    map.put(d.getId().getReqDt(), d.getCount());
+                });
+
+                for (LocalDate date = startDate; map.size() > 0 &&
+                        date.isBefore(endDate) || date.isEqual(endDate); date = (rcType == enumRCType.daily ? date.plusDays(1) : date.plusMonths(1))) {
+                    Long aLong = map.get(date.toDate());
+                    if (aLong == null) {
+                        logger.debug("date : {} is not found", date.toString());
+                        map.put(date.toDate(), 0l);
+                    }
+                }
+
+                //해당 row 에 데이터가 있는 경우 subtotal를 찍는다
+                if (map.size() > 0) {
+
+                    //헤더 출력
+                    setCellValue(sheet, ex.row, ex.col++, /*TODO APP NAME*/ op1, style);
+                    setCellValue(sheet, ex.row, ex.col++, /*TODO appKey를 APP ID 대체 필요*/ op1, style);
+                    setCellValue(sheet, ex.row, ex.col++, /*TODO appKey인데 apiID로 대체 필요*/op2, style);
+
+
+                    // count 출력
+                    Set<Map.Entry<Date, Long>> entries = map.entrySet();
+                    Iterator<Map.Entry<Date, Long>> iterator = entries.iterator();
+                    while (iterator.hasNext()) {
+                        Map.Entry me = iterator.next();
+                        setCellValue(sheet, ex.row, ex.col++, me.getValue() + "", style);
+                        logger.debug("row:{} col:{} op1 : {}, op2 : {}, value:{} date: {}", ex.row, ex.col, op1, op2, me.getValue(), me.getKey().toString());
+
+                        ex.subTotal += (long) me.getValue();
+
+                    }
+
+                    map.clear();
+
+                    //소계
+                    setCellValue(sheet, ex.row, ex.col, ex.subTotal + "", style);
+                    logger.debug("row:{} col:{} subtotal:{}", ex.row, ex.col, ex.subTotal);
+
+                    ex.total += ex.subTotal;
+                    ex.row++;
+                    ex.subTotal = 0;
+                    mergeEx.col = ex.col;
+                    ex.col = 1;
+                }
+
+            });
+
+            logger.debug("op1 : {} mergeEx.row : {} ex.row : {}", op1, mergeEx.row, ex.row);
+
+            if (mergeEx.row <= ex.row - 1) {
+                sheet.addMergedRegion(new CellRangeAddress(mergeEx.row, ex.row - 1, 2/*API NAME column*/, 2));
+
+                //API 별 합계 필요
+                mergeEx.col += 1;
+                logger.debug("mergeEx.col : {} ex.total: {}", mergeEx.col, ex.total);
+                sheet.addMergedRegion(new CellRangeAddress(mergeEx.row, ex.row - 1, mergeEx.col/*total sum column*/, mergeEx.col));
+                setCellValue(sheet, mergeEx.row, mergeEx.col, ex.total + "", style);
+                setCellStyle(sheet, mergeEx.row, ex.row - 1, mergeEx.col, mergeEx.col, style);
+
+                //이 라인이 없으면 서비스 병합 시 마지막 행이 깨짐
+                mergeEx.row = ex.row - 1;
+                ex.total = 0;
+            }
+        });
+
+
+        sheet.autoSizeColumn(1, true);
+        sheet.autoSizeColumn(2, true);
+        sheet.autoSizeColumn(3, true);
+
+    }
+
     private int createApiOption2(Sheet sheet, String svc, int mergeSvcRow, List<SvcOption2RC> lst, Set<String> opt1, Set<String> opt2, enumOptionType opType, enumRCType rcType ){
 
         CellStyle style = getDataStyle();
@@ -557,7 +659,13 @@ public class ExportExcelUtil extends abstractExportExcel {
     }
 
 
-    private void createErrorOption2(Sheet sheet, List<SvcOption2RC> lstErr, List<String> opt1, List<String> opt2, enumOptionType opType, enumRCType rcType ){
+    private void createErrorOption2(Sheet sheet, List<SvcOption2RC> lstErr, enumOptionType opType, enumRCType rcType ){
+
+        Set opt1 = Sets.newHashSet();
+        Set opt2 = Sets.newHashSet();
+        lstErr.stream().map(rc -> rc.getId().getOption1()).forEach(op1-> { opt1.add(op1); });
+        lstErr.stream().map(rc -> rc.getId().getOption2()).forEach(op2-> opt2.add(op2));
+
 
         CellStyle style = getDataStyle();
 
