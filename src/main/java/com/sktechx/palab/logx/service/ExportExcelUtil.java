@@ -390,66 +390,6 @@ public class ExportExcelUtil extends abstractExportExcel {
                 List<SvcOption2RC> lstAppApi = (List<SvcOption2RC>) dataLst;
 
 
-                opt1.stream().forEach(op1 -> {
-
-                    mergeEx.row = ex.row + 1;
-
-                    opt2.stream().forEach(op2 -> {
-
-                        //한 행이 돌고 초기화
-                        ex.subTotal = 0;
-                        ex.row++;
-                        ex.col = 1;
-
-                        setCellValue(sheet, ex.row, ex.col++, op1 /*TODO APP 명*/, style);
-                        setCellValue(sheet, ex.row, ex.col++, "APP ID" /*TODO app id */, style);
-                        setCellValue(sheet, ex.row, ex.col++, /*TODO API 명*/op2, style);
-
-                        //check Service - lstAppApi에 이미 service가 걸러진 채로 들어옴
-                        for (LocalDate date=startDate; date.isBefore(endDate) || date.isEqual(endDate); date=(rcType==enumRCType.daily?date.plusDays(1):date.plusMonths(1)) ){
-
-                            final LocalDate finalDate = date;
-
-                            //날짜가 없는 경우 디폴트로 0이 들어가게
-                            setCellValue(sheet, ex.row, ex.col, "0", style);
-
-                            lstAppApi.stream().filter(d -> d.getId().getOption1().equals(op1)
-                                            && d.getId().getOption2().equals(op2) &&
-                                            d.getId().getReqDt().equals(finalDate.toDate())
-                            ).forEach(d -> {
-
-                                setCellValue(sheet, ex.row, ex.col, d.getCount() + "", style);
-                                ex.subTotal += d.getCount();
-
-                            });
-
-                            ex.col++;
-
-                        }
-
-                        //소계
-                        setCellValue(sheet, ex.row, ex.col++, ex.subTotal + "", style);
-
-                        ex.total += ex.subTotal;
-                    });
-
-                    logger.debug("ex.row : {}, mergeEx.row : {}", ex.row, mergeEx.row);
-                    //합계
-                    if ( ex.row > mergeEx.row ){
-                        sheet.addMergedRegion(new CellRangeAddress(mergeEx.row, ex.row, 1/*APP NAME column*/, 1));
-                        sheet.addMergedRegion(new CellRangeAddress(mergeEx.row, ex.row, 2/*APP ID column*/, 2));
-
-                        //합계
-                        mergeEx.col = ex.col++;
-                        sheet.addMergedRegion(new CellRangeAddress(mergeEx.row, ex.row, mergeEx.col/*total sum column*/, mergeEx.col));
-                        setCellValue(sheet, mergeEx.row, mergeEx.col, ex.total + "", style);
-
-                        //테두리
-                        setCellStyle(sheet, mergeEx.row, ex.row, mergeEx.col, mergeEx.col, style);
-
-                        ex.total = 0;
-                    }
-                });
 
                 break;
 
@@ -496,6 +436,9 @@ public class ExportExcelUtil extends abstractExportExcel {
         Set lstOp2 = Sets.newHashSet();
 
         lstSvc.stream().forEach(svc-> {
+
+            lstOp1.clear();
+            lstOp2.clear();
 
             logger.debug("=========================== {}", svc);
             lst.stream().filter(rc -> rc.getId().getSvcId().equals(svc)).map(rc -> rc.getId().getOption1()).
@@ -591,6 +534,8 @@ public class ExportExcelUtil extends abstractExportExcel {
                 setCellValue(sheet, mergeEx.row, mergeEx.col, ex.total + "", style);
                 setCellStyle(sheet, mergeEx.row, ex.row - 1, mergeEx.col, mergeEx.col, style);
 
+                //이 라인이 없으면 서비스 병합 시 마지막 행이 깨짐
+                mergeEx.row = ex.row - 1;
                 ex.total = 0;
             }
         });

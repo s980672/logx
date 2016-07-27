@@ -112,10 +112,10 @@ public class ElasticsearchAnalysisService {
         String queryDsl = null;
         String queryOption1Option2AllSvcPV = null;
         switch(opType){
-            case API_APP:
+            case APP_API:
                 queryDsl = AggReqDSLs.getQueryServiceOption2PV("appKey", "apiPath", start, end);
                 break;
-            case APP_API:
+            case API_APP:
                 queryDsl = AggReqDSLs.getQueryServiceOption2PV("apiPath", "appKey", start, end);
                 queryOption1Option2AllSvcPV = AggReqDSLs.getQueryOption1Option2AllSvcPV("appKey", "apiPath", start, end);
                 break;

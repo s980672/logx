@@ -85,7 +85,7 @@ public class StatisticsExcelExportService {
         //비어있는 날짜에 "0"을 찍기위해 날짜 비교 로직 추가
         excelUtil.setRcTypeAndStartEndDate(rcType, startDate, endDate);
 
-        String sheetName = svc + "_" + (StringUtils.isEmpty(option1) ? "":option1+"_") + rcType + "_pv";
+        String sheetName = (StringUtils.isEmpty(option1) ? "":option1+"_") + rcType + "_pv";
 
         logger.debug("================================");
         logger.debug("sheet name : {}", sheetName);
@@ -181,11 +181,15 @@ public class StatisticsExcelExportService {
                 headers.put(3, "APP ID");
                 excelUtil.createHeader(sheetName, tableName, rcType, startDate, endDate, headers, true);
 
-                List<SvcOption2RC> rcsErrApp = svcOption2RcRepo.findBySvcIdAndOpTypeAndRcTypeAndBetween(svc, opType, rcType, startDate.toDate(), endDate.toDate());
-                excelUtil.createDate2(sheetName, rcsErrApp, ERROR_APP, svcOption2RcRepo.findDistinctOption1ByRcTypeAndOpType(rcType, opType),
-                        svcOption2RcRepo.findDistinctOption2ByRcTypeAndOpType(rcType, opType),
-                        svcOption2RcRepo.findDistinctSvcIdByRcType(rcType));
 
+                if ( svc.equals("ALL")){
+                    //TODO 
+                }else {
+                    List<SvcOption2RC> rcsErrApp = svcOption2RcRepo.findBySvcIdAndOpTypeAndRcTypeAndBetween(svc, opType, rcType, startDate.toDate(), endDate.toDate());
+                    excelUtil.createDate2(sheetName, rcsErrApp, ERROR_APP, svcOption2RcRepo.findDistinctOption1ByRcTypeAndOpType(rcType, opType),
+                            svcOption2RcRepo.findDistinctOption2ByRcTypeAndOpType(rcType, opType),
+                            svcOption2RcRepo.findDistinctSvcIdByRcType(rcType));
+                }
                 break;
             case ERROR_API:
                 headers = new HashMap<>();

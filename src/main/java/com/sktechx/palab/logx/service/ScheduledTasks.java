@@ -31,8 +31,8 @@ public class ScheduledTasks {
 
     //매일 그날의 request call 수를 저장한다
     //매일 0시 5분에 전날 request call를 조회 및 저장
-    //@Scheduled(cron="0 5 12 1/1 * *")
-    @Scheduled(cron="0/30 * * * * *")
+    @Scheduled(cron="0 5 12 1/1 * *")
+    //@Scheduled(cron="0/30 * * * * *")
     public void savecDailyPV() throws ParseException, IOException {
 
         // daily pv
@@ -43,21 +43,24 @@ public class ScheduledTasks {
         LocalDate endDate = new LocalDate("2016-05-30");
 
         for (LocalDate date = startDate;
-                date.isBefore(endDate) || date.isEqual(endDate); date.plusDays(1))
-        {
+                date.isBefore(endDate) || date.isEqual(endDate); date = date.plusDays(1)) {
 
-            esService.generatePV(startDate.toString(), endDate.toString());
+            logger.debug("date:{}", date);
 
-            esService.generateSVCPV(startDate.toString(), endDate.toString());
+            LocalDate date2 = date.plusDays(1);
 
-            esService.generateSvcOption1PV(enumOptionType.APP, startDate.toString(), endDate.toString());
-            esService.generateSvcOption1PV(enumOptionType.API, startDate.toString(), endDate.toString());
-            esService.generateSvcOption1PV(enumOptionType.ERROR, startDate.toString(), endDate.toString());
+            esService.generatePV(date.toString(), date2.toString());
 
-            esService.generateSvcOption2PV(enumOptionType.API_APP, startDate.toString(), endDate.toString());
-            esService.generateSvcOption2PV(enumOptionType.APP_API, startDate.toString(), endDate.toString());
-            esService.generateSvcOption2PV(enumOptionType.ERROR_APP, startDate.toString(), endDate.toString());
-            esService.generateSvcOption2PV(enumOptionType.ERROR_API, startDate.toString(), endDate.toString());
+            esService.generateSVCPV(date.toString(), date2.toString());
+
+            esService.generateSvcOption1PV(enumOptionType.APP, date.toString(), date2.toString());
+            esService.generateSvcOption1PV(enumOptionType.API, date.toString(), date2.toString());
+            esService.generateSvcOption1PV(enumOptionType.ERROR, date.toString(), date2.toString());
+
+            esService.generateSvcOption2PV(enumOptionType.API_APP, date.toString(), date2.toString());
+            esService.generateSvcOption2PV(enumOptionType.APP_API, date.toString(), date2.toString());
+            esService.generateSvcOption2PV(enumOptionType.ERROR_APP, date.toString(), date2.toString());
+            esService.generateSvcOption2PV(enumOptionType.ERROR_API, date.toString(), date2.toString());
 
         }
         //esService.generateErrorCount(startDate.toString(), endDate.toString());
