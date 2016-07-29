@@ -45,8 +45,8 @@ public class ScheduledTasks {
     	String date1;
     	String date2 = null;
 
-    	date1 =  "2016-05-01";
-    	date2 =  "2016-05-02";		
+    	date1 =  "2016-05-02";
+    	date2 =  "2016-05-03";		
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");    
 
     	for (int i = 1; i < 1 ; i++) {

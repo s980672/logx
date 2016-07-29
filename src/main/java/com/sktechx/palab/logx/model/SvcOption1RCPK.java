@@ -20,9 +20,10 @@ public class SvcOption1RCPK implements Serializable{
         this.option1 = option1;
         this.svcId = svcId;
     }
-    
+
     @Enumerated(EnumType.STRING)
     private enumOptionType opType;
+
 
     public enumOptionType getOpType() {
         return opType;

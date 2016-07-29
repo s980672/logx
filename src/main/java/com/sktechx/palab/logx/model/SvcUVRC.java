@@ -1,14 +1,21 @@
 package com.sktechx.palab.logx.model;
 
 import javax.persistence.*;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.sktechx.palab.logx.service.ElasticsearchUVAnalysisService;
+
 import java.io.Serializable;
 import java.util.Date;
 
 @Entity
-@Table(name="svc_option2_pv")
+@Table(name="service_uv")
 public class SvcUVRC implements Serializable {
 
-
+	@Autowired
+	ElasticsearchUVAnalysisService elUVservice;
+	
     @EmbeddedId
     SvcOption2RCPK id;
 
@@ -18,7 +25,7 @@ public class SvcUVRC implements Serializable {
 
     public SvcUVRC(enumRCType rcType, enumOptionType opType, Date reqDt, String svcId, String option1,String option2, long count) {
 
-        id = new SvcOption2RCPK(rcType, opType, reqDt, svcId, option1,option2);        
+//        id = new elUVservice.generateSVUV(rcType, reqDt, svcId);        
         this.count = count;
     }
 

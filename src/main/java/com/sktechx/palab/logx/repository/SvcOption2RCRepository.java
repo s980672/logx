@@ -2,6 +2,7 @@ package com.sktechx.palab.logx.repository;
 
 import com.sktechx.palab.logx.model.SvcOption2RC;
 import com.sktechx.palab.logx.model.SvcOption2RCPK;
+import com.sktechx.palab.logx.model.enumOptionType;
 import com.sktechx.palab.logx.model.enumRCType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

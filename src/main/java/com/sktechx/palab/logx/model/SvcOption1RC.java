@@ -38,6 +38,21 @@ public class SvcOption1RC implements Serializable {
         this.count = count;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof SvcOption1RC)) return false;
+
+        SvcOption1RC that = (SvcOption1RC) o;
+
+        return getId().equals(that.getId());
+
+    }
+
+    @Override
+    public int hashCode() {
+        return getId().hashCode();
+    }
 
     @Override
     public String toString() {

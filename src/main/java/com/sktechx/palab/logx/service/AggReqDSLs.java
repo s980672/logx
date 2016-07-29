@@ -103,42 +103,42 @@ public class AggReqDSLs {
                 "  \n" +
                 "}";
     }
-
-
-    public final static String getQueryServiceOption2PV(String otpion1Field,String otpion2Field, String start, String end){
-        return "{\n" +
-                "  \"aggs\" : {\n" +
-                "    \"serviceRC\" : {\n" +
-                "      \"terms\" : {\n" +
-                "        \"field\" : \"svcId\"\n" +
-                "      },\n" +
-                "      \"aggs\" : {\n" +
-                "        \"option1RC\" : {\n" +
-                "          \"terms\" : {\n" +
-                "            \"field\" : \""+otpion1Field+"\"\n" +
-                "          },\n" +
-                "      		\"aggs\" : {\n" +
-                "       	 	\"option2RC\" : {\n" +
-                "        	  	\"terms\" : {\n" +
-                "          		\"field\" : \""+otpion2Field+"\"\n" +
-                "          			}\n" +
-                "        		}\n" +
-                "     		 }\n" +
-                "        }\n" +
-                "      }\n" +
-                "     }\n" +
-                "  },\n" +
-                "  \"query\" : {\n" +
-                "    \"range\" : {\n" +
-                "      \"reqDt\": {\n" +
-                "        \"gte\": \"" + start + "\",\n" +
-                "        \"lt\": \"" + end + "\"\n" +
-                "      }\n" +
-                "    }\n" +
-                "  }\n" +
-                "  \n" +
-                "}";
-    }
+//
+//
+//    public final static String getQueryServiceOption2PV(String otpion1Field,String otpion2Field, String start, String end){
+//        return "{\n" +
+//                "  \"aggs\" : {\n" +
+//                "    \"serviceRC\" : {\n" +
+//                "      \"terms\" : {\n" +
+//                "        \"field\" : \"svcId\"\n" +
+//                "      },\n" +
+//                "      \"aggs\" : {\n" +
+//                "        \"option1RC\" : {\n" +
+//                "          \"terms\" : {\n" +
+//                "            \"field\" : \""+otpion1Field+"\"\n" +
+//                "          },\n" +
+//                "      		\"aggs\" : {\n" +
+//                "       	 	\"option2RC\" : {\n" +
+//                "        	  	\"terms\" : {\n" +
+//                "          		\"field\" : \""+otpion2Field+"\"\n" +
+//                "          			}\n" +
+//                "        		}\n" +
+//                "     		 }\n" +
+//                "        }\n" +
+//                "      }\n" +
+//                "     }\n" +
+//                "  },\n" +
+//                "  \"query\" : {\n" +
+//                "    \"range\" : {\n" +
+//                "      \"reqDt\": {\n" +
+//                "        \"gte\": \"" + start + "\",\n" +
+//                "        \"lt\": \"" + end + "\"\n" +
+//                "      }\n" +
+//                "    }\n" +
+//                "  }\n" +
+//                "  \n" +
+//                "}";
+//    }
 
     public final static String getQueryServiceUV(String start, String end) {
         return "{\n" +
@@ -182,13 +182,13 @@ public class AggReqDSLs {
                 "  },\n" +
                 "  \"query\": {\n" +
                 "    \"bool\": {\n" +
-                "      \"must_not\": [\n" +
-                "        {\n" +
-                "          \"terms\": {\n" +
-                "            \"responseCode\": [\"200\",\"201\"]\n" +
-                "          }\n" +
-                "        }\n" +
-                "      ],\n" +
+//                "      \"must_not\": [\n" +
+//                "        {\n" +
+//                "          \"terms\": {\n" +
+//                "            \"responseCode\": [\"200\",\"201\"]\n" +
+//                "          }\n" +
+//                "        }\n" +
+//                "      ],\n" +
                 "      \"must\": [\n" +
                 "        {\n" +
                 "          \"range\": {\n" +
@@ -204,18 +204,51 @@ public class AggReqDSLs {
                 "}";
     }
 
+    public static String getQueryOption1Option2AllSvcPV(String option1, String option2, String start, String end){
+        return "{\n" +
+                "  \"aggs\": {\n" +
+                "    \"option1RC\": {\n" +
+                "      \"terms\": {\n" +
+                "        \"field\": \""+option1+"\"\n" +
+                "      },\n" +
+                "      \"aggs\": {\n" +
+                "        \"option2RC\": {\n" +
+                "          \"terms\": {\n" +
+                "            \"field\": \""+option2+"\"\n" +
+                "          }\n" +
+                "        }\n" +
+                "      }\n" +
+                "    }\n" +
+                "  },\n" +
+                "  \"query\": {\n" +
+                "    \"bool\": {\n" +
+                "      \"must\": [\n" +
+                "        {\n" +
+                "          \"range\": {\n" +
+                "            \"reqDt\": {\n" +
+                "              \"gte\": \"2016-07-17\",\n" +
+                "              \"lt\": \"2016-07-18\"\n" +
+                "            }\n" +
+                "          }\n" +
+                "        }\n" +
+                "      ]\n" +
+                "    }\n" +
+                "  }\n" +
+                "} ";
+    }
+
     public static String getQueryErrorSvcCount(String start, String end) {
         return
                 "{\n" +
                 "  \"aggs\" : {\n" +
-                "    \"errorCount\" : {\n" +
+                "    \"serviceRC\" : {\n" +
                 "      \"terms\" : {\n" +
-                "        \"field\" : \"responseCode\"\n" +
+                "        \"field\" : \"svcId\"\n" +
                 "      },\n" +
                 "      \"aggs\" : {\n" +
-                "        \"svcId\" : {\n" +
+                "        \"option1RC\" : {\n" +
                 "          \"terms\" : {\n" +
-                "            \"field\" : \"svcId\"\n" +
+                "            \"field\" : \"responseCode\"\n" +
                 "          }\n" +
                 "        }\n" +
                 "      }\n" +
@@ -223,13 +256,13 @@ public class AggReqDSLs {
                 "  },\n" +
                 "  \"query\": {\n" +
                 "    \"bool\": {\n" +
-                "      \"must_not\": [\n" +
-                "        {\n" +
-                "          \"terms\": {\n" +
-                "            \"responseCode\": [\"200\",\"201\"]\n" +
-                "          }\n" +
-                "        }\n" +
-                "      ],\n" +
+//                "      \"must_not\": [\n" +
+//                "        {\n" +
+//                "          \"terms\": {\n" +
+//                "            \"responseCode\": [\"200\",\"201\"]\n" +
+//                "          }\n" +
+//                "        }\n" +
+//                "      ],\n" +
                 "      \"must\": [\n" +
                 "        {\n" +
                 "          \"range\": {\n" +
@@ -243,6 +276,46 @@ public class AggReqDSLs {
                 "    }\n" +
                 "  }\n" +
                 "\n" +
+                "}";
+    }
+
+    public static String getQueryServiceOption2PV(String option1, String option2, String start, String end) {
+        return "{\n" +
+                "  \"aggs\": {\n" +
+                "    \"serviceRC\": {\n" +
+                "      \"terms\": {\n" +
+                "        \"field\": \"svcId\"\n" +
+                "      },\n" +
+                "      \"aggs\": {\n" +
+                "        \"option1RC\": {\n" +
+                "          \"terms\": {\n" +
+                "            \"field\": \""+option1+"\"\n" +
+                "          },\n" +
+                "          \"aggs\": {\n" +
+                "            \"option2RC\": {\n" +
+                "              \"terms\": {\n" +
+                "                \"field\": \""+option2+"\"\n" +
+                "              }\n" +
+                "            }\n" +
+                "          }\n" +
+                "        }\n" +
+                "      }\n" +
+                "    }\n" +
+                "  },\n" +
+                "  \"query\": {\n" +
+                "    \"bool\": {\n" +
+                "      \"must\": [\n" +
+                "        {\n" +
+                "          \"range\": {\n" +
+                "            \"reqDt\": {\n" +
+                "              \"gte\": \"" + start + "\",\n" +
+                "              \"lt\": \"" + end + "\"\n" +
+                "            }\n" +
+                "          }\n" +
+                "        }\n" +
+                "      ]\n" +
+                "    }\n" +
+                "  }\n" +
                 "}";
     }
 }

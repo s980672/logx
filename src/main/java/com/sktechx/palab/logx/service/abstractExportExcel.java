@@ -101,6 +101,34 @@ public abstract class abstractExportExcel {
 
     public abstract void createData(String sheetName, Object object);
 
+
+    protected void setCellStyle(Sheet sh, int startRow, int endRow, int startCol, int endCol, CellStyle style) {
+
+        for ( int i = startRow ; i <= endRow ;i++ ){
+            for ( int c = startCol ; c <= endCol ; c++ ) {
+                if (sh.getRow(i) == null) {
+                    Row sRow = sh.createRow(i);
+                    if (sRow.getCell(c) == null) {
+                        Cell cell = sRow.createCell(c);
+                        cell.setCellStyle(style);
+                    } else {
+                        sRow.getCell(startCol).setCellStyle(style);
+                    }
+
+                } else {
+                    Row sRow = sh.getRow(i);
+                    if (sRow.getCell(c) == null) {
+                        Cell cell = sRow.createCell(c);
+                        cell.setCellStyle(style);
+                    } else {
+                        sRow.getCell(c).setCellStyle(style);
+                    }
+                }
+            }
+        }
+
+    }
+
     protected void setCellValue(Sheet sh, int row, int col, String value, CellStyle style){
         if ( sh.getRow(row) == null ) {
             Row row1 = sh.createRow(row);

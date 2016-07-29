@@ -1,5 +1,7 @@
 package com.sktechx.palab.logx.model;
 
+import org.joda.time.LocalDate;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
@@ -18,13 +20,14 @@ public class SvcOption2RCPK implements Serializable{
         this.rcType = rcType;
         this.reqDt = reqDt;
         this.option1 = option1;
-        this.option2 = option2;
         this.svcId = svcId;
+        this.option2 = option2;
     }
-    
-    @Column(length=20)
+
+    @Column(length=10)
     @Enumerated(EnumType.STRING)
     private enumOptionType opType;
+
 
     public enumOptionType getOpType() {
         return opType;
@@ -34,7 +37,7 @@ public class SvcOption2RCPK implements Serializable{
         this.opType = opType;
     }
 
-    @Column(length=20)
+    @Column(length=10)
     @Enumerated(EnumType.STRING)
     private enumRCType rcType;
 
@@ -42,14 +45,6 @@ public class SvcOption2RCPK implements Serializable{
     private Date reqDt;
 
     private String option1;
-
-    public String getOption1() {
-        return option1;
-    }
-
-    public void setOption1(String option1) {
-        this.option1 = option1;
-    }
 
     private String option2;
 
@@ -59,8 +54,15 @@ public class SvcOption2RCPK implements Serializable{
 
     public void setOption2(String option2) {
         this.option2 = option2;
-    }    
-   
+    }
+
+    public String getOption1() {
+        return option1;
+    }
+
+    public void setOption1(String option1) {
+        this.option1 = option1;
+    }
 
     private String svcId;
 
@@ -98,7 +100,13 @@ public class SvcOption2RCPK implements Serializable{
 
         if (getOpType() != that.getOpType()) return false;
         if (getRcType() != that.getRcType()) return false;
-        if (!getReqDt().equals(that.getReqDt())) return false;
+        LocalDate ldReqDt = new LocalDate(getReqDt());
+        LocalDate ldReqDt2 = new LocalDate(that.getReqDt());
+
+        if ( ldReqDt.getYear() != ldReqDt2.getYear()) return false;
+        if ( ldReqDt.getMonthOfYear() != ldReqDt2.getMonthOfYear()) return false;
+        if ( ldReqDt.getDayOfMonth() != ldReqDt2.getDayOfMonth()) return false;
+//        if (!getReqDt().equals(that.getReqDt())) return false;
         if (!getOption1().equals(that.getOption1())) return false;
         if (!getOption2().equals(that.getOption2())) return false;
         return getSvcId().equals(that.getSvcId());
@@ -121,7 +129,7 @@ public class SvcOption2RCPK implements Serializable{
         return "SvcOption2RCPK{" +
                 "opType=" + opType +
                 ", rcType=" + rcType +
-                ", reqDt=" + reqDt +                
+                ", reqDt=" + reqDt +
                 ", option1='" + option1 + '\'' +
                 ", option2='" + option2 + '\'' +
                 ", svcId='" + svcId + '\'' +
