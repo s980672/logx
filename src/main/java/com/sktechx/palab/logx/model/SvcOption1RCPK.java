@@ -13,21 +13,22 @@ public class SvcOption1RCPK implements Serializable{
 
     public SvcOption1RCPK(){};
 
-    public SvcOption1RCPK(enumRCType rcType, enumOption1Type opType, Date reqDt, String svcId, String option1) {
+    public SvcOption1RCPK(enumRCType rcType, enumOptionType opType, Date reqDt, String svcId, String option1) {
         this.opType = opType;
         this.rcType = rcType;
         this.reqDt = reqDt;
         this.option1 = option1;
         this.svcId = svcId;
     }
+    
+    @Enumerated(EnumType.STRING)
+    private enumOptionType opType;
 
-    private enumOption1Type opType;
-
-    public enumOption1Type getOpType() {
+    public enumOptionType getOpType() {
         return opType;
     }
 
-    public void setOpType(enumOption1Type opType) {
+    public void setOpType(enumOptionType opType) {
         this.opType = opType;
     }
 

@@ -1,6 +1,8 @@
 package com.sktechx.palab.logx.service;
 
-import com.sktechx.palab.logx.model.enumOption1Type;
+import com.sktechx.palab.logx.model.enumOptionType;
+import com.sktechx.palab.logx.model.enumRCType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +11,11 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Created by 1002382 on 2016. 7. 7..
@@ -23,7 +29,7 @@ public class ScheduledTasks {
 
 
     @Autowired
-    ElasticsearchAnalysisService esService;
+    ElasticsearchPVAnalysisService esService;
 
 
 
@@ -36,30 +42,52 @@ public class ScheduledTasks {
 
         // daily pv
         //전날 pv를 구한다
+    	String date1;
+    	String date2 = null;
 
-        try {
+    	date1 =  "2016-05-01";
+    	date2 =  "2016-05-02";		
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");    
 
-            String date1 = "2016-07-17";
-            String date2 = "2016-07-18";
+    	for (int i = 1; i < 1 ; i++) {
 
-            esService.generatePV(date1, date2);
+    	 	
+    		Date date = df.parse(date1);
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(date);
+            cal.add(Calendar.DAY_OF_YEAR, 1);            
+            date2 = df.format(cal.getTime());
+            
+            System.out.println(">>"+date1+"-"+date2);    
 
-            esService.generateSVCPV(date1, date2);
+            date1 =  date2;
+    	}
+    	
 
-            esService.generateSvcOption1PV(enumOption1Type.APP, date1, date2);
+        System.out.println(">>"+date1+"-"+date2);    
 
-            esService.generateErrorCount(date1, date2);
-
-            esService.generateErrorSvcCount(date1, date2);
-
-
-
-        } catch (IOException e) {
-
-            logger.error(e.getLocalizedMessage());
-
-            e.printStackTrace();
-        }
+	        try {
+	
+	        		
+	//	            esService.generatePV(date1, date2);
+	//	
+	//	            esService.generateSVCPV(date1, date2);
+	//	
+		            esService.generateSvcOption1PV(enumOptionType.API, date1, date2);
+//		            esService.generateSvcOption2PV(enumRCType.daily, enumOptionType.APP_API, date1, date2);
+//		            esService.generateSvcOption2PV(enumRCType.monthly,enumOptionType.APP_API, date1, date2);
+		
+	//	            esService.generateErrorCount(date1, date2);
+	//	
+	//	            esService.generateErrorSvcCount(date1, date2);
+	
+	
+	        } catch (IOException e) {
+	
+	            logger.error(e.getLocalizedMessage());
+	
+	            e.printStackTrace();
+	        }	    
 
     }
 

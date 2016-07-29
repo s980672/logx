@@ -2,11 +2,8 @@ package com.sktechx.palab.logx.service;
 
 import com.sktechx.palab.logx.model.*;
 import com.sktechx.palab.logx.repository.*;
-import io.searchbox.client.JestClient;
-import io.searchbox.core.Search;
 import io.searchbox.core.SearchResult;
 import io.searchbox.core.search.aggregation.TermsAggregation;
-import io.searchbox.params.SearchType;
 import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,16 +19,9 @@ import java.util.Date;
  * Created by 1002382 on 2016. 7. 5..
  */
 @Service
-public class ElasticsearchAnalysisService {
+public class ElasticsearchPVAnalysisService {
 
-    Logger logger = LoggerFactory.getLogger(ElasticsearchAnalysisService.class);
-
-
-    @Autowired
-    private JestClient client;
-
-    private final String INDEX = "bulk-gateway-log";
-    private final String INDEX_TYPE = "log";
+    Logger logger = LoggerFactory.getLogger(ElasticsearchPVAnalysisService.class);
 
 
 
@@ -43,53 +33,20 @@ public class ElasticsearchAnalysisService {
 
     @Autowired
     SvcOption1RCRepository svcOption1RCRep;
-
+    
     @Autowired
-    ErrorCountRepository errCntRepo;
-
-
+    SvcOption2RCRepository svcOption2RCRep;
+    
     @Autowired
-    ErrorSvcCountRepository errSvcCntRepo;
+    ElasticsearchCommonAnalysisService CommonAnalysisService;
+ 
 
 
-    public void generateErrorSvcCount(String start, String end) throws IOException, ParseException {
-
-        SearchResult res = getResult(AggReqDSLs.getQueryErrorSvcCount(start, end));
-
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Date date = sdf.parse(start);
-
-        res.getAggregations().getTermsAggregation("errorCount").getBuckets().stream().forEach(err->{
-
-            err.getTermsAggregation("svcId").getBuckets().stream().forEach(svc -> {
-
-                ErrSvcCount esc = new ErrSvcCount(enumRCType.daily, date, svc.getKey(), err.getKey(), svc.getCount());
-                errSvcCntRepo.save(esc);
-            });
-        });
-    }
-
-
-    public void generateErrorCount(String start, String end) throws IOException, ParseException {
-        SearchResult res = getResult(AggReqDSLs.getQueryErrorCount(start, end));
-
-        logger.debug("total : {}", res.getTotal());
-
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Date date = sdf.parse(start);
-
-        res.getAggregations().getTermsAggregation("errorCount").getBuckets().stream().forEach(er-> {
-            ErrorCount ec = new ErrorCount(enumRCType.daily, date, er.getKey(), er.getCount());
-            errCntRepo.save(ec);
-        });
-
-    }
+    
     public void generatePV(String start, String end) throws IOException, ParseException {
+    
 
-
-
-
-        SearchResult response = getResult(AggReqDSLs.getQueryPVDuringPeriod(start, end));
+        SearchResult response = CommonAnalysisService.getResult(AggReqDSLs.getQueryPVDuringPeriod(start, end));
 
         logger.debug("total : {}", response.getTotal());
 
@@ -104,7 +61,7 @@ public class ElasticsearchAnalysisService {
         ///////////////////////////////////////////////////////////////////////////////
         //service pv
 
-        SearchResult response = getResult(AggReqDSLs.getQueryServicePV(start, end));
+        SearchResult response = CommonAnalysisService.getResult(AggReqDSLs.getQueryServicePV(start, end));
 
 
         TermsAggregation svcPV = response.getAggregations().getTermsAggregation("serviceRC");
@@ -121,16 +78,17 @@ public class ElasticsearchAnalysisService {
         });
     }
 
-    public void generateSvcOption1PV(enumOption1Type opType, String start, String end) throws IOException, ParseException {
+    public void generateSvcOption1PV(enumOptionType opType, String start, String end) throws IOException, ParseException {
 
+    	
         String optionField = null;
-        if(opType == enumOption1Type.API){
+        if(opType == enumOptionType.API){
             optionField = "apiPath";
         }else{
             optionField = "appKey";
         }
 
-        SearchResult result = getResult(AggReqDSLs.getQueryServiceOption1PV(optionField, start, end));
+        SearchResult result = CommonAnalysisService.getResult(AggReqDSLs.getQueryServiceOption1PV(optionField, start, end));
 
         TermsAggregation svcPV = result.getAggregations().getTermsAggregation("serviceRC");
 
@@ -147,7 +105,7 @@ public class ElasticsearchAnalysisService {
                 SvcOption1RC svcOp1PV = new SvcOption1RC(enumRCType.daily, opType, date, svc.getKey(), app.getKey(), app.getCount());
 
                 logger.debug("##########################");
-                logger.debug("SvcAppPV : {}", svcOp1PV);
+                logger.debug("SvcOption1RC : {}", svcOp1PV);
                 logger.debug("##########################");
 
                 svcOption1RCRep.save(svcOp1PV);
@@ -156,18 +114,59 @@ public class ElasticsearchAnalysisService {
 
         });
     }
+    
+
+// srvice / app - api / api - app 선택 시 daily / monthly 데이터 생성
+    public void generateSvcOption2PV(enumRCType dayType,enumOptionType opType, String start, String end) throws IOException, ParseException {
+
+    	
+        String optionField = null;
+        String suboptionField = null;
+        if(opType == enumOptionType.API_APP){
+            optionField = "apiPath";
+            suboptionField = "appKey";
+        }else{
+            optionField = "appKey";
+            suboptionField = "apiPath";
+        }
+
+        SearchResult result = CommonAnalysisService.getResult(AggReqDSLs.getQueryServiceOption2PV(optionField, suboptionField, start, end));
+
+        TermsAggregation svcPV = result.getAggregations().getTermsAggregation("serviceRC");
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = sdf.parse(start);
 
 
-    private SearchResult getResult(String queryString) throws IOException {
+        svcPV.getBuckets().stream().forEach(svc-> {
 
-        Search.Builder searchBuilder = new Search.Builder(queryString).addIndex(INDEX).addType(INDEX_TYPE).setSearchType(SearchType.COUNT);
+            TermsAggregation apiRC = svc.getTermsAggregation("option1RC");           
 
-        SearchResult response = client.execute(searchBuilder.build());
+            apiRC.getBuckets().stream().forEach(api -> {
+            	
+            	TermsAggregation appRC = api.getTermsAggregation("option2RC");
+            	
+            	appRC.getBuckets().stream().forEach(app ->{        		
 
-        logger.debug(response.getJsonString());
 
-        return response;
+	                    SvcOption2RC svcOp2PV = new SvcOption2RC(dayType, opType, date, svc.getKey(), api.getKey(), app.getKey(), app.getCount());
+	
+	                    logger.debug("##########################");
+	                    logger.debug("SvcOption2RC : {}", svcOp2PV);
+	                    logger.debug("##########################");
+	
+	                    svcOption2RCRep.save(svcOp2PV);
+            		
+            		}
+            	);
+            	
+    
+            });
+
+
+        });
     }
+
 
     public void generateSvcPVForMonth() {
 

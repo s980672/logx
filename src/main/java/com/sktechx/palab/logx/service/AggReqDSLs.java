@@ -105,6 +105,41 @@ public class AggReqDSLs {
     }
 
 
+    public final static String getQueryServiceOption2PV(String otpion1Field,String otpion2Field, String start, String end){
+        return "{\n" +
+                "  \"aggs\" : {\n" +
+                "    \"serviceRC\" : {\n" +
+                "      \"terms\" : {\n" +
+                "        \"field\" : \"svcId\"\n" +
+                "      },\n" +
+                "      \"aggs\" : {\n" +
+                "        \"option1RC\" : {\n" +
+                "          \"terms\" : {\n" +
+                "            \"field\" : \""+otpion1Field+"\"\n" +
+                "          },\n" +
+                "      		\"aggs\" : {\n" +
+                "       	 	\"option2RC\" : {\n" +
+                "        	  	\"terms\" : {\n" +
+                "          		\"field\" : \""+otpion2Field+"\"\n" +
+                "          			}\n" +
+                "        		}\n" +
+                "     		 }\n" +
+                "        }\n" +
+                "      }\n" +
+                "     }\n" +
+                "  },\n" +
+                "  \"query\" : {\n" +
+                "    \"range\" : {\n" +
+                "      \"reqDt\": {\n" +
+                "        \"gte\": \"" + start + "\",\n" +
+                "        \"lt\": \"" + end + "\"\n" +
+                "      }\n" +
+                "    }\n" +
+                "  }\n" +
+                "  \n" +
+                "}";
+    }
+
     public final static String getQueryServiceUV(String start, String end) {
         return "{\n" +
                 "  \"aggs\": {\n" +

@@ -2,11 +2,12 @@ package com.sktechx.palab.logx.test;
 
 import com.sktechx.palab.logx.config.AbstractJUnit4SpringMvcTests;
 import com.sktechx.palab.logx.config.Application;
-import com.sktechx.palab.logx.model.enumOption1Type;
+import com.sktechx.palab.logx.model.enumOptionType;
+import com.sktechx.palab.logx.model.enumRCType;
 import com.sktechx.palab.logx.repository.ErrorCountRepository;
 import com.sktechx.palab.logx.repository.ErrorSvcCountRepository;
 import com.sktechx.palab.logx.repository.SvcOption1RCRepository;
-import com.sktechx.palab.logx.service.ElasticsearchAnalysisService;
+import com.sktechx.palab.logx.service.ElasticsearchPVAnalysisService;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.junit.Before;
@@ -30,7 +31,7 @@ public class ESAnalysisTest extends AbstractJUnit4SpringMvcTests {
     Logger logger = LoggerFactory.getLogger(ESAnalysisTest.class);
 
     @Autowired
-    ElasticsearchAnalysisService esService;
+    ElasticsearchPVAnalysisService esService;
 
 
     @Autowired
@@ -67,7 +68,9 @@ public class ESAnalysisTest extends AbstractJUnit4SpringMvcTests {
 
             esService.generateSVCPV(start, end);
 
-            esService.generateSvcOption1PV(enumOption1Type.APP, start, end);
+//            esService.generateSvcOption1PV(enumOptionType.APP, start, end);
+            
+            esService.generateSvcOption2PV(enumRCType.daily, enumOptionType.API_APP, start, end);
 
             esService.generateErrorCount(start, end);
 

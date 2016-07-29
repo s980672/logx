@@ -16,7 +16,7 @@ public class SvcOption1RC implements Serializable {
     public SvcOption1RC() {
     }
 
-    public SvcOption1RC(enumRCType rcType, enumOption1Type opType, Date reqDt, String svcId, String option1, long count) {
+    public SvcOption1RC(enumRCType rcType, enumOptionType opType, Date reqDt, String svcId, String option1, long count) {
 
         id = new SvcOption1RCPK(rcType, opType, reqDt, svcId, option1);
 
@@ -41,7 +41,7 @@ public class SvcOption1RC implements Serializable {
 
     @Override
     public String toString() {
-        return "SvcAppRC{" +
+        return "SvcOption1RC{" +
                 "id=" + id +
                 ", count=" + count +
                 '}';
