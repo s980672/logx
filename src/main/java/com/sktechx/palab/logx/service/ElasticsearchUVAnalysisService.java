@@ -40,19 +40,34 @@ public class ElasticsearchUVAnalysisService {
     public void generateSVUV(enumRCType dayType, String start, String end) throws IOException, ParseException{
     	
     	 SearchResult response = CommonAnalysisService.getResult(AggReqDSLs.getQueryServiceUV(start, end));
-
+      	 
+    	 System.out.println("query >>  "+AggReqDSLs.getQueryServiceUV(start, end).toString());
+    	 System.out.println("1111111111111");
 
          TermsAggregation svcPV = response.getAggregations().getTermsAggregation("serviceRC");
 
          SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
          Date date = sdf.parse(start);
 
-         svcPV.getBuckets().stream().forEach(b -> {        	 
+         svcPV.getBuckets().stream().forEach(svc -> {          	 
+        	 
+        	 System.out.println("1111111111111");
+        	 
+        	 TermsAggregation uvSvc = svc.getTermsAggregation("uvCount");
+        	 
+        	 System.out.println("22222222222222");
+        	 
+        	 uvSvc.getBuckets().stream().forEach(svcsub->{
+        		 
+        		 System.out.println("###########"+svc.getKey());
+        		 System.out.println("###########"+svcsub.getKey());
+        		
+        	 });
         	 
 
-             ServiceRequestCall svcRC = new ServiceRequestCall(dayType, date, b.getKey(), b.getCount());
-
-             svcRCRepo.save(svcRC);
+//             ServiceRequestCall svcRC = new ServiceRequestCall(dayType, date, b.getKey(), b.getCount());
+//
+//             svcRCRepo.save(svcRC);
 
          });
     	

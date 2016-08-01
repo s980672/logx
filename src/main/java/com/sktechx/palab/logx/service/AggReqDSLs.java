@@ -143,7 +143,7 @@ public class AggReqDSLs {
     public final static String getQueryServiceUV(String start, String end) {
         return "{\n" +
                 "  \"aggs\": {\n" +
-                "    \"svcRC\": {\n" +
+                "    \"serviceRC\": {\n" +
                 "      \"terms\": {\n" +
                 "        \"field\": \"svcId\"\n" +
                 "      },\n" +

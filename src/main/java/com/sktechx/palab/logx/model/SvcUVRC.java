@@ -13,24 +13,22 @@ import java.util.Date;
 @Table(name="service_uv")
 public class SvcUVRC implements Serializable {
 
-	@Autowired
-	ElasticsearchUVAnalysisService elUVservice;
 	
     @EmbeddedId
-    SvcOption2RCPK id;
+    SvcUVRCPK id;
 
 
     public SvcUVRC() {
     }
 
-    public SvcUVRC(enumRCType rcType, enumOptionType opType, Date reqDt, String svcId, String option1,String option2, long count) {
+    public SvcUVRC(Date reqDt, String svcId, long count) {
 
-//        id = new elUVservice.generateSVUV(rcType, reqDt, svcId);        
+        id = new SvcUVRCPK(reqDt, svcId);       
         this.count = count;
     }
 
 
-    public SvcOption2RCPK getId() {
+    public SvcUVRCPK getId() {
         return id;
     }
     

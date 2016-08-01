@@ -30,6 +30,11 @@ public class ScheduledTasks {
 
     @Autowired
     ElasticsearchPVAnalysisService esService;
+    
+
+    @Autowired
+    ElasticsearchUVAnalysisService esUVService;
+
 
 
 
@@ -73,9 +78,11 @@ public class ScheduledTasks {
 	//	
 	//	            esService.generateSVCPV(date1, date2);
 	//	
-		            esService.generateSvcOption1PV(enumOptionType.API, date1, date2);
+		            esService.generateSvcOption1PV(enumOptionType.API, date1, date1);
 //		            esService.generateSvcOption2PV(enumRCType.daily, enumOptionType.APP_API, date1, date2);
 //		            esService.generateSvcOption2PV(enumRCType.monthly,enumOptionType.APP_API, date1, date2);
+		            
+		            esUVService.generateSVUV(enumRCType.daily, date1, date1);
 		
 	//	            esService.generateErrorCount(date1, date2);
 	//	
