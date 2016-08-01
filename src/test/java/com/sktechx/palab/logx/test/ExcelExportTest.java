@@ -8,6 +8,7 @@ import com.sktechx.palab.logx.repository.ServiceRCRepository;
 import com.sktechx.palab.logx.repository.SvcOption1RCRepository;
 import com.sktechx.palab.logx.repository.SvcOption2RCRepository;
 import com.sktechx.palab.logx.repository.SvcRepository;
+import com.sktechx.palab.logx.service.ExportExcelUtil;
 import com.sktechx.palab.logx.service.StatisticsExcelExportService;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.joda.time.LocalDate;
@@ -248,6 +249,15 @@ public class ExcelExportTest extends AbstractJUnit4SpringMvcTests {
         svcAppRcs.add(new SvcOption1RC(enumRCType.daily, enumOptionType.ERROR, date.toDate(), "10004", "404",15l));
         svcAppRcs.add(new SvcOption1RC(enumRCType.daily, enumOptionType.ERROR, date.toDate(), "10004", "406", 16l));
 
+        //ERROR
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily, enumOptionType.ERROR, date.toDate(), "70004", "500",711l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily, enumOptionType.ERROR, date.toDate(), "70004", "401",712l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily, enumOptionType.ERROR, date.toDate(), "70004", "402",713l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily, enumOptionType.ERROR, date.toDate(), "70004", "403",714l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily, enumOptionType.ERROR, date.toDate(), "70004", "404",715l));
+        svcAppRcs.add(new SvcOption1RC(enumRCType.daily, enumOptionType.ERROR, date.toDate(), "70004", "406",716l));
+
+
         //APP_API//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         svcOption2.add(new SvcOption2RC(enumRCType.daily, enumOptionType.APP_API, date.toDate(), "100004", "400102030", "/weather/dust", 1));
         svcOption2.add(new SvcOption2RC(enumRCType.daily, enumOptionType.APP_API, date.toDate(), "100004", "400102030", "/weather/clean", 2));
@@ -258,6 +268,12 @@ public class ExcelExportTest extends AbstractJUnit4SpringMvcTests {
         svcOption2.add(new SvcOption2RC(enumRCType.daily, enumOptionType.APP_API, date.toDate(), "700004", "400102030", "/weather/clean", 2));
         svcOption2.add(new SvcOption2RC(enumRCType.daily, enumOptionType.APP_API, date.toDate(), "700004", "400102030", "/weather/rainy", 3));
         svcOption2.add(new SvcOption2RC(enumRCType.daily, enumOptionType.APP_API, date.toDate(), "700004", "400102030", "/weather/windy", 4));
+
+        svcOption2.add(new SvcOption2RC(enumRCType.daily, enumOptionType.APP_API, date.toDate(), "ALL", "400102030", "/weather/dust", 2));
+        svcOption2.add(new SvcOption2RC(enumRCType.daily, enumOptionType.APP_API, date.toDate(), "ALL", "400102030", "/weather/clean", 4));
+        svcOption2.add(new SvcOption2RC(enumRCType.daily, enumOptionType.APP_API, date.toDate(), "ALL", "400102030", "/weather/rainy", 6));
+        svcOption2.add(new SvcOption2RC(enumRCType.daily, enumOptionType.APP_API, date.toDate(), "ALL", "400102030", "/weather/windy", 8));
+
 
         //API_APP///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         svcOption2.add(new SvcOption2RC(enumRCType.daily, enumOptionType.API_APP, date.toDate(), "100004",  "/weather/dust" ,"5d1577fc692843aa6f49c0cf49b1ee15",1));
@@ -341,15 +357,28 @@ public class ExcelExportTest extends AbstractJUnit4SpringMvcTests {
     }
 
     @Test
+    public void getOption1Pv() throws IOException {
+
+        FileOutputStream fileOut4 = new FileOutputStream("stat_daily_svc_err.xlsx");
+
+        wb = excelExportService.exportExcel("ALL", "ERROR", null, enumRCType.daily, "20160706", "20160707", true);
+
+        wb.write(fileOut4);
+        wb.close();
+
+    }
+
+    @Test
     public void getOption2Pv() throws IOException {
 
         FileOutputStream fileOut = new FileOutputStream("stat_daily_option2_pv.xlsx");
 
-//        wb = excelExportService.exportExcel("ALL", "APP", "API", enumRCType.daily, "20160706", "20160707", true);
-        //TODO API_APP
-        wb = excelExportService.exportExcel("ALL", "API", "APP", enumRCType.daily, "20160706", "20160808", true);
-//        wb = excelExportService.exportExcel("100004", "ERROR", "API", enumRCType.daily, "20160706", "20160707", true);
-//        wb = excelExportService.exportExcel("100004", "ERROR", "APP", enumRCType.daily, "20160706", "20160707", true);
+        ExportExcelUtil util = new ExportExcelUtil();
+
+        wb = excelExportService.exportExcel(util, "ALL", "APP", "API", enumRCType.daily, "20160706", "20160707", true);
+        wb = excelExportService.exportExcel(util, "ALL", "API", "APP", enumRCType.daily, "20160706", "20160808", true);
+        wb = excelExportService.exportExcel(util, "100004", "ERROR", "API", enumRCType.daily, "20160706", "20160707", true);
+        wb = excelExportService.exportExcel(util, "100004", "ERROR", "APP", enumRCType.daily, "20160706", "20160707", true);
 
         wb.write(fileOut);
         wb.close();
@@ -404,9 +433,9 @@ public class ExcelExportTest extends AbstractJUnit4SpringMvcTests {
 
         //TODO 현재는 한파일에 여러 시트를 넣을 수 없게 되어 있음. 추후 수정 필요
     @Test
-    public void getOption1Pv() throws IOException {
+    public void getOption1PvServeralFiles() throws IOException {
 
-        FileOutputStream fileOut = new FileOutputStream("stat_전체서비스_daily_svc_app_pv.xlsx");
+        FileOutputStream fileOut = new FileOutputStream("stat_daily_Allsvc_app_pv.xlsx");
 
         wb = excelExportService.exportExcel("ALL", "APP", null, enumRCType.daily, "20160706", "20160707", true);
 
@@ -425,6 +454,7 @@ public class ExcelExportTest extends AbstractJUnit4SpringMvcTests {
 
         wb.write(fileOut3);
         wb.close();
+
         FileOutputStream fileOut4 = new FileOutputStream("stat_daily_svc_err.xlsx");
 
         wb = excelExportService.exportExcel("10004", "ERROR", null, enumRCType.daily, "20160706", "20160707", true);

@@ -16,14 +16,9 @@ import java.util.List;
  */
 public interface SvcOption2RCRepository extends JpaRepository<SvcOption2RC, SvcOption2RCPK>{
 
-    @Query("select rc from SvcOption2RC rc where rc.id.rcType = :rcType and rc.id.reqDt between :start and :end order by rc.id.reqDt")
-    List<SvcOption2RC> findByRcTypeAndBetween(@Param("rcType")enumRCType rcType, @Param("start")Date start, @Param("end")Date end);
-//
-//    @Query("select distinct rc.id.svcId from SvcOption2RC rc where rc.id.rcType= :rcType order by rc.id.svcId")
-//    List<String> findDistinctSvcIdByRcType(@Param("rcType")enumRCType rcType);
-//
-//    @Query("select distinct rc.id.option1 from SvcOption2RC rc where rc.id.rcType= :rcType order by rc.id.option1")
-//    List<String> findDistinctAppIdByRcType(@Param("rcType")enumRCType rcType);
-//    
+    @Query("select rc from SvcOption2RC rc where rc.id.opType=:opType and rc.id.rcType = :rcType and rc.id.reqDt between :start and :end order by rc.id.reqDt")
+    List<SvcOption2RC> findByOpTypeAndRcTypeAndBetween(@Param("opType")enumOptionType opType,@Param("rcType") enumRCType rcType, @Param("start")Date start, @Param("end")Date end);
 
+    @Query("select rc from SvcOption2RC rc where rc.id.svcId=:svc and rc.id.opType=:opType and rc.id.rcType = :rcType and rc.id.reqDt between :start and :end order by rc.id.reqDt")
+    List<SvcOption2RC> findBySvcIdAndOpTypeAndRcTypeAndBetween(@Param("svc")String svc, @Param("opType")enumOptionType opType,@Param("rcType") enumRCType rcType, @Param("start")Date start, @Param("end")Date end);
 }
