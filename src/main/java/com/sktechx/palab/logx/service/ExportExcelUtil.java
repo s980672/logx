@@ -1,7 +1,6 @@
 package com.sktechx.palab.logx.service;
 
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.sktechx.palab.logx.model.*;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -34,7 +33,12 @@ public class ExportExcelUtil extends abstractExportExcel {
 
         CellStyle headerStyle = getHeaderStyle2();
 
-        Sheet sh = addSheet(sheetName);
+        Sheet sheet = getSheet(sheetName);
+
+        if ( sheet == null )
+            sheet = addSheet(sheetName);
+
+        final Sheet sh = sheet;
 
         /* 조회하려는 달의 갯수 또는 일의 갯수*/
         int colNum = 0;
@@ -129,6 +133,11 @@ public class ExportExcelUtil extends abstractExportExcel {
 
     }
 
+    @Override
+    public void createData(String sheetName, Object object) {
+
+    }
+
 
     private class ExcelRow{
         public int row;
@@ -143,88 +152,34 @@ public class ExportExcelUtil extends abstractExportExcel {
             this.row = row; this.col=col; this.total=total; this.subTotal = subTotal;
         }
 
-    }
-
-    public void createDataForSvcPV(String sheetName, List<ServiceRequestCall> lst, List<com.sktechx.palab.logx.model.Service> lstSvc) {
-
-        Sheet sheet = getSheet(sheetName);
-
-        CellStyle style = getDataStyle();
-
-        ExcelRow ex = new ExcelRow(3, 1, 0);
-
-        //row당 data 갯수
-        int nPeriod = lst.size()/lstSvc.size();
-
-        lstSvc.stream().forEach(s -> {
-
-            logger.debug("svc : {}", s);
-
-            ex.col = 1;
-
-            //엑셀에 출력 시에는 서비스 이름으로 출력
-            setCellValue(sheet, ++ex.row, ex.col, s.getName(), style);
-
-            lst.stream().filter(r -> r.getId().getSvcId().equals(s.getSvcId())).forEach(r -> {
-
-                ex.total += r.getCount();
-
-                setCellValue(sheet, ex.row, ++ex.col, r.getCount() + "", style);
-
-                logger.debug("row-col-value: {}-{}-{}", ex.row, ex.col, r.getCount());
-
-                //TODO +1은 헤더가 서비스 만 있을 경우임 변수화 필요
-                //합계 처리
-                if (ex.col == nPeriod + 1) {
-
-                    setCellValue(sheet, ex.row, ++ex.col, ex.total + "", style);
-
-                    logger.debug("row-col-total: {}-{}-{}", ex.row, ex.col, ex.total);
-
-                    ex.total = 0l;
-                }
-
-            });
-        });
-    }
-
-
-    LocalDate startDate = null;
-
-    LocalDate endDate = null;
-
-    enumRCType rcType = enumRCType.daily;
-
-    public void setRcTypeAndStartEndDate(enumRCType rcType, LocalDate start, LocalDate end){
-        startDate = start;
-        endDate = end;
-        rcType = rcType;
-    }
-
-    private boolean compareDate(enumRCType rcType, LocalDate date1, LocalDate date2){
-
-        if (date1.getYear() != date2.getYear()) return false;
-        if (date1.getMonthOfYear() != date2.getMonthOfYear()) return false;
-
-        if ( rcType == enumRCType.daily ) {
-            if (date1.getDayOfMonth() != date2.getDayOfMonth()) return false;
+        public String toString() {
+            return "ExcelRow{" +
+                    "row='" + row + '\'' +
+                    ", col='" + col + '\'' +
+                    ", subTotal='" + subTotal + '\'' +
+                    ", total='" + total + '\'' +
+                    '}';
         }
 
-        return true;
-
     }
-    public void createDate2(String sheetName, Object dataLst, enumOptionType opType, List<String> opt1, List<String> opt2, List<String> svcs){
+
+
+    public Boolean createData(String sheetName, Object dataLst, enumOptionType opType, enumRCType rcType, LocalDate startDate, LocalDate endDate){
 
         if ( startDate == null || endDate == null ) {
             logger.error("Set first StartDate and EndDate");
-
+            throw new IllegalArgumentException("Set first StartDate and EndDate");
         }
 
-        Sheet sheet = getSheet(sheetName);
-        if ( sheet == null ) {
-            logger.error("excel sheet is null");
-            throw new NullPointerException("Excel sheet is null!");
+        final Boolean[] needToMerge = {false};
+
+        Sheet sh = getSheet(sheetName);
+        if ( sh == null ) {
+            sh = addSheet(sheetName);
+//            logger.error("excel sheet is null");
+//            throw new NullPointerException("Excel sheet is null!");
         }
+        final Sheet sheet = sh;
 
         CellStyle style = getDataStyle();
 
@@ -233,23 +188,36 @@ public class ExportExcelUtil extends abstractExportExcel {
         ExcelRow mergeEx = new ExcelRow(4, 1, 0);
         ExcelRow mergeSvc = new ExcelRow(4, 1, 0);
 
+        Map<Date, Long> map = Maps.newTreeMap();
+
         switch(opType){
             case SVC:
                 List<ServiceRequestCall> lstSvcRc = (List<ServiceRequestCall>) dataLst;
+                map.clear();
 
-                svcs.stream().forEach(svc->{
-                    ex.row++;
-                    ex.col = 1;
-                    ex.total = 0;
-                    mergeEx.row = ex.row;
-                    setCellValue(sheet, ex.row, ex.col++, svc, style);
+                lstSvcRc.stream().map(rc->rc.getId().getSvcId()).distinct().forEach(svc->{
+                //svcs.stream().forEach(svc->{
 
                     lstSvcRc.stream().filter(svcRc->svcRc.getId().getSvcId().equals(svc)).forEach(rc -> {
-                        setCellValue(sheet, ex.row, ex.col++, rc.getCount() + "", style);
-                        ex.total += rc.getCount();
+                        map.put(rc.getId().getReqDt(), rc.getCount());
                     });
 
-                    setCellValue(sheet, ex.row, ex.col, ex.total + "", style);
+                    for (LocalDate date = startDate; map.size() > 0 &&
+                            date.isBefore(endDate) || date.isEqual(endDate); date = (rcType == enumRCType.daily ? date.plusDays(1) : date.plusMonths(1))) {
+                        Long aLong = map.get(date.toDate());
+                        if (aLong == null) {
+                            logger.debug("date : {} is not found", date.toString());
+                            map.put(date.toDate(), 0l);
+                        }
+                    }
+
+                    if (map.size() > 0) {
+                        setCellValue(sheet, ex.row, ex.col++, /*TODO service name*/svc, style);
+                        // count 출력
+                        writeCountsInARow(sheet, ex, style, map);
+                        map.clear();
+                    }
+
                 });
 
                 break;
@@ -257,129 +225,179 @@ public class ExportExcelUtil extends abstractExportExcel {
             case APP:
                 List<SvcOption1RC> lst = (List<SvcOption1RC>) dataLst;
 
-                opt1.stream().forEach(op1 -> {
+                map.clear();
 
-                    svcs.stream().forEach(svc -> {
-                        ex.row++;
-                        ex.col = 1;
-                        ex.subTotal = 0;
-
-
-                        setCellValue(sheet, ex.row, ex.col++, op1, style);
-                        setCellValue(sheet, ex.row, ex.col++, /*TODO app id*/"APP ID", style);
-                        setCellValue(sheet, ex.row, ex.col++, /*TODO service name*/svc, style);
+                lst.stream().map(rc->rc.getId().getOption1()).distinct().forEach(op1 -> { //appKey
+                    lst.stream().map(rc -> rc.getId().getSvcId()).distinct().forEach(svc -> { //svcId
 
                         lst.stream().filter(d -> d.getId().getOption1().equals(op1) && d.getId().getSvcId().equals(svc)).forEach(d -> {
-                            setCellValue(sheet, ex.row, ex.col++, d.getCount() + "", style);
-                            ex.subTotal += d.getCount();
+
+                            map.put(d.getId().getReqDt(), d.getCount());
                         });
 
-                        //소계
-                        setCellValue(sheet, ex.row, ex.col, ex.subTotal + "", style);
+                        for (LocalDate date = startDate; map.size() > 0 &&
+                                date.isBefore(endDate) || date.isEqual(endDate); date = (rcType == enumRCType.daily ? date.plusDays(1) : date.plusMonths(1))) {
+                            Long aLong = map.get(date.toDate());
+                            if (aLong == null) {
+                                logger.debug("date : {} is not found", date.toString());
+                                map.put(date.toDate(), 0l);
+                            }
+                        }
 
-                        ex.total += ex.subTotal;
+                        if (map.size() > 0) {
 
-                    });
+                            setCellValue(sheet, ex.row, ex.col++, /*TODO app Key to app NAME*/op1, style);
+                            setCellValue(sheet, ex.row, ex.col++, /*TODO app id*/"APP ID", style);
+                            setCellValue(sheet, ex.row, ex.col++, /*TODO service name*/svc, style);
+
+                            // count 출력
+                            writeCountsInARow(sheet, ex, style, map);
+
+                            mergeEx.col = /*hearder*/ 3 + map.size() + 2/*소계*/;
+                            map.clear();
+                        }
+
+
+                    }); //svc loop
                     //합계 - 서비스가 여러개인 경우 == 전체
-                    if (svcs.size() > 1) {
+                    if (mergeEx.row < ex.row-1) {
 
                         //합계
-                        mergeEx.col = ++ex.col;
-                        sheet.addMergedRegion(new CellRangeAddress(mergeEx.row, ex.row, mergeEx.col, mergeEx.col));
+                        sheet.addMergedRegion(new CellRangeAddress(mergeEx.row, ex.row-1, mergeEx.col, mergeEx.col));
+
                         setCellValue(sheet, mergeEx.row, mergeEx.col, ex.total + "", style);
-                        setCellStyle(sheet, mergeEx.row, ex.row, mergeEx.col, mergeEx.col, style);
+
+                        setCellStyle(sheet, mergeEx.row, ex.row-1, mergeEx.col, mergeEx.col, style);
 
                         //APP 명 merge
-                        sheet.addMergedRegion(new CellRangeAddress(mergeEx.row, ex.row, 1, 1));
+                        sheet.addMergedRegion(new CellRangeAddress(mergeEx.row, ex.row-1, 1, 1));
 
                         //APP ID merge
-                        sheet.addMergedRegion(new CellRangeAddress(mergeEx.row, ex.row, 2, 2));
+                        sheet.addMergedRegion(new CellRangeAddress(mergeEx.row, ex.row-1, 2, 2));
 
-                        mergeEx.row = ex.row + 1;
+                        ex.total = 0;
+                        needToMerge[0] = true;
                     }
 
+                    mergeEx.row = ex.row;
+
                 });
 
                 break;
 
-            case API:
+            case API: {
                 //서비스 - API 명 ------------------------------- 합계
                 List<SvcOption1RC> lstApis = (List<SvcOption1RC>) dataLst;
+                map.clear();
 
-                svcs.stream().forEach(svc->{
-                    opt1.stream().forEach(op1 -> {
-
-                        //한 행이 돌고 초기화
-                        ex.total = 0;
-                        ex.row++;
-                        ex.col = 1;
-                        mergeEx.row = ex.row;
-
-                        setCellValue(sheet, ex.row, ex.col++, /*TODO service name*/svc, style);
-                        setCellValue(sheet, ex.row, ex.col++, op1, style); //TODO API 명
+                lstApis.stream().map(api -> api.getId().getSvcId()).distinct().forEach(svc -> { //svc
+                    lstApis.stream().map(api -> api.getId().getOption1()).distinct().forEach(op1 -> { //api
 
                         lstApis.stream().filter(d -> d.getId().getOption1().equals(op1) && d.getId().getSvcId().equals(svc)).forEach(d -> {
-                            setCellValue(sheet, ex.row, ex.col++, d.getCount() + "", style);
-                            ex.total += d.getCount();
+                            map.put(d.getId().getReqDt(), d.getCount());
+
                         });
 
+                        for (LocalDate date = startDate; map.size() > 0 &&
+                                date.isBefore(endDate) || date.isEqual(endDate); date = (rcType == enumRCType.daily ? date.plusDays(1) : date.plusMonths(1))) {
+                            Long aLong = map.get(date.toDate());
+                            if (aLong == null) {
+                                logger.debug("date : {} is not found", date.toString());
+                                map.put(date.toDate(), 0l);
+                            }
+                        }
+
+                        if (map.size() > 0 ){
+
+                            setCellValue(sheet, ex.row, ex.col++, /*TODO service name*/svc, style);
+                            setCellValue(sheet, ex.row, ex.col++, op1, style); //TODO API 명
+
+                            // count 출력
+                            writeCountsInARow(sheet, ex, style, map);
+
+                            mergeEx.col = 2 + map.size() + 2;
+                            map.clear();
+                        }
+
+
+                    });//svc loop
+
+                    if ( mergeEx.row < ex.row - 1 ) {
+
+                        //서비스 컬럼 병합
+                        sheet.addMergedRegion(new CellRangeAddress(mergeEx.row, ex.row-1, 1/*서비스 컬럼*/, 1));
+                        sheet.addMergedRegion(new CellRangeAddress(mergeEx.row, ex.row-1, mergeEx.col/*합계 컬럼*/, mergeEx.col));
+
                         //합계 -
-                        setCellValue(sheet, ex.row, ex.col, ex.total+"", style);
-                    });
+                        setCellValue(sheet, mergeEx.row, mergeEx.col, ex.total + "", style);
 
-                    //서비스 컬럼 병합
-                    sheet.addMergedRegion(new CellRangeAddress(mergeEx.row, ex.row, 1/*서비스 컬럼*/, 1));
-
+                        setCellStyle(sheet, mergeEx.row, ex.row - 1, mergeEx.col, mergeEx.col, style);
+                        ex.total = 0;
+                        needToMerge[0] = true;
+                    }
+                    mergeEx.row = ex.row;
                 });
 
+            }
 
-
-                break;
+            break;
             case ERROR:
 
                 //HADER : ERROR CODE - ------------------------------- 합계
                 List<SvcOption1RC> lstErrs = (List<SvcOption1RC>) dataLst;
+                map.clear();
 
-                opt1.stream().forEach(op1->{
-                    svcs.stream().forEach(svc->{
+                lstErrs.stream().map(err->err.getId().getOption1()).distinct().forEach(op1->{
+                    //opt1.stream().forEach(op1->{
+                    lstErrs.stream().map(err->err.getId().getSvcId()).distinct().forEach(svc->{
+                        //svcs.stream().forEach(svc->{
 
-                        //한 행이 돌고 초기화
-                        ex.subTotal = 0;
-                        ex.row++;
-                        ex.col = 1;
-                        mergeEx.row = ex.row;
-
-                        setCellValue(sheet, ex.row, ex.col++, op1 ,style); //에러 코드
-
-                        setCellValue(sheet, ex.row, ex.col++, /*TODO service name*/svc ,style);
 
                         lstErrs.stream().filter( d-> d.getId().getOption1().equals(op1) && d.getId().getSvcId().equals(svc)).forEach(d -> {
-                            setCellValue(sheet, ex.row, ex.col++, d.getCount() + "", style);
-                            ex.subTotal += d.getCount();
+
+                            map.put(d.getId().getReqDt(), d.getCount());
 
                         });
 
-                        //합계 - 에러 상세코드가 빠지면서 소계 제외
-                        setCellValue(sheet, ex.row, ex.col, ex.subTotal+"", style);
+                        for (LocalDate date = startDate; map.size() > 0 &&
+                                date.isBefore(endDate) || date.isEqual(endDate); date = (rcType == enumRCType.daily ? date.plusDays(1) : date.plusMonths(1))) {
+                            Long aLong = map.get(date.toDate());
+                            if (aLong == null) {
+                                logger.debug("date : {} is not found", date.toString());
+                                map.put(date.toDate(), 0l);
+                            }
+                        }
 
-                        ex.total += ex.subTotal;
+                        if (map.size() > 0 ){
 
+                            setCellValue(sheet, ex.row, ex.col++, op1, style); //에러 코드
+                            setCellValue(sheet, ex.row, ex.col++, /*TODO service name*/svc, style);
+
+                            // count 출력
+                            writeCountsInARow(sheet, ex, style, map);
+
+                            mergeEx.col = 2/*header size*/ + map.size() + 2/*소계 + 합계*/;
+                            map.clear();
+                        }
                     });
 
+                    logger.debug("mergeEx.row : {}, ex.row : {}", mergeEx.row, ex.row-1);
 
-                    //TODO 합계 - 병합된  Error code 단위의 합계 필요 - 서비스가 전체인 경우
-                    if(svcs.size() > 1 ) {
-                        sheet.addMergedRegion(new CellRangeAddress(mergeEx.row, ex.row, 1/*Error code column*/, 1));
+                    //TODO 합계 - 병합된  Error code 단위의 합계 필요 - 서비스가 전체인 경우 - header 처리 필요
+                    if(mergeEx.row < ex.row - 1  ) {
+
+                        sheet.addMergedRegion(new CellRangeAddress(mergeEx.row, ex.row - 1, 1/*Error code column*/, 1));
 
                         //합계
-                        mergeEx.col = ex.col++;
-                        sheet.addMergedRegion(new CellRangeAddress(mergeEx.row, ex.row, mergeEx.col/*Error code column*/, mergeEx.col));
+                        sheet.addMergedRegion(new CellRangeAddress(mergeEx.row, ex.row - 1, mergeEx.col/*total sum*/, mergeEx.col));
                         setCellValue(sheet, mergeEx.row, mergeEx.col, ex.total + "", style);
+                        setCellStyle(sheet, mergeEx.row, ex.row-1, mergeEx.col/*total sum*/, mergeEx.col, style );
 
                         ex.total = 0;
-
-
+                        needToMerge[0] = true;
                     }
+
+                    mergeEx.row = ex.row;
 
                 });
 
@@ -390,8 +408,9 @@ public class ExportExcelUtil extends abstractExportExcel {
                 //app 명, app id 병합
                 List<SvcOption2RC> lstAppApi = (List<SvcOption2RC>) dataLst;
 
-                createAppApi(sheet, lstAppApi, opType, rcType);
+                createAppApi(sheet, lstAppApi, opType, rcType,startDate,endDate);
 
+                needToMerge[0] = true;
                 break;
 
 
@@ -400,16 +419,18 @@ public class ExportExcelUtil extends abstractExportExcel {
                 // 서비스 병합, API 명 병합
                 List<SvcOption2RC> lstApiApp = (List<SvcOption2RC>) dataLst;
 
-                createApiApp(sheet, svcs, lstApiApp, opType, rcType);
+                createApiApp(sheet, lstApiApp, opType, rcType, startDate, endDate);
 
+                needToMerge[0] = true;
                 break;
             case ERROR_APP:
                 //HEADER : ERROR code - APP 명 - APP ID -----------------------  소계 - 합계
                 //error code 병합
 
                 List<SvcOption2RC> lstErrApp = (List<SvcOption2RC>) dataLst;
-                createErrorOption2(sheet, lstErrApp, opType, rcType);
+                createErrorOption2(sheet, lstErrApp, opType, rcType, startDate, endDate);
 
+                needToMerge[0] = true;
                 break;
 
             case ERROR_API:
@@ -417,50 +438,61 @@ public class ExportExcelUtil extends abstractExportExcel {
                 //error code 병합
                 List<SvcOption2RC> lstErrApi = (List<SvcOption2RC>) dataLst;
 
-                createErrorOption2(sheet, lstErrApi, opType, rcType);
+                createErrorOption2(sheet, lstErrApi, opType, rcType, startDate, endDate);
 
+                needToMerge[0] = true;
                 break;
 
         }
+
+        return needToMerge[0];
     }
 
-    private void createApiApp(Sheet sheet, List<String> lstSvc, List<SvcOption2RC> lst, enumOptionType opType, enumRCType rcType ) {
+    private void writeCountsInARow(Sheet sheet, ExcelRow ex, CellStyle style, Map<Date, Long> map){
+
+        Set<Map.Entry<Date, Long>> entries = map.entrySet();
+        Iterator<Map.Entry<Date, Long>> iterator = entries.iterator();
+        while (iterator.hasNext()) {
+            Map.Entry me = iterator.next();
+            setCellValue(sheet, ex.row, ex.col++, me.getValue() + "", style);
+            logger.debug("row:{} col:{} value:{} date: {}", ex.row, ex.col, me.getValue(), me.getKey().toString());
+
+            ex.subTotal += (long) me.getValue();
+        }
+
+        //소계
+        setCellValue(sheet, ex.row, ex.col++, ex.subTotal + "", style);
+        ex.total += ex.subTotal;
+        //한 라인 출력 후 초기화
+        ex.subTotal = 0;
+        ex.row++;
+        ex.col=1;
+    }
+
+    private void createApiApp(Sheet sheet, List<SvcOption2RC> lst, enumOptionType opType, enumRCType rcType,
+                              LocalDate startDate, LocalDate endDate) {
 
         final int[] mergeSvcRow = {4};
 
 
-        lst.stream().forEach(l-> {
+        lst.stream().forEach(l -> {
             logger.debug("{}", l);
         });
 
-        Set lstOp1 = Sets.newHashSet();
-        Set lstOp2 = Sets.newHashSet();
 
-        lstSvc.stream().forEach(svc-> {
-
-            lstOp1.clear();
-            lstOp2.clear();
+        lst.stream().map(rc->rc.getId().getSvcId()).distinct().forEach(svc -> {
+            //lstSvc.stream().forEach(svc-> {
 
             logger.debug("=========================== {}", svc);
-            lst.stream().filter(rc -> rc.getId().getSvcId().equals(svc)).map(rc -> rc.getId().getOption1()).
-                    forEach(op1-> { lstOp1.add(op1); });
 
-            lst.stream().filter(rc -> rc.getId().getSvcId().equals(svc)).map(rc -> rc.getId().getOption2()).forEach(op2-> lstOp2.add(op2));
-
-            mergeSvcRow[0] = createApiOption2(sheet, svc, mergeSvcRow[0], lst, lstOp1, lstOp2, opType, rcType);
+            mergeSvcRow[0] = createApiOption2(sheet, svc, mergeSvcRow[0], lst, opType, rcType, startDate, endDate);
 
 
         });
 
     }
 
-    private void createAppApi(Sheet sheet, List<SvcOption2RC> lst, enumOptionType opType, enumRCType rcType ){
-
-        Set opt1 = Sets.newHashSet();
-        Set opt2 = Sets.newHashSet();
-        lst.stream().map(rc -> rc.getId().getOption1()).forEach(op1-> { opt1.add(op1); });
-        lst.stream().map(rc -> rc.getId().getOption2()).forEach(op2-> opt2.add(op2));
-
+    private void createAppApi(Sheet sheet, List<SvcOption2RC> lst, enumOptionType opType, enumRCType rcType, LocalDate startDate, LocalDate endDate){
 
         CellStyle style = getDataStyle();
 
@@ -471,11 +503,11 @@ public class ExportExcelUtil extends abstractExportExcel {
 
         Map<Date, Long> map = Maps.newTreeMap();
 
-        opt1.stream().forEach(op1 -> { //APP KEY
+        lst.stream().map(aa->aa.getId().getOption1()).distinct().forEach(op1->{ //APP KEY
 
             mergeEx.row = ex.row;
 
-            opt2.stream().forEach(op2 -> { //API KEY
+            lst.stream().map(aa->aa.getId().getOption2()).distinct().forEach(op2 -> { //API KEY
 
                 //한 행에 해당하는 데이터가 lstErr에 있음
                 lst.stream().filter(d -> d.getId().getRcType() == rcType && d.getId().getOpType() == opType &&
@@ -532,7 +564,8 @@ public class ExportExcelUtil extends abstractExportExcel {
             logger.debug("op1 : {} mergeEx.row : {} ex.row : {}", op1, mergeEx.row, ex.row);
 
             if (mergeEx.row <= ex.row - 1) {
-                sheet.addMergedRegion(new CellRangeAddress(mergeEx.row, ex.row - 1, 2/*API NAME column*/, 2));
+                sheet.addMergedRegion(new CellRangeAddress(mergeEx.row, ex.row - 1, 1/*APP NAME column*/, 1));
+                sheet.addMergedRegion(new CellRangeAddress(mergeEx.row, ex.row - 1, 2/*APP ID column*/, 2));
 
                 //API 별 합계 필요
                 mergeEx.col += 1;
@@ -548,13 +581,14 @@ public class ExportExcelUtil extends abstractExportExcel {
         });
 
 
-        sheet.autoSizeColumn(1, true);
-        sheet.autoSizeColumn(2, true);
-        sheet.autoSizeColumn(3, true);
+        sheet.autoSizeColumn(1, true); //APP NAME
+        sheet.autoSizeColumn(2, true); //APP ID
+        sheet.autoSizeColumn(3, true); //API NAME
 
     }
 
-    private int createApiOption2(Sheet sheet, String svc, int mergeSvcRow, List<SvcOption2RC> lst, Set<String> opt1, Set<String> opt2, enumOptionType opType, enumRCType rcType ){
+    private int createApiOption2(Sheet sheet, String svc, int mergeSvcRow, List<SvcOption2RC> lst, enumOptionType opType,
+                                 enumRCType rcType, LocalDate startDate, LocalDate endDate){
 
         CellStyle style = getDataStyle();
 
@@ -565,82 +599,84 @@ public class ExportExcelUtil extends abstractExportExcel {
 
         Map<Date, Long> map = Maps.newTreeMap();
 
-        opt1.stream().forEach(op1 -> { //API PATH
+        lst.stream().filter(rc -> rc.getId().getSvcId().equals(svc)).map(rc -> rc.getId().getOption1()).
+                forEach(op1 -> { //API PATH
 
-            mergeEx.row = ex.row;
+                    mergeEx.row = ex.row;
 
-            opt2.stream().forEach(op2 -> { //APP KEY
+                    lst.stream().filter(rc -> rc.getId().getSvcId().equals(svc)).map(rc -> rc.getId().getOption2()).
+                            forEach(op2 -> { //APP KEY
 
-                //한 행에 해당하는 데이터가 lstErr에 있음
-                lst.stream().filter(d -> d.getId().getRcType() == rcType && d.getId().getOpType() == opType &&
-                        d.getId().getOption1().equals(op1) &&
-                        d.getId().getOption2().equals(op2) && d.getId().getSvcId().equals(svc)).forEach(d -> {
-                    map.put(d.getId().getReqDt(), d.getCount());
+                                //한 행에 해당하는 데이터가 lstErr에 있음
+                                lst.stream().filter(d -> d.getId().getRcType() == rcType && d.getId().getOpType() == opType &&
+                                        d.getId().getOption1().equals(op1) &&
+                                        d.getId().getOption2().equals(op2) && d.getId().getSvcId().equals(svc)).forEach(d -> {
+                                    map.put(d.getId().getReqDt(), d.getCount());
+                                });
+
+                                for (LocalDate date = startDate; map.size() > 0 &&
+                                        date.isBefore(endDate) || date.isEqual(endDate); date = (rcType == enumRCType.daily ? date.plusDays(1) : date.plusMonths(1))) {
+                                    Long aLong = map.get(date.toDate());
+                                    if (aLong == null) {
+                                        logger.debug("date : {} is not found", date.toString());
+                                        map.put(date.toDate(), 0l);
+                                    }
+                                }
+
+                                //해당 row 에 데이터가 있는 경우 subtotal를 찍는다
+                                if (map.size() > 0) {
+
+                                    //헤더 출력
+                                    setCellValue(sheet, ex.row, ex.col++, /*SERVICE*/ svc, style);
+                                    setCellValue(sheet, ex.row, ex.col++, /*ERROR CODE*/ op1, style);
+                                    setCellValue(sheet, ex.row, ex.col++, /*TODO appKey를 APP 명 대체 필요*/ op2, style);
+                                    setCellValue(sheet, ex.row, ex.col++, /*TODO appKey인데 appID로 대체 필요*/op2, style);
+
+
+                                    // count 출력
+                                    Set<Map.Entry<Date, Long>> entries = map.entrySet();
+                                    Iterator<Map.Entry<Date, Long>> iterator = entries.iterator();
+                                    while (iterator.hasNext()) {
+                                        Map.Entry me = iterator.next();
+                                        setCellValue(sheet, ex.row, ex.col++, me.getValue() + "", style);
+                                        logger.debug("row:{} col:{} op1 : {}, op2 : {}, value:{} date: {}", ex.row, ex.col, op1, op2, me.getValue(), me.getKey().toString());
+
+                                        ex.subTotal += (long) me.getValue();
+
+                                    }
+
+                                    map.clear();
+
+                                    //소계
+                                    setCellValue(sheet, ex.row, ex.col, ex.subTotal + "", style);
+                                    logger.debug("row:{} col:{} subtotal:{}", ex.row, ex.col, ex.subTotal);
+
+                                    ex.total += ex.subTotal;
+                                    ex.row++;
+                                    ex.subTotal = 0;
+                                    mergeEx.col = ex.col;
+                                    ex.col = 1;
+                                }
+
+                            });
+
+                    logger.debug("op1 : {} mergeEx.row : {} ex.row : {}", op1, mergeEx.row, ex.row);
+
+                    if (mergeEx.row <= ex.row - 1) {
+                        sheet.addMergedRegion(new CellRangeAddress(mergeEx.row, ex.row - 1, 2/*API NAME column*/, 2));
+
+                        //API 별 합계 필요
+                        mergeEx.col += 1;
+                        logger.debug("mergeEx.col : {} ex.total: {}", mergeEx.col, ex.total);
+                        sheet.addMergedRegion(new CellRangeAddress(mergeEx.row, ex.row - 1, mergeEx.col/*total sum column*/, mergeEx.col));
+                        setCellValue(sheet, mergeEx.row, mergeEx.col, ex.total + "", style);
+                        setCellStyle(sheet, mergeEx.row, ex.row - 1, mergeEx.col, mergeEx.col, style);
+
+                        //이 라인이 없으면 서비스 병합 시 마지막 행이 깨짐
+                        mergeEx.row = ex.row - 1;
+                        ex.total = 0;
+                    }
                 });
-
-                for (LocalDate date = startDate; map.size() > 0 &&
-                        date.isBefore(endDate) || date.isEqual(endDate); date = (rcType == enumRCType.daily ? date.plusDays(1) : date.plusMonths(1))) {
-                    Long aLong = map.get(date.toDate());
-                    if (aLong == null) {
-                        logger.debug("date : {} is not found", date.toString());
-                        map.put(date.toDate(), 0l);
-                    }
-                }
-
-                //해당 row 에 데이터가 있는 경우 subtotal를 찍는다
-                if (map.size() > 0) {
-
-                    //헤더 출력
-                    setCellValue(sheet, ex.row, ex.col++, /*SERVICE*/ svc, style);
-                    setCellValue(sheet, ex.row, ex.col++, /*ERROR CODE*/ op1, style);
-                    setCellValue(sheet, ex.row, ex.col++, /*TODO appKey를 APP 명 대체 필요*/ op2, style);
-                    setCellValue(sheet, ex.row, ex.col++, /*TODO appKey인데 appID로 대체 필요*/op2, style);
-
-
-                    // count 출력
-                    Set<Map.Entry<Date, Long>> entries = map.entrySet();
-                    Iterator<Map.Entry<Date, Long>> iterator = entries.iterator();
-                    while (iterator.hasNext()) {
-                        Map.Entry me = iterator.next();
-                        setCellValue(sheet, ex.row, ex.col++, me.getValue() + "", style);
-                        logger.debug("row:{} col:{} op1 : {}, op2 : {}, value:{} date: {}", ex.row, ex.col, op1, op2, me.getValue(), me.getKey().toString());
-
-                        ex.subTotal += (long) me.getValue();
-
-                    }
-
-                    map.clear();
-
-                    //소계
-                    setCellValue(sheet, ex.row, ex.col, ex.subTotal + "", style);
-                    logger.debug("row:{} col:{} subtotal:{}", ex.row, ex.col, ex.subTotal);
-
-                    ex.total += ex.subTotal;
-                    ex.row++;
-                    ex.subTotal = 0;
-                    mergeEx.col = ex.col;
-                    ex.col = 1;
-                }
-
-            });
-
-            logger.debug("op1 : {} mergeEx.row : {} ex.row : {}", op1, mergeEx.row, ex.row);
-
-            if (mergeEx.row <= ex.row - 1) {
-                sheet.addMergedRegion(new CellRangeAddress(mergeEx.row, ex.row - 1, 2/*API NAME column*/, 2));
-
-                //API 별 합계 필요
-                mergeEx.col += 1;
-                logger.debug("mergeEx.col : {} ex.total: {}", mergeEx.col, ex.total);
-                sheet.addMergedRegion(new CellRangeAddress(mergeEx.row, ex.row - 1, mergeEx.col/*total sum column*/, mergeEx.col));
-                setCellValue(sheet, mergeEx.row, mergeEx.col, ex.total + "", style);
-                setCellStyle(sheet, mergeEx.row, ex.row - 1, mergeEx.col, mergeEx.col, style);
-
-                //이 라인이 없으면 서비스 병합 시 마지막 행이 깨짐
-                mergeEx.row = ex.row - 1;
-                ex.total = 0;
-            }
-        });
 
         logger.debug("mergeSvcRow : {} mergeEx.row: {}", mergeSvcRow, mergeEx.row);
         sheet.addMergedRegion(new CellRangeAddress(mergeSvcRow, mergeEx.row, 1/*SERVICE column*/, 1));
@@ -659,13 +695,8 @@ public class ExportExcelUtil extends abstractExportExcel {
     }
 
 
-    private void createErrorOption2(Sheet sheet, List<SvcOption2RC> lstErr, enumOptionType opType, enumRCType rcType ){
-
-        Set opt1 = Sets.newHashSet();
-        Set opt2 = Sets.newHashSet();
-        lstErr.stream().map(rc -> rc.getId().getOption1()).forEach(op1-> { opt1.add(op1); });
-        lstErr.stream().map(rc -> rc.getId().getOption2()).forEach(op2-> opt2.add(op2));
-
+    private void createErrorOption2(Sheet sheet, List<SvcOption2RC> lstErr, enumOptionType opType,
+                                    enumRCType rcType, LocalDate startDate, LocalDate endDate ){
 
         CellStyle style = getDataStyle();
 
@@ -676,11 +707,11 @@ public class ExportExcelUtil extends abstractExportExcel {
 
         Map<Date, Long> map = Maps.newTreeMap();
 
-        opt1.stream().forEach(op1 -> { //ERROR CODE
+        lstErr.stream().map(err->err.getId().getOption1()).distinct().forEach(op1 -> { //ERROR CODE
 
             mergeEx.row = ex.row;
 
-            opt2.stream().forEach(op2 -> { //API/APP NAME
+            lstErr.stream().map(err -> err.getId().getOption2()).distinct().forEach(op2 -> { //API/APP NAME
 
                 //한 행에 해당하는 데이터가 lstErr에 있음
                 lstErr.stream().filter(d -> d.getId().getRcType() == rcType && d.getId().getOpType() == opType &&
@@ -751,13 +782,12 @@ public class ExportExcelUtil extends abstractExportExcel {
                 ex.total = 0;
             }
         });
+
+        sheet.autoSizeColumn(2, true);
+
+        if (opType == enumOptionType.ERROR_APP){
+            sheet.autoSizeColumn(3, true);
+        }
+
     }
-
-    @Override
-    public void createData(String sheetName, Object object) {
-
-    }
-
-
-
 }

@@ -4,8 +4,6 @@ import com.sktechx.palab.logx.config.AbstractJUnit4SpringMvcTests;
 import com.sktechx.palab.logx.config.Application;
 import com.sktechx.palab.logx.model.enumOptionType;
 import com.sktechx.palab.logx.model.enumRCType;
-import com.sktechx.palab.logx.repository.ErrorCountRepository;
-import com.sktechx.palab.logx.repository.ErrorSvcCountRepository;
 import com.sktechx.palab.logx.repository.SvcOption1RCRepository;
 import com.sktechx.palab.logx.repository.SvcOption2RCRepository;
 import com.sktechx.palab.logx.service.ElasticsearchCommonAnalysisService;
@@ -29,8 +27,8 @@ import java.text.ParseException;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Application.class)
-public class ESAnalysisTest extends AbstractJUnit4SpringMvcTests {
-    Logger logger = LoggerFactory.getLogger(ESAnalysisTest.class);
+public class ESAnalysisBatchTest extends AbstractJUnit4SpringMvcTests {
+    Logger logger = LoggerFactory.getLogger(ESAnalysisBatchTest.class);
 
     @Autowired
     ElasticsearchPVAnalysisService esService;
@@ -45,12 +43,6 @@ public class ESAnalysisTest extends AbstractJUnit4SpringMvcTests {
     @Autowired
     SvcOption2RCRepository svcOption2RCRepo;
 
-    @Autowired
-    ErrorCountRepository errCntRepo;
-
-    @Autowired
-    ErrorSvcCountRepository errSvcCntRepo;
-
 
     @Before
     public void init(){
@@ -63,17 +55,17 @@ public class ESAnalysisTest extends AbstractJUnit4SpringMvcTests {
 
         //////////////////////////////////
         //특정일에만 데이터가 있어서 테스트 날짜
-        LocalDate startD = LocalDate.parse("2016-07-17", DateTimeFormat.forPattern("yyyy-MM-dd"));
+        LocalDate startD = LocalDate.parse("2016-05-01", DateTimeFormat.forPattern("yyyy-MM-dd"));
         String start = startD.toString(); //"2016-07-18";
         String end = startD.plusDays(1).toString();
 
         logger.debug("start : {}, end : {}", start, end);
 
 
-        esService.generateSvcOption2PV(enumRCType.daily,enumOptionType.API_APP, start, end);
-        esService.generateSvcOption2PV(enumRCType.daily,enumOptionType.APP_API, start, end);
-        esService.generateSvcOption2PV(enumRCType.daily,enumOptionType.ERROR_APP, start, end);
-        esService.generateSvcOption2PV(enumRCType.daily,enumOptionType.ERROR_API, start, end);
+        esService.generateSvcOption2PV(enumRCType.monthly, enumOptionType.API_APP, start, end);
+        esService.generateSvcOption2PV(enumRCType.monthly, enumOptionType.APP_API, start, end);
+        esService.generateSvcOption2PV(enumRCType.monthly, enumOptionType.ERROR_APP, start, end);
+        esService.generateSvcOption2PV(enumRCType.monthly, enumOptionType.ERROR_API, start, end);
 
         logger.debug("svcOption2==============================");
         svcOption2RCRepo.findAll().stream().forEach(err -> logger.debug(err.toString()));
@@ -91,9 +83,9 @@ public class ESAnalysisTest extends AbstractJUnit4SpringMvcTests {
 
         logger.debug("start : {}, end : {}", start, end);
 
-        esService.generateSvcOption1PV(enumOptionType.APP, start, end);
-        esService.generateSvcOption1PV(enumOptionType.API, start, end);
-        esService.generateSvcOption1PV(enumOptionType.ERROR, start, end);
+        esService.generateSvcOption1PV(enumRCType.daily, enumOptionType.APP, start, end);
+        esService.generateSvcOption1PV(enumRCType.daily, enumOptionType.API, start, end);
+        esService.generateSvcOption1PV(enumRCType.daily, enumOptionType.ERROR, start, end);
 
         logger.debug("svcOption1==============================");
 
@@ -114,19 +106,9 @@ public class ESAnalysisTest extends AbstractJUnit4SpringMvcTests {
         logger.debug("start : {}, end : {}", start, end);
 
         try {
-            esService.generatePV(start, end);
+            esService.generatePV(enumRCType.daily, start, end);
 
-            esService.generateSVCPV(start, end);
-
-
-            commonesService.generateErrorCount(start, end);
-
-
-            logger.debug("error==============================");
-            errCntRepo.findAll().stream().forEach(err -> logger.debug(err.toString()));
-
-            logger.debug("error per svc==============================");
-            errSvcCntRepo.findAll().stream().forEach(err -> logger.debug(err.toString()));
+            esService.generateSvcPV(enumRCType.daily, start, end);
 
         } catch (IOException e) {
 

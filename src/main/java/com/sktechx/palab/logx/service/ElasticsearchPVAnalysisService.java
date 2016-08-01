@@ -1,10 +1,12 @@
 package com.sktechx.palab.logx.service;
 
 import com.sktechx.palab.logx.model.*;
-import com.sktechx.palab.logx.repository.*;
+import com.sktechx.palab.logx.repository.RequestCallRepository;
+import com.sktechx.palab.logx.repository.ServiceRCRepository;
+import com.sktechx.palab.logx.repository.SvcOption1RCRepository;
+import com.sktechx.palab.logx.repository.SvcOption2RCRepository;
 import io.searchbox.core.SearchResult;
 import io.searchbox.core.search.aggregation.TermsAggregation;
-import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,30 +35,30 @@ public class ElasticsearchPVAnalysisService {
 
     @Autowired
     SvcOption1RCRepository svcOption1RCRep;
-    
+
     @Autowired
     SvcOption2RCRepository svcOption2RCRep;
-    
+
     @Autowired
     ElasticsearchCommonAnalysisService CommonAnalysisService;
- 
 
 
-    
-    public void generatePV(String start, String end) throws IOException, ParseException {
-    
+
+
+    public void generatePV(enumRCType rcType, String start, String end) throws IOException, ParseException {
+
 
         SearchResult response = CommonAnalysisService.getResult(AggReqDSLs.getQueryPVDuringPeriod(start, end));
 
         logger.debug("total : {}", response.getTotal());
 
-        ReqCall rc = new ReqCall(enumRCType.daily, start, new Long(response.getTotal()));
+        ReqCall rc = new ReqCall(rcType, start, new Long(response.getTotal()));
 
         rcRepo.save(rc);
 
     }
 
-    public void generateSVCPV(String start, String end) throws IOException, ParseException {
+    public void generateSvcPV(enumRCType rcType, String start, String end) throws IOException, ParseException {
 
         ///////////////////////////////////////////////////////////////////////////////
         //service pv
@@ -78,9 +80,9 @@ public class ElasticsearchPVAnalysisService {
         });
     }
 
-    public void generateSvcOption1PV(enumOptionType opType, String start, String end) throws IOException, ParseException {
+    public void generateSvcOption1PV(enumRCType rcType, enumOptionType opType, String start, String end) throws IOException, ParseException {
 
-    	
+
         String optionField = null;
         if(opType == enumOptionType.API){
             optionField = "apiPath";
@@ -114,23 +116,33 @@ public class ElasticsearchPVAnalysisService {
 
         });
     }
-    
 
-// srvice / app - api / api - app 선택 시 daily / monthly 데이터 생성
-    public void generateSvcOption2PV(enumRCType dayType,enumOptionType opType, String start, String end) throws IOException, ParseException {
 
-    	
-        String optionField = null;
-        String suboptionField = null;
-        if(opType == enumOptionType.API_APP){
-            optionField = "apiPath";
-            suboptionField = "appKey";
-        }else{
-            optionField = "appKey";
-            suboptionField = "apiPath";
+    public void generateSvcOption2PV(enumRCType rcType, enumOptionType opType, String start, String end) throws IOException, ParseException {
+
+        String queryDsl = null;
+        String queryOption1Option2AllSvcPV = null;
+        switch(opType){
+            case APP_API:
+                queryDsl = AggReqDSLs.getQueryServiceOption2PV("appKey", "apiPath", start, end);
+                break;
+            case API_APP:
+                queryDsl = AggReqDSLs.getQueryServiceOption2PV("apiPath", "appKey", start, end);
+                queryOption1Option2AllSvcPV = AggReqDSLs.getQueryOption1Option2AllSvcPV("appKey", "apiPath", start, end);
+                break;
+            case ERROR_API:
+                queryDsl = AggReqDSLs.getQueryServiceOption2PV("responseCode", "apiPath", start, end);
+                queryOption1Option2AllSvcPV = AggReqDSLs.getQueryOption1Option2AllSvcPV("responseCode", "apiPath", start, end);
+                break;
+            case ERROR_APP:
+                queryDsl = AggReqDSLs.getQueryServiceOption2PV("responseCode", "appKey", start, end);
+                queryOption1Option2AllSvcPV = AggReqDSLs.getQueryOption1Option2AllSvcPV("responseCode", "appKey", start, end);
         }
 
-        SearchResult result = CommonAnalysisService.getResult(AggReqDSLs.getQueryServiceOption2PV(optionField, suboptionField, start, end));
+        logger.debug(queryDsl);
+
+        SearchResult result = CommonAnalysisService.getResult(queryDsl);
+
 
         TermsAggregation svcPV = result.getAggregations().getTermsAggregation("serviceRC");
 
@@ -164,45 +176,25 @@ public class ElasticsearchPVAnalysisService {
             });
 
 
-        });
-    }
+        if ( queryOption1Option2AllSvcPV == null ) return;
 
+        //service 구분이 없는 경우 = 모든 서비스의 경우
+        //opType이 ERROR-APP, ERROR-API, APP-API인 경우만 해당
+        result = CommonAnalysisService.getResult(queryOption1Option2AllSvcPV);
 
-    public void generateSvcPVForMonth() {
+        TermsAggregation option1RC = result.getAggregations().getTermsAggregation("option1RC");
 
-        LocalDate start = new LocalDate().withDayOfMonth(1);
-        start = start.minusMonths(1);
-        LocalDate end = new LocalDate().withDayOfMonth(1).minusDays(1);
+        option1RC.getBuckets().stream().forEach(op1->{
+            op1.getTermsAggregation("option2RC").getBuckets().stream().forEach(op2->{
 
-        final LocalDate finalStart = start;
+                SvcOption2RC svcOp2PV = new SvcOption2RC(enumRCType.daily, opType, date, "ALL", op1.getKey(), op2.getKey(), op2.getCount());
 
-
-        svcRCRepo.findDistinctSvcId().stream().forEach(svc -> {
-
-            ServiceRequestCall svcRC = new ServiceRequestCall();
-
-            svcRC.getId().setRcType(enumRCType.monthly);
-            svcRC.getId().setReqDt(finalStart.toDate());
-            svcRC.getId().setSvcId(svc);
-
-            svcRCRepo.findByRcTypeAndBetweenDates(enumRCType.daily, finalStart.toDate(), end.toDate()).stream().
-                    filter(pv -> pv.getId().getSvcId().equals(svc)).forEach(pv -> {
-
-                logger.debug("pv : {}", pv);
-
-
-                svcRC.setCount(svcRC.getCount() + pv.getCount());
-
-
+                svcOption2RCRep.save(svcOp2PV);
             });
-
-            logger.debug("svcRC : {}", svcRC);
-
-            svcRCRepo.save(svcRC);
-
         });
 
 
-
     }
+
+
 }

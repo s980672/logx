@@ -1,6 +1,5 @@
 package com.sktechx.palab.logx.service;
 
-import com.google.common.collect.Lists;
 import com.sktechx.palab.logx.model.*;
 import com.sktechx.palab.logx.repository.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -45,7 +44,7 @@ public class StatisticsExcelExportService {
     private enumOptionType ConvertOption1Option2ToOpType(String op1, String op2) {
 
         if ( StringUtils.isEmpty(op1) && StringUtils.isEmpty(op2)){
-            return SVC;
+            return enumOptionType.SVC;
         }
         else if (op1.equals("APP") && StringUtils.isEmpty(op2)) {
             return APP;
@@ -65,6 +64,15 @@ public class StatisticsExcelExportService {
         return SVC;
 
     }
+
+    public XSSFWorkbook exportExcel(String svc, String option1, String option2, enumRCType rcType, String start, String end, boolean isPV) {
+        ExportExcelUtil util = new ExportExcelUtil();
+
+        exportExcel(util, svc, option1, option2, rcType, start, end, isPV);
+
+        return util.getWorkBook();
+    }
+
     /*
     option1 : none/app/api/error
     option2 : none/api/app
@@ -75,24 +83,23 @@ public class StatisticsExcelExportService {
     sheetName = {svcName}_2015_{monthly}_pv_20160708
 
      */
-    public XSSFWorkbook exportExcel(String svc, String option1, String option2, enumRCType rcType, String start, String end, boolean isPV) {
+    public XSSFWorkbook exportExcel(ExportExcelUtil excelUtil, String svc, String option1, String option2, enumRCType rcType, String start, String end, boolean isPV) {
 
         LocalDate startDate = LocalDate.parse(start, DateTimeFormat.forPattern("yyyyMMdd"));
         LocalDate endDate = LocalDate.parse(end, DateTimeFormat.forPattern("yyyyMMdd"));
 
-        ExportExcelUtil excelUtil = new ExportExcelUtil();
+        if ( excelUtil == null ) {
+            excelUtil = new ExportExcelUtil();
+        }
 
-        //비어있는 날짜에 "0"을 찍기위해 날짜 비교 로직 추가
-        excelUtil.setRcTypeAndStartEndDate(rcType, startDate, endDate);
+        enumOptionType opType = ConvertOption1Option2ToOpType(option1, option2);
 
-        String sheetName = (StringUtils.isEmpty(option1) ? "":option1+"_") + rcType + "_pv";
-
+        String sheetName = opType +"_" + rcType + "_pv";
         logger.debug("================================");
         logger.debug("sheet name : {}", sheetName);
         logger.debug("startDate - endDate : {} ~ {}", startDate, endDate);
 
-
-        enumOptionType opType = ConvertOption1Option2ToOpType(option1, option2);
+        Boolean needTotalSum = false;
         switch(opType){
             case APP:
                 Map<Integer, String> headers = new HashMap<>();
@@ -101,12 +108,11 @@ public class StatisticsExcelExportService {
                 headers.put(2, "APP ID");
                 headers.put(3, "서비스");
 
-                excelUtil.createHeader(sheetName, tableName, rcType, startDate, endDate, headers, svc.equals("ALL"));
 
                 List<SvcOption1RC> rcs = svcOption1RcRepo.findByOpTypeAndRcTypeAndBetween(opType, rcType, startDate.toDate(), endDate.toDate());
-                excelUtil.createDate2(sheetName, rcs, APP, svcOption1RcRepo.findDistinctOption1ByRcTypeAndOpType(rcType, opType),
-                        null, svc.equals("ALL") ? svcOption1RcRepo.findDistinctSvcIdByRcType(rcType) : Lists.newArrayList(svc));
+                needTotalSum = excelUtil.createData(sheetName, rcs, APP, rcType, startDate, endDate);
 
+                excelUtil.createHeader(sheetName, tableName, rcType, startDate, endDate, headers, needTotalSum);
 
                 break;
             case API:
@@ -115,12 +121,11 @@ public class StatisticsExcelExportService {
                 headers.put(1, "서비스");
                 headers.put(2, "API 명");
 
-                excelUtil.createHeader(sheetName, tableName, rcType, startDate, endDate, headers, false);
 
                 rcs = svcOption1RcRepo.findByOpTypeAndRcTypeAndBetween(opType, rcType, startDate.toDate(), endDate.toDate());
-                excelUtil.createDate2(sheetName, rcs, API, svcOption1RcRepo.findDistinctOption1ByRcTypeAndOpType(rcType, opType),
-                        null, svc.equals("ALL") ? svcOption1RcRepo.findDistinctSvcIdByRcType(rcType) : Lists.newArrayList(svc));
+                needTotalSum = excelUtil.createData(sheetName, rcs, API, rcType, startDate, endDate);
 
+                excelUtil.createHeader(sheetName, tableName, rcType, startDate, endDate, headers, needTotalSum);
 
                 break;
             case APP_API:
@@ -129,17 +134,13 @@ public class StatisticsExcelExportService {
                 headers.put(1, "APP 명");
                 headers.put(2, "APP ID");
                 headers.put(3, "API 명");
-                excelUtil.createHeader(sheetName, tableName, rcType, startDate, endDate, headers, true);
 
-                List<SvcOption2RC> rcsAppApi=null;
-                if ( svc.equals("ALL")){
-                    rcsAppApi = svcOption2RcRepo.findByOpTypeAndRcTypeAndBetween(opType, rcType, startDate.toDate(), endDate.toDate());
+                //ALL 인경우 svc==ALL 조건으로 검색
+                List<SvcOption2RC> rcsAppApi = svcOption2RcRepo.findBySvcIdAndOpTypeAndRcTypeAndBetween(svc, opType, rcType, startDate.toDate(), endDate.toDate());
 
-                }else{
-                    rcsAppApi = svcOption2RcRepo.findBySvcIdAndOpTypeAndRcTypeAndBetween(svc, opType, rcType, startDate.toDate(), endDate.toDate());
-                }
+                needTotalSum = excelUtil.createData(sheetName, rcsAppApi, APP_API, rcType, startDate, endDate);
 
-                excelUtil.createDate2(sheetName, rcsAppApi, APP_API, null,null,null);
+                excelUtil.createHeader(sheetName, tableName, rcType, startDate, endDate, headers, needTotalSum);
 
                 break;
             case API_APP:
@@ -149,14 +150,12 @@ public class StatisticsExcelExportService {
                 headers.put(2, "API 명");
                 headers.put(3, "APP 명");
                 headers.put(4, "APP ID");
-                excelUtil.createHeader(sheetName, tableName, rcType, startDate, endDate, headers, true);
 
                 List<SvcOption2RC> rcsApiApp = svcOption2RcRepo.findByOpTypeAndRcTypeAndBetween(opType, rcType, startDate.toDate(), endDate.toDate());
 
-                excelUtil.createDate2(sheetName, rcsApiApp, API_APP, null, null,
-                        svc.equals("ALL") ? svcOption2RcRepo.findDistinctSvcIdByRcTypeAndOpTypeAndBetween(rcType, opType, startDate.toDate(), endDate.toDate()) : Lists.newArrayList(svc));
+                needTotalSum = excelUtil.createData(sheetName, rcsApiApp, API_APP, rcType, startDate, endDate);
 
-
+                excelUtil.createHeader(sheetName, tableName, rcType, startDate, endDate, headers, needTotalSum);
 
                 break;
             case ERROR:
@@ -166,12 +165,12 @@ public class StatisticsExcelExportService {
                 headers.put(1, "Error Code");
                 headers.put(2, "서비스");
 
-                excelUtil.createHeader(sheetName, tableName, rcType, startDate, endDate, headers, false);
+                //TODO 소계 합계가 필요한 경우 처리 필요
 
                 List<SvcOption1RC> rcsErr = svcOption1RcRepo.findByOpTypeAndRcTypeAndBetween(ERROR, rcType, startDate.toDate(), endDate.toDate());
-                excelUtil.createDate2(sheetName, rcsErr, ERROR, svcOption1RcRepo.findDistinctOption1ByRcTypeAndOpType(rcType, opType),
-                        null,svc.equals("ALL") ? svcOption1RcRepo.findDistinctSvcIdByRcType(rcType) : Lists.newArrayList(svc));
+                needTotalSum = excelUtil.createData(sheetName, rcsErr, ERROR, rcType, startDate, endDate);
 
+                excelUtil.createHeader(sheetName, tableName, rcType, startDate, endDate, headers, needTotalSum);
                 break;
             case ERROR_APP:
                 headers = new HashMap<>();
@@ -180,17 +179,17 @@ public class StatisticsExcelExportService {
                 headers.put(1, "Error Code");
                 headers.put(2, "APP 명");
                 headers.put(3, "APP ID");
-                excelUtil.createHeader(sheetName, tableName, rcType, startDate, endDate, headers, true);
 
-
+                List<SvcOption2RC> rcsErrApp = null;
                 if ( svc.equals("ALL")){
-                    //TODO 
+                    rcsErrApp = svcOption2RcRepo.findByOpTypeAndRcTypeAndBetween(opType, rcType, startDate.toDate(), endDate.toDate());
                 }else {
-                    List<SvcOption2RC> rcsErrApp = svcOption2RcRepo.findBySvcIdAndOpTypeAndRcTypeAndBetween(svc, opType, rcType, startDate.toDate(), endDate.toDate());
-                    excelUtil.createDate2(sheetName, rcsErrApp, ERROR_APP, svcOption2RcRepo.findDistinctOption1ByRcTypeAndOpType(rcType, opType),
-                            svcOption2RcRepo.findDistinctOption2ByRcTypeAndOpType(rcType, opType),
-                            svcOption2RcRepo.findDistinctSvcIdByRcType(rcType));
+                    rcsErrApp = svcOption2RcRepo.findBySvcIdAndOpTypeAndRcTypeAndBetween(svc, opType, rcType, startDate.toDate(), endDate.toDate());
                 }
+
+                needTotalSum = excelUtil.createData(sheetName, rcsErrApp, ERROR_APP, rcType, startDate, endDate);
+
+                excelUtil.createHeader(sheetName, tableName, rcType, startDate, endDate, headers, needTotalSum);
                 break;
             case ERROR_API:
                 headers = new HashMap<>();
@@ -198,14 +197,10 @@ public class StatisticsExcelExportService {
                 //ERROR_API
                 headers.put(1, "Error Code");
                 headers.put(2, "API 명");
-                excelUtil.createHeader(sheetName, tableName, rcType, startDate, endDate, headers, true);
                 List<SvcOption2RC> rcsErrApi = svcOption2RcRepo.findBySvcIdAndOpTypeAndRcTypeAndBetween(svc, opType, rcType, startDate.toDate(), endDate.toDate());
-                excelUtil.createDate2(sheetName, rcsErrApi, ERROR_API,
-                        svcOption2RcRepo.findDistinctOption1BySvcIdAndRcTypeAndOpTypeAndBetween(svc, rcType, opType, startDate.toDate(), endDate.toDate()),
-                        svcOption2RcRepo.findDistinctOption2BySvcIdAndRcTypeAndOpTypeAndBetween(svc, rcType, opType, startDate.toDate(), endDate.toDate()),
-                        Lists.newArrayList(svc));
-                        //svcOption2RcRepo.findDistinctSvcIdByRcType(rcType));
+                needTotalSum = excelUtil.createData(sheetName, rcsErrApi, ERROR_API, rcType, startDate, endDate);
 
+                excelUtil.createHeader(sheetName, tableName, rcType, startDate, endDate, headers, needTotalSum);
 
                 break;
 
@@ -220,9 +215,9 @@ public class StatisticsExcelExportService {
                 }else {
                     listSvcRC = svcRCRepo.findBySvcIdAndRcTypeAndBetween(svc, rcType, startDate.toDate(), endDate.toDate());
                 }
-                excelUtil.createHeader(sheetName, tableName, rcType, startDate, endDate, headers, true);
-                excelUtil.createDate2(sheetName, listSvcRC, SVC, null, null,
-                        svc.equals("ALL") ? svcRCRepo.findDistinctSvcIdByRcType(rcType) : Lists.newArrayList(svc));
+                needTotalSum = excelUtil.createData(sheetName, listSvcRC, SVC, rcType, startDate, endDate);
+                excelUtil.createHeader(sheetName, tableName, rcType, startDate, endDate, headers, needTotalSum);
+
 
                 break;
         }

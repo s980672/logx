@@ -33,7 +33,8 @@ public abstract class abstractExportExcel {
                 return sheet;
             }
         }
-        return null;
+
+        return addSheet(sheetName);
     }
 
     public XSSFWorkbook getWorkBook() {
