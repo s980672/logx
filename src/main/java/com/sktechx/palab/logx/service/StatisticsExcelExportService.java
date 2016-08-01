@@ -210,8 +210,7 @@ public class StatisticsExcelExportService {
                 headers.put(1, "서비스");
                 List<ServiceRequestCall> listSvcRC;
                 if( svc.equals("ALL")) {
-                    listSvcRC = svcRCRepo.findByRcTypeAndBetweenDates(rcType, startDate.toDate(), endDate
-                            .toDate());
+                    listSvcRC = svcRCRepo.findByRcTypeAndBetweenDates(rcType, startDate.toDate(), endDate.toDate());
                 }else {
                     listSvcRC = svcRCRepo.findBySvcIdAndRcTypeAndBetween(svc, rcType, startDate.toDate(), endDate.toDate());
                 }

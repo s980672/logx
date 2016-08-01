@@ -94,7 +94,7 @@ public class ExcelExportTest extends AbstractJUnit4SpringMvcTests {
 
         rcs.clear();
 
-        date = LocalDate.parse("201607", DateTimeFormat.forPattern("yyyyMM"));
+        date = LocalDate.parse("20160701", DateTimeFormat.forPattern("yyyyMMdd"));
 
         rcs.add(new ServiceRequestCall(enumRCType.monthly, date.toDate(), "10004", 100047l));
         rcs.add(new ServiceRequestCall(enumRCType.monthly, date.toDate(), "70004", 700047l));
@@ -361,7 +361,10 @@ public class ExcelExportTest extends AbstractJUnit4SpringMvcTests {
 
         FileOutputStream fileOut4 = new FileOutputStream("stat_daily_svc_err.xlsx");
 
-        wb = excelExportService.exportExcel("ALL", "ERROR", null, enumRCType.daily, "20160706", "20160707", true);
+        ExportExcelUtil util = new ExportExcelUtil();
+
+        wb = excelExportService.exportExcel(util, "ALL", "ERROR", null, enumRCType.daily, "20160706", "20160707", true);
+        wb = excelExportService.exportExcel(util, "ALL", "APP", null, enumRCType.monthly, "20160701", "20160901", true);
 
         wb.write(fileOut4);
         wb.close();
@@ -404,7 +407,7 @@ public class ExcelExportTest extends AbstractJUnit4SpringMvcTests {
 
         FileOutputStream fileOut = new FileOutputStream("stat_monthly_svc_pv.xlsx");
 
-        wb = excelExportService.exportExcel("weather", null, null, enumRCType.monthly, "201607", "201609", true);
+        wb = excelExportService.exportExcel("ALL", null, null, enumRCType.monthly, "20160701", "20160901", true);
 
 
 

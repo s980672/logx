@@ -33,12 +33,8 @@ public class ExportExcelUtil extends abstractExportExcel {
 
         CellStyle headerStyle = getHeaderStyle2();
 
-        Sheet sheet = getSheet(sheetName);
+        Sheet sh = getSheet(sheetName);
 
-        if ( sheet == null )
-            sheet = addSheet(sheetName);
-
-        final Sheet sh = sheet;
 
         /* 조회하려는 달의 갯수 또는 일의 갯수*/
         int colNum = 0;
@@ -65,6 +61,13 @@ public class ExportExcelUtil extends abstractExportExcel {
             colNum = days.getDays();
 
             dateFormat = "yyyy년 MM월";
+
+            //TODO 2달에 걸쳐있는 경우
+            Months months = Months.monthsBetween(start, end);
+
+            if ( months.getMonths() > 1){
+
+            }
 
         }
 
@@ -173,13 +176,7 @@ public class ExportExcelUtil extends abstractExportExcel {
 
         final Boolean[] needToMerge = {false};
 
-        Sheet sh = getSheet(sheetName);
-        if ( sh == null ) {
-            sh = addSheet(sheetName);
-//            logger.error("excel sheet is null");
-//            throw new NullPointerException("Excel sheet is null!");
-        }
-        final Sheet sheet = sh;
+        Sheet sheet = getSheet(sheetName);
 
         CellStyle style = getDataStyle();
 
@@ -503,11 +500,11 @@ public class ExportExcelUtil extends abstractExportExcel {
 
         Map<Date, Long> map = Maps.newTreeMap();
 
-        lst.stream().map(aa->aa.getId().getOption1()).distinct().forEach(op1->{ //APP KEY
+        lst.stream().map(aa->aa.getId().getOption1()).distinct().forEach(op1 -> { //APP KEY
 
             mergeEx.row = ex.row;
 
-            lst.stream().map(aa->aa.getId().getOption2()).distinct().forEach(op2 -> { //API KEY
+            lst.stream().map(aa -> aa.getId().getOption2()).distinct().forEach(op2 -> { //API KEY
 
                 //한 행에 해당하는 데이터가 lstErr에 있음
                 lst.stream().filter(d -> d.getId().getRcType() == rcType && d.getId().getOpType() == opType &&
