@@ -49,7 +49,7 @@ public class StatisticsController {
         XSSFWorkbook workbook = statisticsExcelExportService.exportExcel(service, option1, option2, rcType, startDate, endDate, true);
 
         Calendar today = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String date = sdf.format(today.getTime());
 
         String excelFileName = "stat_pv" + (StringUtils.isEmpty(service) ? "" : "_" + service)
