@@ -4,6 +4,7 @@ import com.sktechx.palab.logx.config.AbstractJUnit4SpringMvcTests;
 import com.sktechx.palab.logx.config.Application;
 import com.sktechx.palab.logx.model.enumOptionType;
 import com.sktechx.palab.logx.model.enumRCType;
+import com.sktechx.palab.logx.repository.ServiceRCRepository;
 import com.sktechx.palab.logx.repository.SvcOption1RCRepository;
 import com.sktechx.palab.logx.repository.SvcOption2RCRepository;
 import com.sktechx.palab.logx.service.ElasticsearchCommonAnalysisService;
@@ -40,7 +41,9 @@ public class ESAnalysisBatchTest extends AbstractJUnit4SpringMvcTests {
     @Autowired
     ElasticsearchCommonAnalysisService commonesService;
 
-
+    @Autowired
+    ServiceRCRepository svcRCRepo;    
+    
     @Autowired
     SvcOption1RCRepository svcOption1RCRepo;
 
@@ -51,6 +54,31 @@ public class ESAnalysisBatchTest extends AbstractJUnit4SpringMvcTests {
     @Before
     public void init(){
 
+    }
+    
+    @Test
+    public void getSVCUV() throws IOException, ParseException{
+    	   //////////////////////////////////
+        //특정일에만 데이터가 있어서 테스트 날짜
+        LocalDate startD = LocalDate.parse("2016-05-01", DateTimeFormat.forPattern("yyyy-MM-dd"));
+        String start = startD.toString(); //"2016-07-18";
+        String end = startD.plusDays(1).toString();
+
+        esUvService.generateSVCUV(enumRCType.daily, start, end);
+        
+        
+//		한달 데이터
+         end = startD.plusDays(30).toString();
+        
+        esUvService.generateSVCUV(enumRCType.monthly, start, end);
+
+        logger.debug("getSVCUV==============================");
+
+
+        svcRCRepo.findAll().stream().forEach(rc-> {
+            logger.debug(rc.toString());
+        });     
+    	
     }
 
 
@@ -63,14 +91,53 @@ public class ESAnalysisBatchTest extends AbstractJUnit4SpringMvcTests {
         String end = startD.plusDays(1).toString();
 
         esUvService.generateSvcOption1UV(enumOptionType.API, enumRCType.daily, start, end);
+        esUvService.generateSvcOption1UV(enumOptionType.APP, enumRCType.daily, start, end);
+        
+//		한달 데이터
+         end = startD.plusDays(30).toString();
+        
+        esUvService.generateSvcOption1UV(enumOptionType.API, enumRCType.monthly, start, end);
+        esUvService.generateSvcOption1UV(enumOptionType.APP, enumRCType.monthly, start, end);
 
         logger.debug("getOption1UV==============================");
 
 
         svcOption1RCRepo.findAll().stream().forEach(rc-> {
             logger.debug(rc.toString());
-        });
+        });     
 
+
+
+    }
+    
+    @Test
+    public void getOption2UV() throws IOException, ParseException{
+    	 //////////////////////////////////
+        //특정일에만 데이터가 있어서 테스트 날짜
+        LocalDate startD = LocalDate.parse("2016-05-01", DateTimeFormat.forPattern("yyyy-MM-dd"));
+        String start = startD.toString(); //"2016-07-18";
+        String end = startD.plusDays(1).toString();
+
+        esUvService.generateSvcOption2UV(enumOptionType.API_APP, enumRCType.daily, start, end);
+        esUvService.generateSvcOption2UV(enumOptionType.APP_API, enumRCType.daily, start, end);
+        esUvService.generateSvcOption2UV(enumOptionType.ERROR_API, enumRCType.daily, start, end);
+        esUvService.generateSvcOption2UV(enumOptionType.ERROR_APP, enumRCType.daily, start, end);
+        
+//		한달 데이터
+         end = startD.plusDays(30).toString();
+        
+        esUvService.generateSvcOption2UV(enumOptionType.API_APP, enumRCType.monthly, start, end);
+        esUvService.generateSvcOption2UV(enumOptionType.APP_API, enumRCType.monthly, start, end);
+        esUvService.generateSvcOption2UV(enumOptionType.ERROR_API, enumRCType.monthly, start, end);
+        esUvService.generateSvcOption2UV(enumOptionType.ERROR_APP, enumRCType.monthly, start, end);
+
+        logger.debug("getOption2UV==============================");
+
+
+        svcOption2RCRepo.findAll().stream().forEach(rc-> {
+            logger.debug(rc.toString());
+        });     
+    	
     }
 
     @Test
@@ -85,14 +152,13 @@ public class ESAnalysisBatchTest extends AbstractJUnit4SpringMvcTests {
         logger.debug("start : {}, end : {}", start, end);
 
 
-        esService.generateSvcOption2PV(enumRCType.monthly, enumOptionType.API_APP, start, end);
-        esService.generateSvcOption2PV(enumRCType.monthly, enumOptionType.APP_API, start, end);
-        esService.generateSvcOption2PV(enumRCType.monthly, enumOptionType.ERROR_APP, start, end);
-        esService.generateSvcOption2PV(enumRCType.monthly, enumOptionType.ERROR_API, start, end);
+        esService.generateSvcOption2PV( enumOptionType.API_APP,enumRCType.monthly, start, end);
+        esService.generateSvcOption2PV( enumOptionType.APP_API,enumRCType.monthly, start, end);
+        esService.generateSvcOption2PV( enumOptionType.ERROR_APP,enumRCType.monthly, start, end);
+        esService.generateSvcOption2PV( enumOptionType.ERROR_API, enumRCType.monthly,start, end);
 
         logger.debug("svcOption2==============================");
         svcOption2RCRepo.findAll().stream().forEach(err -> logger.debug(err.toString()));
-
 
     }
 
@@ -106,9 +172,9 @@ public class ESAnalysisBatchTest extends AbstractJUnit4SpringMvcTests {
 
         logger.debug("start : {}, end : {}", start, end);
 
-        esService.generateSvcOption1PV(enumRCType.daily, enumOptionType.APP, start, end);
-        esService.generateSvcOption1PV(enumRCType.daily, enumOptionType.API, start, end);
-        esService.generateSvcOption1PV(enumRCType.daily, enumOptionType.ERROR, start, end);
+        esService.generateSvcOption1PV(enumOptionType.APP,enumRCType.daily,  start, end);
+        esService.generateSvcOption1PV(enumOptionType.API,enumRCType.daily,  start, end);
+        esService.generateSvcOption1PV( enumOptionType.ERROR, enumRCType.daily, start, end);
 
         logger.debug("svcOption1==============================");
 

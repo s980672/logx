@@ -49,7 +49,7 @@ public class ScheduledTasks {
     	String date2 = null;
 
     	date1 =  "2016-05-02";
-    	date2 =  "2016-05-03";		
+    	date2 =  "2016-05-30";		
 
 	        try {
 	
@@ -58,22 +58,25 @@ public class ScheduledTasks {
 		
 //		            esService.generateSVCPV(date1, date2);
 //		
-//		            esService.generateSvcOption1PV(enumOptionType.API, date1, date2);
+		            
+//	        	esService.generateSvcOption1PV(enumOptionType.APP, enumRCType.daily,date1, date2);
+//	        	esService.generateSvcOption1PV(enumOptionType.API, enumRCType.monthly,date1, date2);
+	        	esService.generateSvcOption1PV(enumOptionType.ERROR, enumRCType.monthly,date1, date2);
 //		            esService.generateSvcOption2PV(enumRCType.daily, enumOptionType.APP_API, date1, date2);
 //		            esService.generateSvcOption2PV(enumRCType.monthly,enumOptionType.APP_API, date1, date2);
 
-		            esService.generateSvcOption1PV(enumRCType.daily,enumOptionType.API, date1, date1);
-		            esService.generateSvcOption2PV(enumRCType.daily,enumOptionType.APP_API, date1, date2);
-		            esService.generateSvcOption2PV(enumRCType.daily,enumOptionType.APP_API, date1, date2);
-		            
+//		            esService.generateSvcOption1PV(enumRCType.daily,enumOptionType.API, date1, date1);
+//		            esService.generateSvcOption2PV(enumRCType.daily,enumOptionType.APP_API, date1, date2);
+//		            esService.generateSvcOption2PV(enumRCType.daily,enumOptionType.APP_API, date1, date2);
+//		            
 //		            esUVService.generateSVCUV(enumRCType.daily, date1, date2);
 //		            esUVService.generateSvcOption1UV(enumOptionType.API, enumRCType.daily, date1, date2);
 //		            esUVService.generateSvcOption1UV(enumOptionType.APP, enumRCType.daily, date1, date2);
-		        	esUVService.generateSvcOption2UV(enumOptionType.APP_API, enumRCType.daily, date1, date2);
-		        	esUVService.generateSvcOption2UV(enumOptionType.APP_API,enumRCType.monthly, date1, date2);
+//		        	esUVService.generateSvcOption2UV(enumOptionType.APP_API, enumRCType.daily, date1, date2);
+//		        	esUVService.generateSvcOption2UV(enumOptionType.APP_API,enumRCType.monthly, date1, date2);
 	
-		        	esUVService.generateSvcOption2UV(enumOptionType.API_APP, enumRCType.daily, date1, date2);
-		        	esUVService.generateSvcOption2UV(enumOptionType.API_APP,enumRCType.monthly, date1, date2);
+//		        	esUVService.generateSvcOption2UV(enumOptionType.API_APP, enumRCType.daily, date1, date2);
+//		        	esUVService.generateSvcOption2UV(enumOptionType.API_APP,enumRCType.monthly, date1, date2);
 		        	
 		
 	        } catch (IOException e) {
@@ -101,16 +104,16 @@ public class ScheduledTasks {
         String date1 = start.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         String date2 = end.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
-        esService.generateSvcOption1PV(enumRCType.monthly, enumOptionType.API, date1, date1);
-        esService.generateSvcOption1PV(enumRCType.monthly, enumOptionType.APP, date1, date1);
-        esService.generateSvcOption1PV(enumRCType.monthly, enumOptionType.ERROR, date1, date1);
+//        esService.generateSvcOption1PV(enumRCType.monthly, enumOptionType.API, date1, date1);
+//        esService.generateSvcOption1PV(enumRCType.monthly, enumOptionType.APP, date1, date1);
+//        esService.generateSvcOption1PV(enumRCType.monthly, enumOptionType.ERROR, date1, date1);
+//
+//        esService.generateSvcOption2PV(enumRCType.monthly, enumOptionType.APP_API, date1, date2);
+//        esService.generateSvcOption2PV(enumRCType.monthly, enumOptionType.API_APP, date1, date2);
+//        esService.generateSvcOption2PV(enumRCType.monthly, enumOptionType.ERROR_API, date1, date2);
+//        esService.generateSvcOption2PV(enumRCType.monthly, enumOptionType.ERROR_APP, date1, date2);
 
-        esService.generateSvcOption2PV(enumRCType.monthly, enumOptionType.APP_API, date1, date2);
-        esService.generateSvcOption2PV(enumRCType.monthly, enumOptionType.API_APP, date1, date2);
-        esService.generateSvcOption2PV(enumRCType.monthly, enumOptionType.ERROR_API, date1, date2);
-        esService.generateSvcOption2PV(enumRCType.monthly, enumOptionType.ERROR_APP, date1, date2);
-
-        esService.generateSvcPV(enumRCType.monthly, date1, date2);
+//        esService.generateSvcPV(enumRCType.monthly, date1, date2);
 
     }
 
