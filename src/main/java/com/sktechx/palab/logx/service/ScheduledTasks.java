@@ -2,6 +2,7 @@ package com.sktechx.palab.logx.service;
 
 import com.sktechx.palab.logx.model.enumOptionType;
 import com.sktechx.palab.logx.model.enumRCType;
+import com.sktechx.palab.logx.model.enumStatsType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,15 +75,17 @@ public class ScheduledTasks {
 	        try {
 	
 	        		
-	//	            esService.generatePV(date1, date2);
-	//	
-	//	            esService.generateSVCPV(date1, date2);
-	//	
-		            esService.generateSvcOption1PV(enumOptionType.API, date1, date1);
+//		            esService.generatePV(date1, date2);
+		
+//		            esService.generateSVCPV(date1, date2);
+//		
+//		            esService.generateSvcOption1PV(enumOptionType.API, date1, date2);
 //		            esService.generateSvcOption2PV(enumRCType.daily, enumOptionType.APP_API, date1, date2);
 //		            esService.generateSvcOption2PV(enumRCType.monthly,enumOptionType.APP_API, date1, date2);
 		            
-		            esUVService.generateSVUV(enumRCType.daily, date1, date1);
+//		            esUVService.generateSVCUV(enumRCType.daily, date1, date2);
+		            esUVService.generateSvcOption1UV(enumOptionType.API, enumRCType.daily, date1, date2);
+		            esUVService.generateSvcOption1UV(enumOptionType.APP, enumRCType.daily, date1, date2);
 		
 	//	            esService.generateErrorCount(date1, date2);
 	//	

@@ -140,6 +140,7 @@ public class AggReqDSLs {
 //                "}";
 //    }
 
+    //서비스 별 UV
     public final static String getQueryServiceUV(String start, String end) {
         return "{\n" +
                 "  \"aggs\": {\n" +
@@ -149,9 +150,45 @@ public class AggReqDSLs {
                 "      },\n" +
                 "      \"aggs\": {\n" +
                 "        \"uvCount\": {\n" +
-                "          \"terms\": {\n" +
+                "          \"cardinality\": {\n" +
                 "            \"field\": \"cltIp\"\n" +
                 "          }\n" +
+                "        }\n" +
+                "      }\n" +
+                "    }\n" +
+                "  },\n" +
+                "  \"query\": {\n" +
+                "    \"range\": {\n" +
+                "      \"reqDt\": {\n" +
+                "        \"gte\": \"" + start + "\",\n" +
+                "        \"lt\": \"" + end + "\"\n" +
+                "      }\n" +
+                "    }\n" +
+                "  }\n" +
+                "}";
+    }
+    
+    
+// option1 선택 시 UV
+    public final static String getQueryServiceOption1UV(String option1,String start, String end) {
+        return "{\n" +
+                "  \"aggs\": {\n" +
+                "    \"serviceRC\": {\n" +
+                "      \"terms\": {\n" +
+                "        \"field\": \"svcId\"\n" +
+                "      },\n" +
+                "      \"aggs\" : {\n" +
+                "        \"option1RC\" : {\n" +
+                "          \"terms\" : {\n" +
+                "            \"field\" : \""+option1+"\"\n" +
+                "       		   },\n" +
+                "     				\"aggs\": {\n" +
+                "		     		\"uvCount\": {\n" +
+                "					\"cardinality\": {\n" +
+                "         			\"field\": \"cltIp\"\n" +
+                "        		  }\n" +
+                "     		   }\n" +
+                "     		 }\n" +
                 "        }\n" +
                 "      }\n" +
                 "    }\n" +

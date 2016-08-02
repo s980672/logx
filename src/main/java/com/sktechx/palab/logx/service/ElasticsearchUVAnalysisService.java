@@ -5,8 +5,11 @@ import com.sktechx.palab.logx.repository.*;
 import io.searchbox.client.JestClient;
 import io.searchbox.core.Search;
 import io.searchbox.core.SearchResult;
+import io.searchbox.core.search.aggregation.CardinalityAggregation;
 import io.searchbox.core.search.aggregation.TermsAggregation;
 import io.searchbox.params.SearchType;
+
+import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,48 +33,81 @@ public class ElasticsearchUVAnalysisService {
     RequestCallRepository rcRepo;
 
     @Autowired
-    ServiceRCRepository svcRCRepo;
+    ServiceRCRepository svcRCRepo;    
+
+    @Autowired
+    SvcOption1RCRepository svcOption1RCRep;
+    
     
     @Autowired
     ElasticsearchCommonAnalysisService CommonAnalysisService;
     
     
 //    서비스 daily . monthly service 별 uv 
-    public void generateSVUV(enumRCType dayType, String start, String end) throws IOException, ParseException{
+    public void generateSVCUV(enumRCType dayType, String start, String end) throws IOException, ParseException{
     	
-    	 SearchResult response = CommonAnalysisService.getResult(AggReqDSLs.getQueryServiceUV(start, end));
-      	 
-    	 System.out.println("query >>  "+AggReqDSLs.getQueryServiceUV(start, end).toString());
-    	 System.out.println("1111111111111");
+    	 SearchResult result = CommonAnalysisService.getResult(AggReqDSLs.getQueryServiceUV(start, end));     	 
 
-         TermsAggregation svcPV = response.getAggregations().getTermsAggregation("serviceRC");
-
-         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    	 TermsAggregation svcUV = result.getAggregations().getTermsAggregation("serviceRC");
+    	 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
          Date date = sdf.parse(start);
+    	 
+    	 svcUV.getBuckets().stream().forEach(svc -> {
+ 
+			CardinalityAggregation count = svc.getCardinalityAggregation("uvCount");
+			 
+			ServiceRequestCall svcRC;
+			svcRC = new ServiceRequestCall(enumStatsType.UV, enumRCType.daily, date, svc.getKey(), count.getCardinality());
+			
+			svcRCRepo.save(svcRC);
+    		 
+    	 });    	
+    }
+    
+    
+    public void generateSvcOption1UV(enumOptionType opType, enumRCType dayType, String start, String end) throws IOException, ParseException{
+    	
+    	  String optionField = null;
+          if(opType == enumOptionType.API){
+              optionField = "apiPath";
+          }else{
+              optionField = "appKey";
+          }
+          
+          SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+          Date date = sdf.parse(start);
+    	
+    	 SearchResult result = CommonAnalysisService.getResult(AggReqDSLs.getQueryServiceOption1UV(optionField,start, end)); 
+    	 
+    	 System.out.println("query >> "+AggReqDSLs.getQueryServiceOption1UV(optionField,start, end).toString());
+    	 
+         TermsAggregation svcUV = result.getAggregations().getTermsAggregation("serviceRC");
 
-         svcPV.getBuckets().stream().forEach(svc -> {          	 
-        	 
-        	 System.out.println("1111111111111");
-        	 
-        	 TermsAggregation uvSvc = svc.getTermsAggregation("uvCount");
-        	 
-        	 System.out.println("22222222222222");
-        	 
-        	 uvSvc.getBuckets().stream().forEach(svcsub->{
-        		 
-        		 System.out.println("###########"+svc.getKey());
-        		 System.out.println("###########"+svcsub.getKey());
-        		
-        	 });
-        	 
+         
+         svcUV.getBuckets().stream().forEach(svc-> {
 
-//             ServiceRequestCall svcRC = new ServiceRequestCall(dayType, date, b.getKey(), b.getCount());
-//
-//             svcRCRepo.save(svcRC);
+             TermsAggregation apiRC = svc.getTermsAggregation("option1RC");  
+             
+             apiRC.getBuckets().stream().forEach(svcsub -> {
+            	 
+            	 CardinalityAggregation count = svcsub.getCardinalityAggregation("uvCount");
+//            	 System.out.println(">>"+svc.getKey()+"###"+svcsub.getKey()+"##"+count.getCardinality());
+            	 
+            	 SvcOption1RC svcOp1UV = new SvcOption1RC(enumStatsType.UV, dayType, opType, date, svc.getKey(), svcsub.getKey(), count.getCardinality());
 
+                 logger.debug("##########################");
+                 logger.debug("SvcOption1RC : {}", svcOp1UV);
+                 logger.debug("##########################");
+
+                 svcOption1RCRep.save(svcOp1UV);
+            	 
+             });
+             	
+             
          });
     	
-    }
+		
+	}
 
 
 }

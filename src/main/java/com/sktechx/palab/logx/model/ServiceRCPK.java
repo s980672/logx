@@ -13,12 +13,16 @@ public class ServiceRCPK implements Serializable{
 
     public ServiceRCPK(){};
 
-    public ServiceRCPK(enumRCType rcType, Date reqDt, String svcId) {
+    public ServiceRCPK(enumStatsType stsType, enumRCType rcType, Date reqDt, String svcId) {
+    	this.stsType = stsType;
         this.rcType = rcType;
         this.reqDt = reqDt;
         this.svcId = svcId;
 
     }
+    
+    @Enumerated(EnumType.STRING)
+    private enumStatsType stsType;
 
     @Enumerated(EnumType.STRING)
     private enumRCType rcType;
@@ -35,6 +39,15 @@ public class ServiceRCPK implements Serializable{
 
     public void setSvcId(String svcId) {
         this.svcId = svcId;
+    }
+    
+
+    public enumStatsType getStatsType() {
+        return stsType;
+    }
+
+    public void setStatsType(enumStatsType stsType) {
+        this.stsType = stsType;
     }
 
 
@@ -79,6 +92,7 @@ public class ServiceRCPK implements Serializable{
     @Override
     public String toString() {
         return "ServiceRCPK{" +
+                "stsType=" + stsType +
                 "rcType=" + rcType +
                 ", reqDt=" + reqDt +
                 ", svcId='" + svcId + '\'' +

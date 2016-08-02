@@ -71,7 +71,7 @@ public class ElasticsearchPVAnalysisService {
 
         svcPV.getBuckets().stream().forEach(b -> {
 
-            ServiceRequestCall svcRC = new ServiceRequestCall(enumRCType.daily, date, b.getKey(), b.getCount());
+            ServiceRequestCall svcRC = new ServiceRequestCall(enumStatsType.PV, enumRCType.daily, date, b.getKey(), b.getCount());
 
             svcRCRepo.save(svcRC);
 
@@ -102,7 +102,7 @@ public class ElasticsearchPVAnalysisService {
 
             appRC.getBuckets().stream().forEach(app -> {
 
-                SvcOption1RC svcOp1PV = new SvcOption1RC(enumRCType.daily, opType, date, svc.getKey(), app.getKey(), app.getCount());
+                SvcOption1RC svcOp1PV = new SvcOption1RC(enumStatsType.PV, enumRCType.daily, opType, date, svc.getKey(), app.getKey(), app.getCount());
 
                 logger.debug("##########################");
                 logger.debug("SvcOption1RC : {}", svcOp1PV);
@@ -149,7 +149,7 @@ public class ElasticsearchPVAnalysisService {
             	appRC.getBuckets().stream().forEach(app ->{        		
 
 
-	                    SvcOption2RC svcOp2PV = new SvcOption2RC(dayType, opType, date, svc.getKey(), api.getKey(), app.getKey(), app.getCount());
+	                    SvcOption2RC svcOp2PV = new SvcOption2RC(enumStatsType.PV, dayType, opType, date, svc.getKey(), api.getKey(), app.getKey(), app.getCount());
 	
 	                    logger.debug("##########################");
 	                    logger.debug("SvcOption2RC : {}", svcOp2PV);
