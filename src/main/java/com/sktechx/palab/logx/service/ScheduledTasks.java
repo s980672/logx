@@ -84,8 +84,14 @@ public class ScheduledTasks {
 //		            esService.generateSvcOption2PV(enumRCType.monthly,enumOptionType.APP_API, date1, date2);
 		            
 //		            esUVService.generateSVCUV(enumRCType.daily, date1, date2);
-		            esUVService.generateSvcOption1UV(enumOptionType.API, enumRCType.daily, date1, date2);
-		            esUVService.generateSvcOption1UV(enumOptionType.APP, enumRCType.daily, date1, date2);
+//		            esUVService.generateSvcOption1UV(enumOptionType.API, enumRCType.daily, date1, date2);
+//		            esUVService.generateSvcOption1UV(enumOptionType.APP, enumRCType.daily, date1, date2);
+		        	esUVService.generateSvcOption2UV(enumOptionType.APP_API, enumRCType.daily, date1, date2);
+		        	esUVService.generateSvcOption2UV(enumOptionType.APP_API,enumRCType.monthly, date1, date2);
+	
+		        	esUVService.generateSvcOption2UV(enumOptionType.API_APP, enumRCType.daily, date1, date2);
+		        	esUVService.generateSvcOption2UV(enumOptionType.API_APP,enumRCType.monthly, date1, date2);
+		        	
 		
 	//	            esService.generateErrorCount(date1, date2);
 	//	
