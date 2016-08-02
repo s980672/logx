@@ -8,6 +8,7 @@ import com.sktechx.palab.logx.repository.SvcOption1RCRepository;
 import com.sktechx.palab.logx.repository.SvcOption2RCRepository;
 import com.sktechx.palab.logx.service.ElasticsearchCommonAnalysisService;
 import com.sktechx.palab.logx.service.ElasticsearchPVAnalysisService;
+import com.sktechx.palab.logx.service.ElasticsearchUVAnalysisService;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.junit.Before;
@@ -32,7 +33,10 @@ public class ESAnalysisBatchTest extends AbstractJUnit4SpringMvcTests {
 
     @Autowired
     ElasticsearchPVAnalysisService esService;
-    
+
+    @Autowired
+    ElasticsearchUVAnalysisService esUvService;
+
     @Autowired
     ElasticsearchCommonAnalysisService commonesService;
 
@@ -49,6 +53,25 @@ public class ESAnalysisBatchTest extends AbstractJUnit4SpringMvcTests {
 
     }
 
+
+    @Test
+    public void getOption1UV() throws IOException, ParseException {
+        //////////////////////////////////
+        //특정일에만 데이터가 있어서 테스트 날짜
+        LocalDate startD = LocalDate.parse("2016-05-01", DateTimeFormat.forPattern("yyyy-MM-dd"));
+        String start = startD.toString(); //"2016-07-18";
+        String end = startD.plusDays(1).toString();
+
+        esUvService.generateSvcOption1UV(enumOptionType.API, enumRCType.daily, start, end);
+
+        logger.debug("getOption1UV==============================");
+
+
+        svcOption1RCRepo.findAll().stream().forEach(rc-> {
+            logger.debug(rc.toString());
+        });
+
+    }
 
     @Test
     public void getOption2PV() throws IOException, ParseException {

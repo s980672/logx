@@ -152,45 +152,30 @@ public class ElasticsearchPVAnalysisService {
 
         svcPV.getBuckets().stream().forEach(svc-> {
 
-            TermsAggregation apiRC = svc.getTermsAggregation("option1RC");           
+            TermsAggregation apiRC = svc.getTermsAggregation("option1RC");
 
             apiRC.getBuckets().stream().forEach(api -> {
-            	
+
             	TermsAggregation appRC = api.getTermsAggregation("option2RC");
-            	
-            	appRC.getBuckets().stream().forEach(app ->{        		
+
+            	appRC.getBuckets().stream().forEach(app ->{
 
 
-	                    SvcOption2RC svcOp2PV = new SvcOption2RC(enumStatsType.PV, dayType, opType, date, svc.getKey(), api.getKey(), app.getKey(), app.getCount());
-	
+	                    SvcOption2RC svcOp2PV = new SvcOption2RC(enumStatsType.PV, rcType, opType, date, svc.getKey(), api.getKey(), app.getKey(), app.getCount());
+
 	                    logger.debug("##########################");
 	                    logger.debug("SvcOption2RC : {}", svcOp2PV);
 	                    logger.debug("##########################");
-	
+
 	                    svcOption2RCRep.save(svcOp2PV);
-            		
+
             		}
             	);
-            	
-    
+
+
             });
 
 
-        if ( queryOption1Option2AllSvcPV == null ) return;
-
-        //service 구분이 없는 경우 = 모든 서비스의 경우
-        //opType이 ERROR-APP, ERROR-API, APP-API인 경우만 해당
-        result = CommonAnalysisService.getResult(queryOption1Option2AllSvcPV);
-
-        TermsAggregation option1RC = result.getAggregations().getTermsAggregation("option1RC");
-
-        option1RC.getBuckets().stream().forEach(op1->{
-            op1.getTermsAggregation("option2RC").getBuckets().stream().forEach(op2->{
-
-                SvcOption2RC svcOp2PV = new SvcOption2RC(enumRCType.daily, opType, date, "ALL", op1.getKey(), op2.getKey(), op2.getCount());
-
-                svcOption2RCRep.save(svcOp2PV);
-            });
         });
 
 
