@@ -4,7 +4,6 @@ import com.sktechx.palab.logx.model.*;
 import com.sktechx.palab.logx.repository.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.joda.time.LocalDate;
-import org.joda.time.format.DateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,7 +64,8 @@ public class StatisticsExcelExportService {
 
     }
 
-    public XSSFWorkbook exportExcel(String svc, String option1, String option2, enumRCType rcType, String start, String end, boolean isPV) {
+
+    public XSSFWorkbook exportExcel(String svc, String option1, String option2, enumRCType rcType, LocalDate start, LocalDate end, boolean isPV) {
         ExportExcelUtil util = new ExportExcelUtil();
 
         exportExcel(util, svc, option1, option2, rcType, start, end, isPV);
@@ -83,10 +83,10 @@ public class StatisticsExcelExportService {
     sheetName = {svcName}_2015_{monthly}_pv_20160708
 
      */
-    public XSSFWorkbook exportExcel(ExportExcelUtil excelUtil, String svc, String option1, String option2, enumRCType rcType, String start, String end, boolean isPV) {
+    public XSSFWorkbook exportExcel(ExportExcelUtil excelUtil, String svc, String option1, String option2, enumRCType rcType, LocalDate startDate, LocalDate endDate, boolean isPV) {
 
-        LocalDate startDate = LocalDate.parse(start, DateTimeFormat.forPattern("yyyyMMdd"));
-        LocalDate endDate = LocalDate.parse(end, DateTimeFormat.forPattern("yyyyMMdd"));
+//        LocalDate startDate = LocalDate.parse(start, DateTimeFormat.forPattern("yyyyMMdd"));
+//        LocalDate endDate = LocalDate.parse(end, DateTimeFormat.forPattern("yyyyMMdd"));
 
         if ( excelUtil == null ) {
             excelUtil = new ExportExcelUtil();

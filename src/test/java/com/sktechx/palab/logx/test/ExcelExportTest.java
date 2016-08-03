@@ -363,8 +363,15 @@ public class ExcelExportTest extends AbstractJUnit4SpringMvcTests {
 
         ExportExcelUtil util = new ExportExcelUtil();
 
-        wb = excelExportService.exportExcel(util, "ALL", "ERROR", null, enumRCType.daily, "20160706", "20160707", true);
-        wb = excelExportService.exportExcel(util, "ALL", "APP", null, enumRCType.monthly, "20160701", "20160901", true);
+        LocalDate start = LocalDate.parse("20160706", DateTimeFormat.forPattern("yyyyMMdd"));
+        LocalDate end = LocalDate.parse("20160707", DateTimeFormat.forPattern("yyyyMMdd"));
+
+        wb = excelExportService.exportExcel(util, "ALL", "ERROR", null, enumRCType.daily, start, end, true);
+
+        start = LocalDate.parse("20160701", DateTimeFormat.forPattern("yyyyMMdd"));
+        end = LocalDate.parse("20160901", DateTimeFormat.forPattern("yyyyMMdd"));
+
+        wb = excelExportService.exportExcel(util, "ALL", "APP", null, enumRCType.monthly, start, end, true);
 
         wb.write(fileOut4);
         wb.close();
@@ -378,10 +385,13 @@ public class ExcelExportTest extends AbstractJUnit4SpringMvcTests {
 
         ExportExcelUtil util = new ExportExcelUtil();
 
-        wb = excelExportService.exportExcel(util, "ALL", "APP", "API", enumRCType.daily, "20160706", "20160707", true);
-        wb = excelExportService.exportExcel(util, "ALL", "API", "APP", enumRCType.daily, "20160706", "20160808", true);
-        wb = excelExportService.exportExcel(util, "100004", "ERROR", "API", enumRCType.daily, "20160706", "20160707", true);
-        wb = excelExportService.exportExcel(util, "100004", "ERROR", "APP", enumRCType.daily, "20160706", "20160707", true);
+        LocalDate start = LocalDate.parse("20160706", DateTimeFormat.forPattern("yyyyMMdd"));
+        LocalDate end = LocalDate.parse("20160707", DateTimeFormat.forPattern("yyyyMMdd"));
+
+        wb = excelExportService.exportExcel(util, "ALL", "APP", "API", enumRCType.daily, start, end, true);
+        wb = excelExportService.exportExcel(util, "ALL", "API", "APP", enumRCType.daily,start, end, true);
+        wb = excelExportService.exportExcel(util, "100004", "ERROR", "API", enumRCType.daily, start, end, true);
+        wb = excelExportService.exportExcel(util, "100004", "ERROR", "APP", enumRCType.daily, start, end, true);
 
         wb.write(fileOut);
         wb.close();
@@ -397,7 +407,10 @@ public class ExcelExportTest extends AbstractJUnit4SpringMvcTests {
 
         FileOutputStream fileOut = new FileOutputStream("stat_monthly_svc_app_pv.xlsx");
 
-        wb = excelExportService.exportExcel("weather", "app", null, enumRCType.monthly, "201607", "201612", true);
+        LocalDate start = LocalDate.parse("20160706", DateTimeFormat.forPattern("yyyyMMdd"));
+        LocalDate end = LocalDate.parse("20160707", DateTimeFormat.forPattern("yyyyMMdd"));
+
+        wb = excelExportService.exportExcel("weather", "app", null, enumRCType.monthly, start, end, true);
 
         wb.write(fileOut);
     }
@@ -406,8 +419,10 @@ public class ExcelExportTest extends AbstractJUnit4SpringMvcTests {
     public void getMonthlySvcPV() throws IOException {
 
         FileOutputStream fileOut = new FileOutputStream("stat_monthly_svc_pv.xlsx");
+        LocalDate start = LocalDate.parse("20160706", DateTimeFormat.forPattern("yyyyMMdd"));
+        LocalDate end = LocalDate.parse("20160707", DateTimeFormat.forPattern("yyyyMMdd"));
 
-        wb = excelExportService.exportExcel("ALL", null, null, enumRCType.monthly, "20160701", "20160901", true);
+        wb = excelExportService.exportExcel("ALL", null, null, enumRCType.monthly, start, end, true);
 
 
 
@@ -420,13 +435,16 @@ public class ExcelExportTest extends AbstractJUnit4SpringMvcTests {
 
         FileOutputStream fileOut = new FileOutputStream("stat_daily_svc_pv_10004.xlsx");
 
-        wb = excelExportService.exportExcel("10004", null, null, enumRCType.daily, "20160706", "20160707", true);
+        LocalDate start = LocalDate.parse("20160706", DateTimeFormat.forPattern("yyyyMMdd"));
+        LocalDate end = LocalDate.parse("20160707", DateTimeFormat.forPattern("yyyyMMdd"));
+
+        wb = excelExportService.exportExcel("10004", null, null, enumRCType.daily, start, end, true);
 
         wb.write(fileOut);
 
         FileOutputStream fileOut2 = new FileOutputStream("stat_daily_svc_pv_all.xlsx");
 
-        wb = excelExportService.exportExcel("ALL", null, null, enumRCType.daily, "20160706", "20160707", true);
+        wb = excelExportService.exportExcel("ALL", null, null, enumRCType.daily, start , end , true);
 
         wb.write(fileOut2);
     }
@@ -440,27 +458,31 @@ public class ExcelExportTest extends AbstractJUnit4SpringMvcTests {
 
         FileOutputStream fileOut = new FileOutputStream("stat_daily_Allsvc_app_pv.xlsx");
 
-        wb = excelExportService.exportExcel("ALL", "APP", null, enumRCType.daily, "20160706", "20160707", true);
+        LocalDate start = LocalDate.parse("20160706", DateTimeFormat.forPattern("yyyyMMdd"));
+        LocalDate end = LocalDate.parse("20160707", DateTimeFormat.forPattern("yyyyMMdd"));
+
+
+        wb = excelExportService.exportExcel("ALL", "APP", null, enumRCType.daily, start , end, true);
 
         wb.write(fileOut);
         wb.close();
 
         FileOutputStream fileOut2 = new FileOutputStream("stat_daily_svc_app_pv.xlsx");
 
-        wb = excelExportService.exportExcel("10004", "APP", null, enumRCType.daily, "20160706", "20160707", true);
+        wb = excelExportService.exportExcel("10004", "APP", null, enumRCType.daily, start, end, true);
 
         wb.write(fileOut2);
         wb.close();
         FileOutputStream fileOut3 = new FileOutputStream("stat_daily_svc_api_pv.xlsx");
 
-        wb = excelExportService.exportExcel("10004", "API", null, enumRCType.daily, "20160706", "20160707", true);
+        wb = excelExportService.exportExcel("10004", "API", null, enumRCType.daily, start, end, true);
 
         wb.write(fileOut3);
         wb.close();
 
         FileOutputStream fileOut4 = new FileOutputStream("stat_daily_svc_err.xlsx");
 
-        wb = excelExportService.exportExcel("10004", "ERROR", null, enumRCType.daily, "20160706", "20160707", true);
+        wb = excelExportService.exportExcel("10004", "ERROR", null, enumRCType.daily, start, end, true);
 
         wb.write(fileOut4);
         wb.close();
