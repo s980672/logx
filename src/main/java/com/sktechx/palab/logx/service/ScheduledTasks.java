@@ -58,7 +58,7 @@ public class ScheduledTasks {
 
         try {
 
-            esService.generateSvcPV(enumRCType.daily, date1, date2);
+            esService.generatePV(enumRCType.daily, date1, date2);
             esService.generateSvcOption1PV(enumOptionType.APP, enumRCType.daily, date1, date2);
             esService.generateSvcOption1PV(enumOptionType.API, enumRCType.daily, date1, date2);
             esService.generateSvcOption1PV(enumOptionType.ERROR, enumRCType.daily, date1, date2);
@@ -83,7 +83,7 @@ public class ScheduledTasks {
 
     }
 
-    @Scheduled(cron="0/3 * * * * *")
+    //@Scheduled(cron="0/3 * * * * *")
     public void testMonthlyPV() throws IOException, ParseException {
 
         logger.debug("=========================");
@@ -98,12 +98,12 @@ public class ScheduledTasks {
 
         LocalDate end = start.plusMonths(5);
 
-        for (; start.isBefore(end); start = start.plusMonths(1) ) {
+        for (; start.isBefore(end); start=start.plusMonths(1) ) {
 
             String date1 = start.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             String date2 = start.plusMonths(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
-            logger.debug("date1 : {} ------------ date2 : {}", date1, date2);
+            logger.debug("date1 : {} -- date2 : {} -- end : {}", date1, date2, end);
 
             esService.generateSvcPV(enumRCType.monthly, date1, date2);
             esService.generateSvcOption1PV(enumOptionType.API, enumRCType.monthly, date1, date1);

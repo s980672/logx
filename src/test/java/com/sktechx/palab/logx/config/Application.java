@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.sktechx.palab.logx.service.ElasticsearchPVAnalysisService;
-import com.sktechx.palab.logx.service.StatisticsExcelExportService;
+import com.sktechx.palab.logx.service.ExportExcelService;
 import com.sktechx.palab.logx.web.StatisticsController;
 import io.searchbox.client.JestClient;
 import io.searchbox.client.JestClientFactory;
@@ -41,8 +41,8 @@ public class Application
     }
 
     @Bean
-    public StatisticsExcelExportService excelExportService() {
-        return new StatisticsExcelExportService();
+    public ExportExcelService excelExportService() {
+        return new ExportExcelService();
     }
 
     @Value("${elasticsearch.search.endpoint}")
@@ -74,8 +74,8 @@ public class Application
     }
 
     @Bean
-    StatisticsExcelExportService statisticsExcelExportService(){
-        return new StatisticsExcelExportService();
+    ExportExcelService statisticsExcelExportService(){
+        return new ExportExcelService();
     }
 
 

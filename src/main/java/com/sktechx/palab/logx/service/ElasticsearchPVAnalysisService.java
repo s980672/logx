@@ -105,6 +105,9 @@ public class ElasticsearchPVAnalysisService {
         Date date = sdf.parse(start);
 
         TermsAggregation svcPV = result.getAggregations().getTermsAggregation("serviceRC");
+        if ( svcPV == null )
+            return;
+
         svcPV.getBuckets().stream().forEach(svc-> {
 
             TermsAggregation appRC = svc.getTermsAggregation("option1RC");
@@ -145,6 +148,8 @@ public class ElasticsearchPVAnalysisService {
 
         SearchResult result = CommonAnalysisService.getResult(queryDsl);
         TermsAggregation svcPV = result.getAggregations().getTermsAggregation("serviceRC");
+        if( svcPV == null )
+            return;
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Date date = sdf.parse(start);

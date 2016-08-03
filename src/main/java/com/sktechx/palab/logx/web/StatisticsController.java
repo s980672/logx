@@ -1,8 +1,9 @@
 package com.sktechx.palab.logx.web;
 
 import com.sktechx.palab.logx.model.enumRCType;
+import com.sktechx.palab.logx.model.enumStatsType;
 import com.sktechx.palab.logx.repository.RequestCallRepository;
-import com.sktechx.palab.logx.service.StatisticsExcelExportService;
+import com.sktechx.palab.logx.service.ExportExcelService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.joda.time.LocalDate;
@@ -29,7 +30,7 @@ public class StatisticsController {
     RequestCallRepository rcRepo;
 
     @Autowired
-    StatisticsExcelExportService statisticsExcelExportService;
+    ExportExcelService statisticsExcelExportService;
 
     //period = {monthly, daily}
     @RequestMapping(value="{period}/{pvOrUv}", method= RequestMethod.GET)
@@ -52,13 +53,13 @@ public class StatisticsController {
         LocalDate end;
 
         if ( rcType == enumRCType.daily ) {
-            start = start.withDayOfYear(year);
+            start = start.withYear(year);
             start = start.withMonthOfYear(month);
             start = start.withDayOfMonth(1);
 
             end = start.plusMonths(1).minusDays(1);
         }else{
-            start = start.withDayOfYear(year);
+            start = start.withYear(year);
             start = start.withMonthOfYear(1);
             start = start.withDayOfMonth(1);
 
@@ -67,15 +68,20 @@ public class StatisticsController {
 
         logger.debug("start : {} - end: {}", start, end );
 
-        XSSFWorkbook workbook = statisticsExcelExportService.exportExcel(service, option1, option2, rcType, start, end, pvOrUv.equals("pv"));
+        pvOrUv = pvOrUv.toUpperCase();
+
+        XSSFWorkbook workbook = statisticsExcelExportService.exportExcel(service, option1, option2, enumStatsType.valueOf(pvOrUv), rcType, start, end);
 
         //오늘 일자
         String date = LocalDate.now().toString("yyyyMMdd");
                 //format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 
-        String excelFileName = "stat_pv" + (StringUtils.isEmpty(service) ? "" : "_" + service)
-                + (StringUtils.isEmpty(option1) ? "" : "_" + option1)
-                + (StringUtils.isEmpty(option2) ? "" : "_" + option2) + "_" + date + ".xlsx";
+        String excelFileName = "stat-" + pvOrUv + "-"
+                + period
+                + (StringUtils.isEmpty(option1) ? "" : "-" + option1)
+                + (StringUtils.isEmpty(option2) ? "" : "-" + option2)
+                + (StringUtils.isEmpty(service) ? "" : "-" + service)
+                + "-" + date + ".xlsx";
 
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment; filename=" + excelFileName);

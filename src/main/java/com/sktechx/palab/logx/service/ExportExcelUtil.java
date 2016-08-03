@@ -595,12 +595,12 @@ public class ExportExcelUtil extends abstractExportExcel {
 
         Map<Date, Long> map = Maps.newTreeMap();
 
-        lst.stream().filter(rc -> rc.getId().getSvcId().equals(svc)).map(rc -> rc.getId().getOption1()).
+        lst.stream().filter(rc -> rc.getId().getSvcId().equals(svc)).map(rc -> rc.getId().getOption1()).distinct().
                 forEach(op1 -> { //API PATH
 
                     mergeEx.row = ex.row;
 
-                    lst.stream().filter(rc -> rc.getId().getSvcId().equals(svc)).map(rc -> rc.getId().getOption2()).
+                    lst.stream().filter(rc -> rc.getId().getSvcId().equals(svc)).map(rc -> rc.getId().getOption2()).distinct().
                             forEach(op2 -> { //APP KEY
 
                                 //한 행에 해당하는 데이터가 lstErr에 있음
