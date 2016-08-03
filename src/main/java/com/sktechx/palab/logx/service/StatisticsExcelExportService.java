@@ -190,7 +190,6 @@ public class StatisticsExcelExportService {
                 excelUtil.createHeader(sheetName, tableName, rcType, startDate, endDate, headers, needTotalSum);
 
                 break;
-
             case ERROR_APP:
                 headers = new HashMap<>();
                 tableName = "Error Count";

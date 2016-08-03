@@ -15,13 +15,27 @@ public class SvcOption2RCPK implements Serializable{
 
     public SvcOption2RCPK(){};
 
-    public SvcOption2RCPK(enumRCType rcType, enumOptionType opType, Date reqDt, String svcId, String option1, String option2) {
+    public SvcOption2RCPK(enumStatsType stsType, enumRCType rcType, enumOptionType opType, Date reqDt, String svcId, String option1, String option2) {
+        this.stsType = stsType;
         this.opType = opType;
         this.rcType = rcType;
         this.reqDt = reqDt;
         this.option1 = option1;
         this.svcId = svcId;
         this.option2 = option2;
+    }
+    
+
+    @Column(length=10)
+    @Enumerated(EnumType.STRING)
+    private enumStatsType stsType;
+
+    public enumStatsType getStsType() {
+        return stsType;
+    }
+
+    public void setStsType(enumStatsType StsType) {
+        this.stsType = stsType;
     }
 
     @Column(length=10)
@@ -116,6 +130,7 @@ public class SvcOption2RCPK implements Serializable{
     @Override
     public int hashCode() {
         int result = getOpType().hashCode();
+        result = 31 * result + getStsType().hashCode();
         result = 31 * result + getRcType().hashCode();
         result = 31 * result + getReqDt().hashCode();
         result = 31 * result + getOption1().hashCode();
@@ -127,6 +142,7 @@ public class SvcOption2RCPK implements Serializable{
     @Override
     public String toString() {
         return "SvcOption2RCPK{" +
+                "stsType=" + stsType +
                 "opType=" + opType +
                 ", rcType=" + rcType +
                 ", reqDt=" + reqDt +

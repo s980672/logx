@@ -13,14 +13,29 @@ public class SvcOption1RCPK implements Serializable{
 
     public SvcOption1RCPK(){};
 
-    public SvcOption1RCPK(enumRCType rcType, enumOptionType opType, Date reqDt, String svcId, String option1) {
+    public SvcOption1RCPK(enumStatsType stsType, enumRCType rcType, enumOptionType opType, Date reqDt, String svcId, String option1) {
+    	this.stsType = stsType;
         this.opType = opType;
         this.rcType = rcType;
         this.reqDt = reqDt;
         this.option1 = option1;
         this.svcId = svcId;
     }
+    
 
+    @Column(length=10)
+    @Enumerated(EnumType.STRING)
+    private enumStatsType stsType;
+
+    public enumStatsType getStsType() {
+        return stsType;
+    }
+
+    public void setStsType(enumStatsType StsType) {
+        this.stsType = stsType;
+    }
+
+    @Column(length=10)
     @Enumerated(EnumType.STRING)
     private enumOptionType opType;
 
@@ -104,6 +119,7 @@ public class SvcOption1RCPK implements Serializable{
     @Override
     public String toString() {
         return "SvcOption1RCPK{" +
+    			"stsType=" + stsType +
                 "opType=" + opType +
                 ", rcType=" + rcType +
                 ", reqDt=" + reqDt +

@@ -5,7 +5,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Entity
-@Table(name="svc_option1_pv")
+@Table(name="svc_option1_view")
 public class SvcOption1RC implements Serializable {
 
 
@@ -16,9 +16,9 @@ public class SvcOption1RC implements Serializable {
     public SvcOption1RC() {
     }
 
-    public SvcOption1RC(enumRCType rcType, enumOptionType opType, Date reqDt, String svcId, String option1, long count) {
+    public SvcOption1RC(enumStatsType stsType, enumRCType rcType, enumOptionType opType, Date reqDt, String svcId, String option1, long count) {
 
-        id = new SvcOption1RCPK(rcType, opType, reqDt, svcId, option1);
+        id = new SvcOption1RCPK(stsType,rcType, opType, reqDt, svcId, option1);
 
         this.count = count;
     }

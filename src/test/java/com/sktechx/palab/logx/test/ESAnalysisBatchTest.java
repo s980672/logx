@@ -62,10 +62,10 @@ public class ESAnalysisBatchTest extends AbstractJUnit4SpringMvcTests {
         logger.debug("start : {}, end : {}", start, end);
 
 
-        esService.generateSvcOption2PV(enumRCType.monthly, enumOptionType.API_APP, start, end);
-        esService.generateSvcOption2PV(enumRCType.monthly, enumOptionType.APP_API, start, end);
-        esService.generateSvcOption2PV(enumRCType.monthly, enumOptionType.ERROR_APP, start, end);
-        esService.generateSvcOption2PV(enumRCType.monthly, enumOptionType.ERROR_API, start, end);
+        esService.generateSvcOption2PV(enumOptionType.API_APP   , enumRCType.monthly, start, end);
+        esService.generateSvcOption2PV(enumOptionType.APP_API   , enumRCType.monthly, start, end);
+        esService.generateSvcOption2PV(enumOptionType.ERROR_APP , enumRCType.monthly, start, end);
+        esService.generateSvcOption2PV(enumOptionType.ERROR_API , enumRCType.monthly, start, end);
 
         logger.debug("svcOption2==============================");
         svcOption2RCRepo.findAll().stream().forEach(err -> logger.debug(err.toString()));
@@ -83,9 +83,9 @@ public class ESAnalysisBatchTest extends AbstractJUnit4SpringMvcTests {
 
         logger.debug("start : {}, end : {}", start, end);
 
-        esService.generateSvcOption1PV(enumRCType.daily, enumOptionType.APP, start, end);
-        esService.generateSvcOption1PV(enumRCType.daily, enumOptionType.API, start, end);
-        esService.generateSvcOption1PV(enumRCType.daily, enumOptionType.ERROR, start, end);
+        esService.generateSvcOption1PV(enumOptionType.APP     , enumRCType.daily,  start, end);
+        esService.generateSvcOption1PV(enumOptionType.API     , enumRCType.daily,  start, end);
+        esService.generateSvcOption1PV(enumOptionType.ERROR   , enumRCType.daily,  start, end);
 
         logger.debug("svcOption1==============================");
 
