@@ -82,7 +82,6 @@ public class ElasticsearchPVAnalysisService {
 
     public void generateSvcOption1PV(enumOptionType opType,enumRCType dayType, String start, String end) throws IOException, ParseException {
 
-
         
         String queryDsl = null;
         String queryOption1AllSvcPV = null;
@@ -112,12 +111,16 @@ public class ElasticsearchPVAnalysisService {
 
             appRC.getBuckets().stream().forEach(app -> {       	
             	
-            	
+            	SvcOption1RC svcOp1PV;
             	String svctype;
-				if( opType.toString().equals("ERROR") ){ svctype= "ALL";}
-            	else svctype=svc.getKey(); 
+				if( opType.toString().equals("ERROR") ){
+	                svcOp1PV = new SvcOption1RC(enumStatsType.PV, dayType, opType, date, app.getKey(), svc.getKey(), app.getCount());
+	            }
+            	else{ 
+                	svcOp1PV = new SvcOption1RC(enumStatsType.PV, dayType, opType, date, svc.getKey(), app.getKey(), app.getCount());
+            	
+            	}
 
-                SvcOption1RC svcOp1PV = new SvcOption1RC(enumStatsType.PV, dayType, opType, date, svctype, app.getKey(), app.getCount());
 
                 logger.debug("##########################");
                 logger.debug("SvcOption1RC : {}", svcOp1PV);
