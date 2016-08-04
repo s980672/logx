@@ -52,9 +52,8 @@ public class ScheduledTasks {
         String date2 = df.format(cal.getTime());
 //        어제날짜
         cal.add(Calendar.DATE, -1);        
-        String date1 = df.format(cal.getTime());      
+        String date1 = df.format(cal.getTime());              
         
-        System.out.println(">>"+date1+">>"+date2);
 	            
 	         try {
 	        		
