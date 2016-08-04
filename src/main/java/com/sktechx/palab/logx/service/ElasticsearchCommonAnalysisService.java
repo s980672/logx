@@ -22,7 +22,7 @@ public class ElasticsearchCommonAnalysisService {
     @Autowired
     private JestClient client;
 
-    private final String INDEX = "bulk-gateway-log";
+    private final String INDEX = "logx";
     private final String INDEX_TYPE = "log";
 
     public SearchResult getResult(String queryString) throws IOException {

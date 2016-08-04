@@ -129,8 +129,10 @@ public class ScheduledTasks {
 
 
     //매월 1일 0시 5분 마다
-    @Scheduled(cron="0 5 0 1 1/1 ?")
+    //@Scheduled(cron="0 5 0 1 1/1 ?")
     //@Scheduled(cron="0/3 * * * * *")
+    //매일 0시 30분에 전날 request call를 조회 및 저장
+    @Scheduled(cron="0 30 12 1/1 * *")
     public void saveMonthlyPV() throws IOException, ParseException {
 
         logger.debug("=========================");
