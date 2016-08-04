@@ -143,6 +143,12 @@ public class ElasticsearchPVAnalysisService {
                 break;
             case API_APP:
                 queryDsl = AggReqDSLs.getQueryServiceOption2PV("apiPath", "appKey", start, end);
+                break;
+            case ERROR_API:
+                queryDsl = AggReqDSLs.getQueryServiceOption2PV("responseCode", "apiPath", start, end);
+                break;
+            case ERROR_APP:
+                queryDsl = AggReqDSLs.getQueryServiceOption2PV("responseCode", "appKey", start, end);
         }
 
         logger.debug(queryDsl);

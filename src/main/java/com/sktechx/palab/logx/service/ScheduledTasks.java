@@ -53,8 +53,10 @@ public class ScheduledTasks {
 //        어제날짜
         cal.add(Calendar.DATE, -1);        
         String date1 = df.format(cal.getTime());      
+        
+        System.out.println(">>"+date1+">>"+date2);
 	            
-	            try {
+	         try {
 	        		
 		            esService.generatePV(enumRCType.daily, date1, date2);
 		        	esService.generateSvcOption1PV(enumOptionType.APP, enumRCType.daily,date1, date2);

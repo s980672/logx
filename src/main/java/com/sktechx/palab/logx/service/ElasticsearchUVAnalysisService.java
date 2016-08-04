@@ -2,15 +2,10 @@ package com.sktechx.palab.logx.service;
 
 import com.sktechx.palab.logx.model.*;
 import com.sktechx.palab.logx.repository.*;
-import io.searchbox.client.JestClient;
-import io.searchbox.core.Search;
 import io.searchbox.core.SearchResult;
 import io.searchbox.core.search.aggregation.CardinalityAggregation;
 import io.searchbox.core.search.aggregation.TermsAggregation;
-import io.searchbox.params.SearchType;
 
-import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
-import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -129,9 +124,9 @@ public class ElasticsearchUVAnalysisService {
                
 				option2RC.getBuckets().stream().forEach(svcsub2 -> {          	 
 					CardinalityAggregation count = svcsub2.getCardinalityAggregation("uvCount");
-	//          	 System.out.println(">>"+svc.getKey()+"###"+svcsub.getKey()+"##"+count.getCardinality());	          	 
+	          		          	 
 					SvcOption2RC svcOp2UV = new SvcOption2RC(enumStatsType.UV, dayType, opType, date, svc.getKey(), svcsub1.getKey(), svcsub2.getKey(),count.getCardinality());	          	 
-					System.out.println(">>"+svc.getKey()+","+ svcsub1.getKey()+","+ svcsub2.getKey()+","+count.getCardinality());
+					
 	
 					logger.debug("##########################");
 					logger.debug("SvcOption1RC : {}", svcOp2UV);
