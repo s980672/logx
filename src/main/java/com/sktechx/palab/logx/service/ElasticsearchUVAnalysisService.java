@@ -41,7 +41,7 @@ public class ElasticsearchUVAnalysisService {
     
     
 //    서비스 daily . monthly service 별 uv 
-    public void generateSVCUV(enumRCType dayType, String start, String end) throws IOException, ParseException{
+    public void generateSvcUV(enumRCType dayType, String start, String end) throws IOException, ParseException{
     	
     	 SearchResult result = CommonAnalysisService.getResult(AggReqDSLs.getQueryServiceUV(start, end));     	 
 

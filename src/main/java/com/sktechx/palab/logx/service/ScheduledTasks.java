@@ -64,7 +64,7 @@ public class ScheduledTasks {
             esService.generateSvcOptionERROR(enumOptionType.ERROR_API, enumRCType.daily, date1, date2);
             esService.generateSvcOptionERROR(enumOptionType.ERROR_APP, enumRCType.daily, date1, date2);
 
-            esUVService.generateSVCUV(enumRCType.daily, date1, date2);
+            esUVService.generateSvcUV(enumRCType.daily, date1, date2);
             esUVService.generateSvcOption1UV(enumOptionType.API, enumRCType.daily, date1, date2);
             esUVService.generateSvcOption1UV(enumOptionType.APP, enumRCType.daily, date1, date2);
             esUVService.generateSvcOption2UV(enumOptionType.APP_API, enumRCType.daily, date1, date2);
@@ -115,7 +115,7 @@ public class ScheduledTasks {
             esService.generateSvcOption2PV(enumOptionType.ERROR_API, enumRCType.monthly, date1, date2);
             esService.generateSvcOption2PV(enumOptionType.ERROR_APP, enumRCType.monthly, date1, date2);
 
-            esUVService.generateSVCUV(enumRCType.monthly, date1, date2);
+            esUVService.generateSvcUV(enumRCType.monthly, date1, date2);
             esUVService.generateSvcOption1UV(enumOptionType.API, enumRCType.monthly, date1, date2);
             esUVService.generateSvcOption1UV(enumOptionType.APP, enumRCType.monthly, date1, date2);
             esUVService.generateSvcOption2UV(enumOptionType.APP_API, enumRCType.monthly, date1, date2);
@@ -129,7 +129,8 @@ public class ScheduledTasks {
     //@Scheduled(cron="0 5 0 1 1/1 ?")
     //@Scheduled(cron="0/3 * * * * *")
     //매일 0시 30분에 전날 request call를 조회 및 저장
-    @Scheduled(cron="0 10 0 1/1 * *")
+    //@Scheduled(cron="0 10 0 1/1 * *")
+    @Scheduled(cron="0 13 15 1/1 * *")
     public void saveMonthlyPV() throws IOException, ParseException {
 
         logger.debug("=========================");
@@ -159,7 +160,7 @@ public class ScheduledTasks {
         esService.generateSvcOptionERROR(enumOptionType.ERROR_API, enumRCType.monthly, date1, date2);
         esService.generateSvcOptionERROR(enumOptionType.ERROR_APP, enumRCType.monthly, date1, date2);
 
-        esUVService.generateSVCUV(enumRCType.monthly, date1, date2);
+        esUVService.generateSvcUV(enumRCType.monthly, date1, date2);
         esUVService.generateSvcOption1UV(enumOptionType.API, enumRCType.monthly, date1, date2);
         esUVService.generateSvcOption1UV(enumOptionType.APP, enumRCType.monthly, date1, date2);
         esUVService.generateSvcOption2UV(enumOptionType.APP_API, enumRCType.monthly, date1, date2);
