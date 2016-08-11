@@ -54,7 +54,7 @@ public class ElasticsearchUVAnalysisService {
 			CardinalityAggregation count = svc.getCardinalityAggregation("uvCount");
 			 
 			ServiceRequestCall svcRC;
-			svcRC = new ServiceRequestCall(enumStatsType.UV, enumRCType.daily, date, svc.getKey(), count.getCardinality());
+			svcRC = new ServiceRequestCall(enumStatsType.UV, dayType, date, svc.getKey(), count.getCardinality());
 			
 			svcRCRepo.save(svcRC);
     		 

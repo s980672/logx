@@ -73,7 +73,7 @@ public class ElasticsearchPVAnalysisService {
 
         svcPV.getBuckets().stream().forEach(b -> {
 
-            ServiceRequestCall svcRC = new ServiceRequestCall(enumStatsType.PV, enumRCType.daily, date, b.getKey(), b.getCount());
+            ServiceRequestCall svcRC = new ServiceRequestCall(enumStatsType.PV, rcType, date, b.getKey(), b.getCount());
 
             svcRCRepo.save(svcRC);
 
