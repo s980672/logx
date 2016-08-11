@@ -257,9 +257,9 @@ public class ExportExcelUtil extends abstractExportExcel {
 
                         if (map.size() > 0) {
 
-                            setCellValue(sheet, ex.row, ex.col++, tmp.getAppName(), style);
-                            setCellValue(sheet, ex.row, ex.col++, tmp.getAppId(), style);
-                            setCellValue(sheet, ex.row, ex.col++, tmp.getSvcName(), style);
+                            setCellValue(sheet, ex.row, ex.col++, tmp.getAppName() == null?op1:tmp.getAppName(), style);
+                            setCellValue(sheet, ex.row, ex.col++, tmp.getAppId()==null?op1:tmp.getAppId(), style);
+                            setCellValue(sheet, ex.row, ex.col++, tmp.getSvcName()==null?svc:tmp.getSvcName(), style);
 
                             // count 출력
                             writeCountsInARow(sheet, ex, style, map);
@@ -321,7 +321,7 @@ public class ExportExcelUtil extends abstractExportExcel {
 
                         if (map.size() > 0 ){
 
-                            setCellValue(sheet, ex.row, ex.col++, tmp.getSvcName(), style);
+                            setCellValue(sheet, ex.row, ex.col++, tmp.getSvcName()!=null?tmp.getSvcName():svc, style);
                             setCellValue(sheet, ex.row, ex.col++, op1.replace('.','/'), style);
 
                             // count 출력
@@ -385,7 +385,7 @@ public class ExportExcelUtil extends abstractExportExcel {
                         if (map.size() > 0 ){
 
                             setCellValue(sheet, ex.row, ex.col++, op1, style); //에러 코드
-                            setCellValue(sheet, ex.row, ex.col++, tmp.getSvcName(), style);
+                            setCellValue(sheet, ex.row, ex.col++, tmp.getSvcName()!=null?tmp.getSvcName():svc, style);
 
                             // count 출력
                             writeCountsInARow(sheet, ex, style, map);
@@ -547,8 +547,8 @@ public class ExportExcelUtil extends abstractExportExcel {
                 if (map.size() > 0) {
 
                     //헤더 출력
-                    setCellValue(sheet, ex.row, ex.col++, tmp.getAppName(), style);
-                    setCellValue(sheet, ex.row, ex.col++, tmp.getAppId(), style);
+                    setCellValue(sheet, ex.row, ex.col++, tmp.getAppName()!=null?tmp.getAppName():op1, style);
+                    setCellValue(sheet, ex.row, ex.col++, tmp.getAppId()!=null?tmp.getAppName():op1, style);
                     setCellValue(sheet, ex.row, ex.col++, op2.replace('.', '/'), style);
 
 
@@ -617,7 +617,7 @@ public class ExportExcelUtil extends abstractExportExcel {
 
         Map<Date, Long> map = Maps.newTreeMap();
 
-        SvcOption1RC tmp = new SvcOption1RC();
+        SvcOption2RC tmp = new SvcOption2RC();
 
         lst.stream().filter(rc -> rc.getId().getSvcId().equals(svc)).map(rc -> rc.getId().getOption1()).distinct().
                 forEach(op1 -> { //API PATH
@@ -632,6 +632,7 @@ public class ExportExcelUtil extends abstractExportExcel {
                                         d.getId().getOption1().equals(op1) &&
                                         d.getId().getOption2().equals(op2) && d.getId().getSvcId().equals(svc)).forEach(d -> {
                                     map.put(d.getId().getReqDt(), d.getCount());
+
                                     tmp.setSvcName(d.getSvcName());
                                     tmp.setAppId(d.getAppId());
                                     tmp.setAppName(d.getAppName());
@@ -650,10 +651,10 @@ public class ExportExcelUtil extends abstractExportExcel {
                                 if (map.size() > 0) {
 
                                     //헤더 출력
-                                    setCellValue(sheet, ex.row, ex.col++, tmp.getSvcName(), style);
-                                    setCellValue(sheet, ex.row, ex.col++, /*ERROR CODE*/ op1, style);
-                                    setCellValue(sheet, ex.row, ex.col++, tmp.getAppName(), style);
-                                    setCellValue(sheet, ex.row, ex.col++, tmp.getAppId(), style);
+                                    setCellValue(sheet, ex.row, ex.col++, tmp.getSvcName()!=null?tmp.getSvcName():svc, style);
+                                    setCellValue(sheet, ex.row, ex.col++, /*API*/ op1.replace('.','/'), style);
+                                    setCellValue(sheet, ex.row, ex.col++, tmp.getAppName()!=null?tmp.getAppName():op2, style);
+                                    setCellValue(sheet, ex.row, ex.col++, tmp.getAppId()!=null?tmp.getAppId():op2, style);
 
 
                                     // count 출력
@@ -764,8 +765,8 @@ public class ExportExcelUtil extends abstractExportExcel {
 
 
                     if (opType == enumOptionType.ERROR_APP) {
-                        setCellValue(sheet, ex.row, ex.col++, tmp.getAppName(), style);
-                        setCellValue(sheet, ex.row, ex.col++, tmp.getAppId(), style);
+                        setCellValue(sheet, ex.row, ex.col++, tmp.getAppName()!=null?tmp.getAppName():op2, style);
+                        setCellValue(sheet, ex.row, ex.col++, tmp.getAppId()!=null?tmp.getAppId():op2, style);
                     }else{
                         setCellValue(sheet, ex.row, ex.col++, /*api path*/ op2.replace('.','/'), style);
                     }
