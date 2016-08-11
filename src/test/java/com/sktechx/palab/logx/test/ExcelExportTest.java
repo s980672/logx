@@ -4,12 +4,9 @@ import com.google.common.collect.Lists;
 import com.sktechx.palab.logx.config.AbstractJUnit4SpringMvcTests;
 import com.sktechx.palab.logx.config.Application;
 import com.sktechx.palab.logx.model.*;
-import com.sktechx.palab.logx.repository.ServiceRCRepository;
-import com.sktechx.palab.logx.repository.SvcOption1RCRepository;
-import com.sktechx.palab.logx.repository.SvcOption2RCRepository;
-import com.sktechx.palab.logx.repository.SvcRepository;
-import com.sktechx.palab.logx.service.ExportExcelUtil;
+import com.sktechx.palab.logx.repository.*;
 import com.sktechx.palab.logx.service.ExportExcelService;
+import com.sktechx.palab.logx.service.ExportExcelUtil;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
@@ -25,7 +22,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -46,6 +42,12 @@ public class ExcelExportTest extends AbstractJUnit4SpringMvcTests {
     @Autowired
     SvcRepository svcRepo;
 
+    @Autowired
+    SvcViewRepository svcViewRepo;
+
+    @Autowired
+    AppViewRepository appRepo;
+
 
 
     @Autowired
@@ -64,12 +66,16 @@ public class ExcelExportTest extends AbstractJUnit4SpringMvcTests {
 
         wb = new XSSFWorkbook();
 
-
-
         /////////////////////////////////////////////////////////////
-        // service table
-        ArrayList<Service> services = Lists.newArrayList(new Service("10004", "weather"), new Service("70004", "tmap"));
-        svcRepo.save(services);
+        //test table for svc/app view
+        appRepo.save(new AppView("1", "test app1", "400001020"));
+        appRepo.save(new AppView("2", "weather pong", "400001540"));
+        appRepo.save(new AppView("3", "test app2", "400002323"));
+
+        svcViewRepo.save(new SvcView("10004", "weather"));
+        svcViewRepo.save(new SvcView("70004", "tmap"));
+        svcViewRepo.save(new SvcView("10002", "weather_cate1"));
+        svcViewRepo.save(new SvcView("10020", "weather_cate2"));
 
         ///////////////////////////////////////////////////////////
         //Test data for service request call

@@ -16,6 +16,17 @@ public class ServiceRequestCall implements Serializable {
     ServiceRCPK id;
 
 
+    @Transient
+    String svcName;
+
+    public String getSvcName() {
+        return svcName;
+    }
+
+    public void setSvcName(String svcName) {
+        this.svcName = svcName;
+    }
+
     public ServiceRequestCall() {
         id = new ServiceRCPK();
 

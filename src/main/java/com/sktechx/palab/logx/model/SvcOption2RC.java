@@ -3,6 +3,7 @@ package com.sktechx.palab.logx.model;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -14,6 +15,38 @@ public class SvcOption2RC implements Serializable {
     @EmbeddedId
     SvcOption2RCPK id;
 
+    @Transient
+    String svcName;
+
+    @Transient
+    String appName;
+
+    @Transient
+    String appId;
+
+    public String getAppName() {
+        return appName;
+    }
+
+    public void setAppName(String appName) {
+        this.appName = appName;
+    }
+
+    public String getAppId() {
+        return appId;
+    }
+
+    public void setAppId(String appId) {
+        this.appId = appId;
+    }
+
+    public String getSvcName() {
+        return svcName;
+    }
+
+    public void setSvcName(String svcName) {
+        this.svcName = svcName;
+    }
 
     public SvcOption2RC() {
     }
@@ -60,6 +93,9 @@ public class SvcOption2RC implements Serializable {
     public String toString() {
         return "SvcOption2RC{" +
                 "id=" + id +
+                ", svcName='" + svcName + '\'' +
+                ", appName='" + appName + '\'' +
+                ", appId='" + appId + '\'' +
                 ", count=" + count +
                 '}';
     }

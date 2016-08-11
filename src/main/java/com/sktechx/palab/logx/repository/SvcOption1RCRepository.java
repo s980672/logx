@@ -15,6 +15,7 @@ public interface SvcOption1RCRepository extends JpaRepository<SvcOption1RC, SvcO
 
     List<SvcOption1RC> findAll();
 
+    //@Query("select rc, svc from SvcOption1RC rc inner SvcView svc where svc.svcId=rc.id.svcId and rc.id.stsType=:stsType and rc.id.opType=:opType and rc.id.rcType = :rcType and rc.id.reqDt between :start and :end order by rc.id.reqDt")
     @Query("select rc from SvcOption1RC rc where rc.id.stsType=:stsType and rc.id.opType=:opType and rc.id.rcType = :rcType and rc.id.reqDt between :start and :end order by rc.id.reqDt")
     List<SvcOption1RC> findByStsTypeAndOpTypeAndRcTypeAndBetween(@Param("stsType") enumStatsType stsType, @Param("opType") enumOptionType opType, @Param("rcType")enumRCType rcType, @Param("start")Date start, @Param("end")Date end);
 

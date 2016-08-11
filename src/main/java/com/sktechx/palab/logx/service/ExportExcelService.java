@@ -33,8 +33,9 @@ public class ExportExcelService {
     @Autowired
     SvcOption1RCRepository svcOption1RcRepo;
 
+
     @Autowired
-    SvcRepository svcRepo;
+    ChangeNameIdService changeNameIdService;
 
     @Autowired
     SvcOption2RCRepository svcOption2RcRepo;
@@ -114,11 +115,13 @@ public class ExportExcelService {
                 List<SvcOption1RC> rcs = null;
                 if(svc.equals("ALL")) {
                     rcs = svcOption1RcRepo.findByStsTypeAndOpTypeAndRcTypeAndBetween(stsType, opType, rcType, startDate.toDate(), endDate.toDate());
+
                 }else{
                     rcs = svcOption1RcRepo.findBySvcIdAndStsTypeAndOpTypeAndRcTypeAndBetween(svc, stsType, opType, rcType, startDate.toDate(), endDate.toDate());
                 }
 
-                needTotalSum = excelUtil.createData(sheetName, rcs, APP, rcType, startDate, endDate);
+                changeNameIdService.fillNameOrIdOfAppOrSvc(opType, rcs);
+                needTotalSum = excelUtil.createData(sheetName, rcs, APP, rcType, startDate, endDate, svc);
 
                 excelUtil.createHeader(sheetName, "APP별 " + tableType, rcType, startDate, endDate, headers, needTotalSum);
 
@@ -130,11 +133,13 @@ public class ExportExcelService {
 
                 if(svc.equals("ALL")) {
                     rcs = svcOption1RcRepo.findByStsTypeAndOpTypeAndRcTypeAndBetween(stsType, opType, rcType, startDate.toDate(), endDate.toDate());
+
                 }else{
                     rcs = svcOption1RcRepo.findBySvcIdAndStsTypeAndOpTypeAndRcTypeAndBetween(svc, stsType, opType, rcType, startDate.toDate(), endDate.toDate());
                 }
 
-                needTotalSum = excelUtil.createData(sheetName, rcs, API, rcType, startDate, endDate);
+                changeNameIdService.fillNameOrIdOfAppOrSvc(opType, rcs);
+                needTotalSum = excelUtil.createData(sheetName, rcs, API, rcType, startDate, endDate, svc);
 
                 excelUtil.createHeader(sheetName, "API별 " + tableType, rcType, startDate, endDate, headers, needTotalSum);
 
@@ -152,7 +157,8 @@ public class ExportExcelService {
                     rcs = svcOption1RcRepo.findBySvcIdAndStsTypeAndOpTypeAndRcTypeAndBetween(svc, stsType, opType, rcType, startDate.toDate(), endDate.toDate());
                 }
 
-                needTotalSum = excelUtil.createData(sheetName, rcs, ERROR, rcType, startDate, endDate);
+                changeNameIdService.fillNameOrIdOfAppOrSvc(opType, rcs);
+                needTotalSum = excelUtil.createData(sheetName, rcs, ERROR, rcType, startDate, endDate, svc);
 
                 excelUtil.createHeader(sheetName, "Error Count", rcType, startDate, endDate, headers, needTotalSum);
                 break;
@@ -170,7 +176,8 @@ public class ExportExcelService {
                 }else {
                     rcsAppApi = svcOption2RcRepo.findBySvcIdAndStsTypeAndOpTypeAndRcTypeAndBetween(svc, stsType, opType, rcType, startDate.toDate(), endDate.toDate());
                 }
-                needTotalSum = excelUtil.createData(sheetName, rcsAppApi, APP_API, rcType, startDate, endDate);
+                changeNameIdService.fillNameOrIdOfAppOrSvc(opType, rcsAppApi);
+                needTotalSum = excelUtil.createData(sheetName, rcsAppApi, APP_API, rcType, startDate, endDate, svc);
 
                 excelUtil.createHeader(sheetName, "APP별 " + tableType, rcType, startDate, endDate, headers, needTotalSum);
 
@@ -191,7 +198,8 @@ public class ExportExcelService {
                     rcsApiApp = svcOption2RcRepo.findBySvcIdAndStsTypeAndOpTypeAndRcTypeAndBetween(svc, stsType, opType, rcType, startDate.toDate(), endDate.toDate());
                 }
 
-                needTotalSum = excelUtil.createData(sheetName, rcsApiApp, API_APP, rcType, startDate, endDate);
+                changeNameIdService.fillNameOrIdOfAppOrSvc(opType, rcsApiApp);
+                needTotalSum = excelUtil.createData(sheetName, rcsApiApp, API_APP, rcType, startDate, endDate, svc);
 
                 excelUtil.createHeader(sheetName, "API별 " + tableType, rcType, startDate, endDate, headers, needTotalSum);
 
@@ -205,7 +213,8 @@ public class ExportExcelService {
                 //ALL 타입의 서비스 존재
                 List<SvcOption2RC> rcsErrApp = svcOption2RcRepo.findBySvcIdAndStsTypeAndOpTypeAndRcTypeAndBetween(svc, stsType, opType, rcType, startDate.toDate(), endDate.toDate());
 
-                needTotalSum = excelUtil.createData(sheetName, rcsErrApp, ERROR_APP, rcType, startDate, endDate);
+                changeNameIdService.fillNameOrIdOfAppOrSvc(opType, rcsErrApp);
+                needTotalSum = excelUtil.createData(sheetName, rcsErrApp, ERROR_APP, rcType, startDate, endDate, svc);
 
                 excelUtil.createHeader(sheetName, "Error Count", rcType, startDate, endDate, headers, needTotalSum);
                 break;
@@ -217,7 +226,10 @@ public class ExportExcelService {
 
                 //ALL 타입의 서비스 존재
                 List<SvcOption2RC> rcsErrApi = svcOption2RcRepo.findBySvcIdAndStsTypeAndOpTypeAndRcTypeAndBetween(svc, stsType, opType, rcType, startDate.toDate(), endDate.toDate());
-                needTotalSum = excelUtil.createData(sheetName, rcsErrApi, ERROR_API, rcType, startDate, endDate);
+
+                changeNameIdService.fillNameOrIdOfAppOrSvc(opType, rcsErrApi);
+
+                needTotalSum = excelUtil.createData(sheetName, rcsErrApi, ERROR_API, rcType, startDate, endDate, svc);
 
                 excelUtil.createHeader(sheetName, "Error Count", rcType, startDate, endDate, headers, needTotalSum);
 
@@ -232,7 +244,9 @@ public class ExportExcelService {
                 }else {
                     listSvcRC = svcRCRepo.findBySvcIdAndStsTypeAndRcTypeAndBetween(svc, stsType, rcType, startDate.toDate(), endDate.toDate());
                 }
-                needTotalSum = excelUtil.createData(sheetName, listSvcRC, SVC, rcType, startDate, endDate);
+
+                changeNameIdService.fillNameOrIdOfAppOrSvc(opType, listSvcRC);
+                needTotalSum = excelUtil.createData(sheetName, listSvcRC, SVC, rcType, startDate, endDate, svc);
                 excelUtil.createHeader(sheetName, "서비스 별 " + tableType, rcType, startDate, endDate, headers, needTotalSum);
 
 

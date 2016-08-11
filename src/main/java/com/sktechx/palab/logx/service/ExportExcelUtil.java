@@ -166,7 +166,7 @@ public class ExportExcelUtil extends abstractExportExcel {
     }
 
 
-    public Boolean createData(String sheetName, Object dataLst, enumOptionType opType, enumRCType rcType, LocalDate startDate, LocalDate endDate){
+    public Boolean createData(String sheetName, Object dataLst, enumOptionType opType, enumRCType rcType, LocalDate startDate, LocalDate endDate, String forSvcText){
 
         if ( startDate == null || endDate == null ) {
             logger.error("Set first StartDate and EndDate");
@@ -186,6 +186,17 @@ public class ExportExcelUtil extends abstractExportExcel {
 
         Map<Date, Long> map = Maps.newTreeMap();
 
+        //temp variable for change svc id to svc name
+        //app key to app id and app name
+        SvcOption1RC tmp = new SvcOption1RC();
+
+        //엑셀 상단에 서비스를 찍는다
+        if(forSvcText.equals("ALL"))
+            setCellValue(sheet, 0, 1, "[서비스 : 전체서비스]", style);
+        else
+            setCellValue(sheet, 0, 1, "[서비스 : "+forSvcText+"]", style);
+
+
         switch(opType){
             case SVC:
                 List<ServiceRequestCall> lstSvcRc = (List<ServiceRequestCall>) dataLst;
@@ -196,6 +207,7 @@ public class ExportExcelUtil extends abstractExportExcel {
 
                     lstSvcRc.stream().filter(svcRc->svcRc.getId().getSvcId().equals(svc)).forEach(rc -> {
                         map.put(rc.getId().getReqDt(), rc.getCount());
+                        tmp.setSvcName(rc.getSvcName());
                     });
 
                     for (LocalDate date = startDate; map.size() > 0 &&
@@ -208,7 +220,7 @@ public class ExportExcelUtil extends abstractExportExcel {
                     }
 
                     if (map.size() > 0) {
-                        setCellValue(sheet, ex.row, ex.col++, /*TODO service name*/svc, style);
+                        setCellValue(sheet, ex.row, ex.col++, tmp.getSvcName() != null? tmp.getSvcName() : svc, style);
                         // count 출력
                         writeCountsInARow(sheet, ex, style, map);
                         map.clear();
@@ -229,6 +241,9 @@ public class ExportExcelUtil extends abstractExportExcel {
                         lst.stream().filter(d -> d.getId().getOption1().equals(op1) && d.getId().getSvcId().equals(svc)).forEach(d -> {
 
                             map.put(d.getId().getReqDt(), d.getCount());
+                            tmp.setAppId(d.getAppId());
+                            tmp.setAppName(d.getAppName());
+                            tmp.setSvcName(d.getSvcName());
                         });
 
                         for (LocalDate date = startDate; map.size() > 0 &&
@@ -242,9 +257,9 @@ public class ExportExcelUtil extends abstractExportExcel {
 
                         if (map.size() > 0) {
 
-                            setCellValue(sheet, ex.row, ex.col++, /*TODO app Key to app NAME*/op1, style);
-                            setCellValue(sheet, ex.row, ex.col++, /*TODO app id*/"APP ID", style);
-                            setCellValue(sheet, ex.row, ex.col++, /*TODO service name*/svc, style);
+                            setCellValue(sheet, ex.row, ex.col++, tmp.getAppName(), style);
+                            setCellValue(sheet, ex.row, ex.col++, tmp.getAppId(), style);
+                            setCellValue(sheet, ex.row, ex.col++, tmp.getSvcName(), style);
 
                             // count 출력
                             writeCountsInARow(sheet, ex, style, map);
@@ -292,6 +307,7 @@ public class ExportExcelUtil extends abstractExportExcel {
                         lstApis.stream().filter(d -> d.getId().getOption1().equals(op1) && d.getId().getSvcId().equals(svc)).forEach(d -> {
                             map.put(d.getId().getReqDt(), d.getCount());
 
+                            tmp.setSvcName(d.getSvcName());
                         });
 
                         for (LocalDate date = startDate; map.size() > 0 &&
@@ -305,8 +321,8 @@ public class ExportExcelUtil extends abstractExportExcel {
 
                         if (map.size() > 0 ){
 
-                            setCellValue(sheet, ex.row, ex.col++, /*TODO service name*/svc, style);
-                            setCellValue(sheet, ex.row, ex.col++, op1, style); //TODO API 명
+                            setCellValue(sheet, ex.row, ex.col++, tmp.getSvcName(), style);
+                            setCellValue(sheet, ex.row, ex.col++, op1.replace('.','/'), style);
 
                             // count 출력
                             writeCountsInARow(sheet, ex, style, map);
@@ -353,6 +369,8 @@ public class ExportExcelUtil extends abstractExportExcel {
 
                             map.put(d.getId().getReqDt(), d.getCount());
 
+                            tmp.setSvcName(d.getSvcName());
+
                         });
 
                         for (LocalDate date = startDate; map.size() > 0 &&
@@ -367,7 +385,7 @@ public class ExportExcelUtil extends abstractExportExcel {
                         if (map.size() > 0 ){
 
                             setCellValue(sheet, ex.row, ex.col++, op1, style); //에러 코드
-                            setCellValue(sheet, ex.row, ex.col++, /*TODO service name*/svc, style);
+                            setCellValue(sheet, ex.row, ex.col++, tmp.getSvcName(), style);
 
                             // count 출력
                             writeCountsInARow(sheet, ex, style, map);
@@ -497,6 +515,8 @@ public class ExportExcelUtil extends abstractExportExcel {
         ExcelRow mergeEx = new ExcelRow(4, 1, 0);
 
 
+        SvcOption1RC tmp = new SvcOption1RC();
+
         Map<Date, Long> map = Maps.newTreeMap();
 
         lst.stream().map(aa->aa.getId().getOption1()).distinct().forEach(op1 -> { //APP KEY
@@ -510,6 +530,8 @@ public class ExportExcelUtil extends abstractExportExcel {
                         d.getId().getOption1().equals(op1) &&
                         d.getId().getOption2().equals(op2)).forEach(d -> {
                     map.put(d.getId().getReqDt(), d.getCount());
+                    tmp.setAppId(d.getAppId());
+                    tmp.setAppName(d.getAppName());
                 });
 
                 for (LocalDate date = startDate; map.size() > 0 &&
@@ -525,9 +547,9 @@ public class ExportExcelUtil extends abstractExportExcel {
                 if (map.size() > 0) {
 
                     //헤더 출력
-                    setCellValue(sheet, ex.row, ex.col++, /*TODO APP NAME*/ op1, style);
-                    setCellValue(sheet, ex.row, ex.col++, /*TODO appKey를 APP ID 대체 필요*/ op1, style);
-                    setCellValue(sheet, ex.row, ex.col++, /*TODO appKey인데 apiID로 대체 필요*/op2, style);
+                    setCellValue(sheet, ex.row, ex.col++, tmp.getAppName(), style);
+                    setCellValue(sheet, ex.row, ex.col++, tmp.getAppId(), style);
+                    setCellValue(sheet, ex.row, ex.col++, op2.replace('.', '/'), style);
 
 
                     // count 출력
@@ -595,6 +617,8 @@ public class ExportExcelUtil extends abstractExportExcel {
 
         Map<Date, Long> map = Maps.newTreeMap();
 
+        SvcOption1RC tmp = new SvcOption1RC();
+
         lst.stream().filter(rc -> rc.getId().getSvcId().equals(svc)).map(rc -> rc.getId().getOption1()).distinct().
                 forEach(op1 -> { //API PATH
 
@@ -608,6 +632,9 @@ public class ExportExcelUtil extends abstractExportExcel {
                                         d.getId().getOption1().equals(op1) &&
                                         d.getId().getOption2().equals(op2) && d.getId().getSvcId().equals(svc)).forEach(d -> {
                                     map.put(d.getId().getReqDt(), d.getCount());
+                                    tmp.setSvcName(d.getSvcName());
+                                    tmp.setAppId(d.getAppId());
+                                    tmp.setAppName(d.getAppName());
                                 });
 
                                 for (LocalDate date = startDate; map.size() > 0 &&
@@ -623,10 +650,10 @@ public class ExportExcelUtil extends abstractExportExcel {
                                 if (map.size() > 0) {
 
                                     //헤더 출력
-                                    setCellValue(sheet, ex.row, ex.col++, /*SERVICE*/ svc, style);
+                                    setCellValue(sheet, ex.row, ex.col++, tmp.getSvcName(), style);
                                     setCellValue(sheet, ex.row, ex.col++, /*ERROR CODE*/ op1, style);
-                                    setCellValue(sheet, ex.row, ex.col++, /*TODO appKey를 APP 명 대체 필요*/ op2, style);
-                                    setCellValue(sheet, ex.row, ex.col++, /*TODO appKey인데 appID로 대체 필요*/op2, style);
+                                    setCellValue(sheet, ex.row, ex.col++, tmp.getAppName(), style);
+                                    setCellValue(sheet, ex.row, ex.col++, tmp.getAppId(), style);
 
 
                                     // count 출력
@@ -703,6 +730,8 @@ public class ExportExcelUtil extends abstractExportExcel {
 
         Map<Date, Long> map = Maps.newTreeMap();
 
+        SvcOption1RC tmp = new SvcOption1RC();
+
         lstErr.stream().map(err->err.getId().getOption1()).distinct().forEach(op1 -> { //ERROR CODE
 
             mergeEx.row = ex.row;
@@ -714,6 +743,8 @@ public class ExportExcelUtil extends abstractExportExcel {
                         d.getId().getOption1().equals(op1) &&
                         d.getId().getOption2().equals(op2)).forEach(d -> {
                     map.put(d.getId().getReqDt(), d.getCount());
+                    tmp.setAppId(d.getAppId());
+                    tmp.setAppName(d.getAppName());
                 });
 
                 for (LocalDate date = startDate; map.size() > 0 &&
@@ -730,10 +761,14 @@ public class ExportExcelUtil extends abstractExportExcel {
 
                     //헤더 출력
                     setCellValue(sheet, ex.row, ex.col++, /*ERROR CODE*/ op1, style);
-                    setCellValue(sheet, ex.row, ex.col++, /*TODO appKey를 APP 명 대체 필요*/ op2, style);
 
-                    if (opType == enumOptionType.ERROR_APP)
-                        setCellValue(sheet, ex.row, ex.col++, /*TODO appKey인데 appID로 대체 필요*/op2, style);
+
+                    if (opType == enumOptionType.ERROR_APP) {
+                        setCellValue(sheet, ex.row, ex.col++, tmp.getAppName(), style);
+                        setCellValue(sheet, ex.row, ex.col++, tmp.getAppId(), style);
+                    }else{
+                        setCellValue(sheet, ex.row, ex.col++, /*api path*/ op2.replace('.','/'), style);
+                    }
 
                     // count 출력
                     Set<Map.Entry<Date, Long>> entries = map.entrySet();

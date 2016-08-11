@@ -13,6 +13,40 @@ public class SvcOption1RC implements Serializable {
     SvcOption1RCPK id;
 
 
+    //for svc name
+    @Transient
+    String svcName;
+
+    @Transient
+    String appName;
+
+    @Transient
+    String appId;
+
+    public String getAppName() {
+        return appName;
+    }
+
+    public void setAppName(String appName) {
+        this.appName = appName;
+    }
+
+    public String getAppId() {
+        return appId;
+    }
+
+    public void setAppId(String appId) {
+        this.appId = appId;
+    }
+
+    public String getSvcName() {
+        return svcName;
+    }
+
+    public void setSvcName(String svcName) {
+        this.svcName = svcName;
+    }
+
     public SvcOption1RC() {
     }
 
@@ -58,6 +92,9 @@ public class SvcOption1RC implements Serializable {
     public String toString() {
         return "SvcOption1RC{" +
                 "id=" + id +
+                ", svcName='" + svcName + '\'' +
+                ", appName='" + appName + '\'' +
+                ", appId='" + appId + '\'' +
                 ", count=" + count +
                 '}';
     }
