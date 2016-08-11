@@ -114,6 +114,7 @@ public class SvcOption2RCPK implements Serializable{
 
         if (getOpType() != that.getOpType()) return false;
         if (getRcType() != that.getRcType()) return false;
+        if (getStsType() != that.getStsType()) return false;
         LocalDate ldReqDt = new LocalDate(getReqDt());
         LocalDate ldReqDt2 = new LocalDate(that.getReqDt());
 

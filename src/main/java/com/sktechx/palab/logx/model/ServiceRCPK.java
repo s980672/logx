@@ -76,6 +76,7 @@ public class ServiceRCPK implements Serializable{
         ServiceRCPK that = (ServiceRCPK) o;
 
         if (getRcType() != that.getRcType()) return false;
+        if (getStatsType() != that.getStatsType()) return false;
         if (getReqDt() != null ? !getReqDt().equals(that.getReqDt()) : that.getReqDt() != null) return false;
         return !(getSvcId() != null ? !getSvcId().equals(that.getSvcId()) : that.getSvcId() != null);
 

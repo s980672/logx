@@ -74,6 +74,26 @@ public class ESAnalysisBatchTest extends AbstractJUnit4SpringMvcTests {
     }
 
     @Test
+    public void getOption1PV_Monthly() throws IOException, ParseException {
+        //////////////////////////////////
+        //특정일에만 데이터가 있어서 테스트 날짜
+        LocalDate startD = LocalDate.parse("2016-08-01", DateTimeFormat.forPattern("yyyy-MM-dd"));
+        String start = startD.toString(); //"2016-07-18";
+        String end = startD.plusMonths(1).minusDays(1).toString();
+
+        logger.debug("start : {}, end : {}", start, end);
+
+        esService.generateSvcOption1PV(enumOptionType.APP, enumRCType.monthly, start, end);
+        esService.generateSvcOption1PV(enumOptionType.API, enumRCType.monthly, start, end);
+        esService.generateSvcOption1PV(enumOptionType.ERROR, enumRCType.monthly, start, end);
+
+        logger.debug("svcOption1==============================");
+
+        svcOption1RCRepo.findAll().stream().forEach(pv -> logger.debug(pv.toString()));
+
+    }
+
+    @Test
     public void getOption1PV() throws IOException, ParseException {
         //////////////////////////////////
         //특정일에만 데이터가 있어서 테스트 날짜

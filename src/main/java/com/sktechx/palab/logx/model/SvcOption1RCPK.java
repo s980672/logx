@@ -98,6 +98,7 @@ public class SvcOption1RCPK implements Serializable{
 
         SvcOption1RCPK that = (SvcOption1RCPK) o;
 
+        if (getStsType() != that.getStsType()) return false;
         if (getOpType() != that.getOpType()) return false;
         if (getRcType() != that.getRcType()) return false;
         if (!getReqDt().equals(that.getReqDt())) return false;
@@ -108,7 +109,8 @@ public class SvcOption1RCPK implements Serializable{
 
     @Override
     public int hashCode() {
-        int result = getOpType().hashCode();
+        int result = getStsType().hashCode();
+        result = 31 * result + getOpType().hashCode();
         result = 31 * result + getRcType().hashCode();
         result = 31 * result + getReqDt().hashCode();
         result = 31 * result + getOption1().hashCode();
