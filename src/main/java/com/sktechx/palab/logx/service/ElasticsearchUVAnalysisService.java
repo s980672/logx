@@ -21,83 +21,91 @@ import java.util.Date;
  */
 @Service
 public class ElasticsearchUVAnalysisService {
-	
+
     Logger logger = LoggerFactory.getLogger(ElasticsearchUVAnalysisService.class);
 
     @Autowired
     RequestCallRepository rcRepo;
 
     @Autowired
-    ServiceRCRepository svcRCRepo;    
+    ServiceRCRepository svcRCRepo;
 
     @Autowired
     SvcOption1RCRepository svcOption1RCRep;
-    
+
     @Autowired
-    SvcOption2RCRepository svcOption2RCRep;    
-    
+    SvcOption2RCRepository svcOption2RCRep;
+
     @Autowired
     ElasticsearchCommonAnalysisService CommonAnalysisService;
-    
-    
-//    서비스 daily . monthly service 별 uv 
+
+
+    public void generateAllUV(enumRCType rcType, String date1, String date2) throws IOException, ParseException {
+        generateSvcUV(rcType, date1, date2);
+        generateSvcOption1UV(enumOptionType.API, rcType, date1, date2);
+        generateSvcOption1UV(enumOptionType.APP, rcType, date1, date2);
+        generateSvcOption2UV(enumOptionType.APP_API, rcType, date1, date2);
+        generateSvcOption2UV(enumOptionType.API_APP, rcType, date1, date2);
+    }
+
+//    서비스 daily . monthly service 별 uv
     public void generateSvcUV(enumRCType dayType, String start, String end) throws IOException, ParseException{
-    	
-    	 SearchResult result = CommonAnalysisService.getResult(AggReqDSLs.getQueryServiceUV(start, end));     	 
+
+    	 SearchResult result = CommonAnalysisService.getResult(AggReqDSLs.getQueryServiceUV(start, end));
 
     	 TermsAggregation svcUV = result.getAggregations().getTermsAggregation("serviceRC");
     	 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
          Date date = sdf.parse(start);
-    	 
+
     	 svcUV.getBuckets().stream().forEach(svc -> {
- 
+
 			CardinalityAggregation count = svc.getCardinalityAggregation("uvCount");
-			 
+
 			ServiceRequestCall svcRC;
 			svcRC = new ServiceRequestCall(enumStatsType.UV, dayType, date, svc.getKey(), count.getCardinality());
-			
+
 			svcRCRepo.save(svcRC);
-    		 
-    	 });    	
+
+    	 });
     }
-    
-    
+
+
     public void generateSvcOption1UV(enumOptionType opType, enumRCType dayType, String start, String end) throws IOException, ParseException{
-    	
+
     	  String optionField = null;
           if(opType == enumOptionType.API){
               optionField = "apiPath";
           }else{
               optionField = "appKey";
           }
-          
+
           SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
           Date date = sdf.parse(start);
-    	
+
     	 SearchResult result = CommonAnalysisService.getResult(AggReqDSLs.getQueryServiceOption1UV(optionField,start, end));
-    	 
-    	 
+
+
          TermsAggregation svcUV = result.getAggregations().getTermsAggregation("serviceRC");
 
-         
+
          svcUV.getBuckets().stream().forEach(svc-> {
 
-             TermsAggregation option1RC = svc.getTermsAggregation("option1RC");  
-             
+             TermsAggregation option1RC = svc.getTermsAggregation("option1RC");
+
              option1RC.getBuckets().stream().forEach(svcsub -> {
-            	 
+
             	 CardinalityAggregation count = svcsub.getCardinalityAggregation("uvCount");
-            	 
+
             	 SvcOption1RC svcOp1UV = new SvcOption1RC(enumStatsType.UV, dayType, opType, date, svc.getKey(), svcsub.getKey(), count.getCardinality());
                  svcOption1RCRep.save(svcOp1UV);
-            	 
+
              });
-         });    
+         });
 	}
-    
-    
+
+
     public void generateSvcOption2UV(enumOptionType opType, enumRCType dayType, String start, String end) throws IOException, ParseException{
-    	
+
 		String optionField = null;
 		String suboptionField = null;
 		if(opType == enumOptionType.API_APP){
@@ -108,36 +116,39 @@ public class ElasticsearchUVAnalysisService {
 			suboptionField = "apiPath";
 		}
 
-    
+
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		Date date = sdf.parse(start);
 
-		SearchResult result = CommonAnalysisService.getResult(AggReqDSLs.getQueryServiceOption2UV(optionField,suboptionField,start, end));  	 
+		SearchResult result = CommonAnalysisService.getResult(AggReqDSLs.getQueryServiceOption2UV(optionField,suboptionField,start, end));
 		TermsAggregation svcUV = result.getAggregations().getTermsAggregation("serviceRC");
 
-       
+
 		svcUV.getBuckets().stream().forEach(svc-> {
 			TermsAggregation option1RC = svc.getTermsAggregation("option1RC");
-           
-			option1RC.getBuckets().stream().forEach(svcsub1 -> {           
+
+			option1RC.getBuckets().stream().forEach(svcsub1 -> {
 				TermsAggregation option2RC = svcsub1.getTermsAggregation("option2RC");
-               
-				option2RC.getBuckets().stream().forEach(svcsub2 -> {          	 
+
+				option2RC.getBuckets().stream().forEach(svcsub2 -> {
 					CardinalityAggregation count = svcsub2.getCardinalityAggregation("uvCount");
-	          		          	 
-					SvcOption2RC svcOp2UV = new SvcOption2RC(enumStatsType.UV, dayType, opType, date, svc.getKey(), svcsub1.getKey(), svcsub2.getKey(),count.getCardinality());	          	 
-					
-	
+
+					SvcOption2RC svcOp2UV = new SvcOption2RC(enumStatsType.UV, dayType, opType, date, svc.getKey(), svcsub1.getKey(), svcsub2.getKey(),count.getCardinality());
+
+
 					logger.debug("##########################");
 					logger.debug("SvcOption1RC : {}", svcOp2UV);
 					logger.debug("##########################");
-					
+
 					svcOption2RCRep.save(svcOp2UV);
                });
-          	 
+
            });
-       });    
+       });
 	}
 
 
 }
+
+
+

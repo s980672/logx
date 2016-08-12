@@ -45,6 +45,17 @@ public class ElasticsearchPVAnalysisService {
 
 
 
+    public void generateAllPV(enumRCType rcType, String date1, String date2) throws IOException, ParseException {
+        generatePV(rcType, date1, date2);
+        generateSvcOption1PV(enumOptionType.APP, rcType, date1, date2);
+        generateSvcOption1PV(enumOptionType.API, rcType, date1, date2);
+        generateSvcOption1PV(enumOptionType.ERROR, rcType, date1, date2);
+        generateSvcOption2PV(enumOptionType.APP_API, rcType, date1, date2);
+        generateSvcOption2PV(enumOptionType.API_APP, rcType, date1, date2);
+        generateSvcOptionERROR(enumOptionType.ERROR_API, rcType, date1, date2);
+        generateSvcOptionERROR(enumOptionType.ERROR_APP, rcType, date1, date2);
+    }
+
     public void generatePV(enumRCType dayType, String start, String end) throws IOException, ParseException {
 
 
@@ -93,7 +104,7 @@ public class ElasticsearchPVAnalysisService {
                 queryDsl = AggReqDSLs.getQueryServiceOption1PV("apiPath", start, end);    
                 break;
             case ERROR:
-                queryDsl = AggReqDSLs.getQueryServiceOption2PV("responseCode", "svcid", start, end);
+                queryDsl = AggReqDSLs.getQueryServiceOption1PV("responseCode", start, end);
         }
 
         logger.debug(queryDsl);
@@ -109,18 +120,9 @@ public class ElasticsearchPVAnalysisService {
 
             TermsAggregation appRC = svc.getTermsAggregation("option1RC");
 
-            appRC.getBuckets().stream().forEach(app -> {       	
-            	
-            	SvcOption1RC svcOp1PV;
-            	String svctype;
-				if( opType.toString().equals("ERROR") ){
-	                svcOp1PV = new SvcOption1RC(enumStatsType.PV, dayType, opType, date, app.getKey(), svc.getKey(), app.getCount());
-	            }
-            	else{ 
-                	svcOp1PV = new SvcOption1RC(enumStatsType.PV, dayType, opType, date, svc.getKey(), app.getKey(), app.getCount());
-            	
-            	}
+            appRC.getBuckets().stream().forEach(app -> {
 
+                SvcOption1RC svcOp1PV = new SvcOption1RC(enumStatsType.PV, dayType, opType, date, svc.getKey(), app.getKey(), app.getCount());
 
                 logger.debug("##########################");
                 logger.debug("SvcOption1RC : {}", svcOp1PV);
