@@ -73,7 +73,8 @@ public class ChangeNameIdService {
                     });
                 });
             });
-        } else if (opType == enumOptionType.ERROR_APP) {
+        }
+        else if (opType == enumOptionType.ERROR_APP || opType==enumOptionType.API_APP ) {
             List<SvcOption2RC> lstApp = (List<SvcOption2RC>) lst;
             lstApp.stream().map(app -> app.getId().getOption2()).distinct().forEach(appKey -> {
                 apps.stream().filter(app -> app.getAppKey().equals(appKey)).forEach(app -> {
