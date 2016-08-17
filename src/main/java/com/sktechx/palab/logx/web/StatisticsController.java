@@ -41,7 +41,7 @@ public class StatisticsController {
 
 
 
-    @RequestMapping(value="{period}/svcRC", method =RequestMethod.GET)
+    @RequestMapping(value="graph/{period}/svcRC", method =RequestMethod.GET)
     public List<ServiceRequestCall> getServicePV(@PathVariable String period, @RequestParam Integer year, @RequestParam Integer month) {
         enumRCType rcType = enumRCType.valueOf(period);
 
@@ -60,7 +60,7 @@ public class StatisticsController {
 
     }
 
-    @RequestMapping(value="{period}", method =RequestMethod.GET)
+    @RequestMapping(value="graph/{period}", method =RequestMethod.GET)
     public List<ReqCall> getPV(@PathVariable String period, @RequestParam(required=false) Integer year, @RequestParam(required=false) Integer month,
                                @RequestParam(required = false) String date) {
         enumRCType rcType = enumRCType.valueOf(period);
@@ -89,7 +89,7 @@ public class StatisticsController {
         return pvSvc.getPV(rcType, start.toDate(), end.toDate());
     }
 
-    @RequestMapping(value="{period}/{opType}", method =RequestMethod.GET)
+    @RequestMapping(value="graph/{period}/{opType}", method =RequestMethod.GET)
     public List<SvcOption1RC> getAppApiPV(@PathVariable String period, @PathVariable String opType, @RequestParam Integer year, @RequestParam Integer month) {
 
         enumOptionType optionType = enumOptionType.valueOf(opType.toUpperCase());
