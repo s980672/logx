@@ -322,7 +322,7 @@ public class ExportExcelUtil extends abstractExportExcel {
                         if (map.size() > 0 ){
 
                             setCellValue(sheet, ex.row, ex.col++, tmp.getSvcName()!=null?tmp.getSvcName():svc, style);
-                            setCellValue(sheet, ex.row, ex.col++, op1.replace('.','/'), style);
+                            setCellValue(sheet, ex.row, ex.col++, op1, style);
 
                             // count 출력
                             writeCountsInARow(sheet, ex, style, map);
@@ -548,8 +548,8 @@ public class ExportExcelUtil extends abstractExportExcel {
 
                     //헤더 출력
                     setCellValue(sheet, ex.row, ex.col++, tmp.getAppName()!=null?tmp.getAppName():op1, style);
-                    setCellValue(sheet, ex.row, ex.col++, tmp.getAppId()!=null?tmp.getAppName():op1, style);
-                    setCellValue(sheet, ex.row, ex.col++, op2.replace('.', '/'), style);
+                    setCellValue(sheet, ex.row, ex.col++, tmp.getAppId()!=null?tmp.getAppId():op1, style);
+                    setCellValue(sheet, ex.row, ex.col++, op2, style);
 
 
                     // count 출력
@@ -652,7 +652,7 @@ public class ExportExcelUtil extends abstractExportExcel {
 
                                     //헤더 출력
                                     setCellValue(sheet, ex.row, ex.col++, tmp.getSvcName()!=null?tmp.getSvcName():svc, style);
-                                    setCellValue(sheet, ex.row, ex.col++, /*API*/ op1.replace('.','/'), style);
+                                    setCellValue(sheet, ex.row, ex.col++, /*API*/ op1, style);
                                     setCellValue(sheet, ex.row, ex.col++, tmp.getAppName()!=null?tmp.getAppName():op2, style);
                                     setCellValue(sheet, ex.row, ex.col++, tmp.getAppId()!=null?tmp.getAppId():op2, style);
 
@@ -768,7 +768,7 @@ public class ExportExcelUtil extends abstractExportExcel {
                         setCellValue(sheet, ex.row, ex.col++, tmp.getAppName()!=null?tmp.getAppName():op2, style);
                         setCellValue(sheet, ex.row, ex.col++, tmp.getAppId()!=null?tmp.getAppId():op2, style);
                     }else{
-                        setCellValue(sheet, ex.row, ex.col++, /*api path*/ op2.replace('.','/'), style);
+                        setCellValue(sheet, ex.row, ex.col++, /*api path*/ op2, style);
                     }
 
                     // count 출력
