@@ -1,5 +1,7 @@
 package com.sktechx.palab.logx.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.text.ParseException;
@@ -8,7 +10,7 @@ import java.util.Date;
 
 @Entity
 @Table(name="service_view")
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ServiceRequestCall implements Serializable {
 
 

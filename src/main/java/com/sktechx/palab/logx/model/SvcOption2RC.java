@@ -1,5 +1,7 @@
 package com.sktechx.palab.logx.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -9,6 +11,7 @@ import java.util.Date;
 
 @Entity
 @Table(name="svc_option2_view")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class SvcOption2RC implements Serializable {
 
 

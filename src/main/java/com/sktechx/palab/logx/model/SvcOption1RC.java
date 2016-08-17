@@ -1,17 +1,23 @@
 package com.sktechx.palab.logx.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
 @Entity
 @Table(name="svc_option1_view")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class SvcOption1RC implements Serializable {
 
 
     @EmbeddedId
     SvcOption1RCPK id;
 
+    public void setId(SvcOption1RCPK id) {
+        this.id = id;
+    }
 
     //for svc name
     @Transient

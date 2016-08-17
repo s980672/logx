@@ -58,4 +58,13 @@ public class ReqCallPK implements Serializable{
     public void setReqDt(Date reqDt) {
         this.reqDt = reqDt;
     }
+
+    @Override
+    public String toString() {
+        return "ReqCallPK{" +
+                "rcType=" + rcType +
+                ", reqDt=" + reqDt +
+                '}';
+    }
 }
+

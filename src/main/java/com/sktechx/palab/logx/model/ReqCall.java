@@ -1,6 +1,10 @@
 package com.sktechx.palab.logx.model;
 
-import javax.persistence.*;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -8,6 +12,7 @@ import java.util.Date;
 
 @Entity
 @Table(name="pv")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ReqCall implements Serializable {
 
     public ReqCall() {
@@ -42,5 +47,29 @@ public class ReqCall implements Serializable {
 
     public void setCount(long count) {
         this.count = count;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ReqCall)) return false;
+
+        ReqCall reqCall = (ReqCall) o;
+
+        return getKey().equals(reqCall.getKey());
+
+    }
+
+    @Override
+    public int hashCode() {
+        return getKey().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "ReqCall{" +
+                "key=" + key +
+                ", count=" + count +
+                '}';
     }
 }
