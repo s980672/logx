@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.sktechx.palab.logx.service.ElasticsearchPVAnalysisService;
 import com.sktechx.palab.logx.service.ExportExcelService;
 import com.sktechx.palab.logx.web.StatisticsController;
 import io.searchbox.client.JestClient;
@@ -82,12 +81,6 @@ public class Application
     @Bean
     public StatisticsController statisticsController(){
         return new StatisticsController();
-    }
-
-    @Bean
-    public ElasticsearchPVAnalysisService esService(){
-
-        return new ElasticsearchPVAnalysisService();
     }
 
     @Bean

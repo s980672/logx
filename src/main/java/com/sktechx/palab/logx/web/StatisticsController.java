@@ -1,13 +1,12 @@
 package com.sktechx.palab.logx.web;
 
-import com.sktechx.palab.logx.model.enumRCType;
-import com.sktechx.palab.logx.model.enumStatsType;
-import com.sktechx.palab.logx.repository.RequestCallRepository;
+import com.sktechx.palab.logx.model.*;
 import com.sktechx.palab.logx.service.ElasticsearchPVAnalysisService;
 import com.sktechx.palab.logx.service.ElasticsearchUVAnalysisService;
 import com.sktechx.palab.logx.service.ExportExcelService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.slf4j.Logger;
@@ -20,6 +19,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.ParseException;
+import java.util.List;
 
 /**
  * Created by sunny on 2016. 7. 7..
@@ -31,9 +31,6 @@ public class StatisticsController {
     Logger logger = LoggerFactory.getLogger(StatisticsController.class);
 
     @Autowired
-    RequestCallRepository rcRepo;
-
-    @Autowired
     ExportExcelService statisticsExcelExportService;
 
     @Autowired
@@ -43,6 +40,81 @@ public class StatisticsController {
     ElasticsearchUVAnalysisService uvSvc;
 
 
+
+    @RequestMapping(value="{period}/svcRC", method =RequestMethod.GET)
+    public List<ServiceRequestCall> getServicePV(@PathVariable String period, @RequestParam Integer year, @RequestParam Integer month) {
+        enumRCType rcType = enumRCType.valueOf(period);
+
+        LocalDate start = new LocalDate();
+        LocalDate end = start;
+        if (rcType == enumRCType.monthly) {
+
+            start = start.withYear(year);
+            start = start.withMonthOfYear(month);
+            start = start.withDayOfMonth(1);
+            end = start.plusMonths(4).minusDays(1);
+        }
+
+        return pvSvc.getSvcPVTop5(rcType, start.toDate(), end.toDate());
+
+
+    }
+
+    @RequestMapping(value="{period}", method =RequestMethod.GET)
+    public List<ReqCall> getPV(@PathVariable String period, @RequestParam(required=false) Integer year, @RequestParam(required=false) Integer month,
+                               @RequestParam(required = false) String date) {
+        enumRCType rcType = enumRCType.valueOf(period);
+
+        LocalDate end = new LocalDate();
+        LocalDate start = end;
+
+        //최근 4달
+        if (rcType == enumRCType.monthly) {
+
+            end = end.withYear(year);
+            end = end.withMonthOfYear(month);
+            end = end.withDayOfMonth(2);//해당 월 까지
+            start = end.minusMonths(4);
+        }//최근 4주
+        else if (rcType == enumRCType.weekly ) {
+            if ( date == null )
+                throw new IllegalArgumentException("Weekly data needs date parameter!");
+            end = LocalDate.parse(date, DateTimeFormat.forPattern("yyyy-MM-dd"));
+            end = end.withDayOfWeek(DateTimeConstants.MONDAY);
+            start = end.minusWeeks(4);
+
+            logger.debug("start : {} -- end : {}", start, end);
+        }
+
+        return pvSvc.getPV(rcType, start.toDate(), end.toDate());
+    }
+
+    @RequestMapping(value="{period}/{opType}", method =RequestMethod.GET)
+    public List<SvcOption1RC> getAppApiPV(@PathVariable String period, @PathVariable String opType, @RequestParam Integer year, @RequestParam Integer month) {
+
+        enumOptionType optionType = enumOptionType.valueOf(opType.toUpperCase());
+        enumRCType rcType = enumRCType.valueOf(period);
+
+        LocalDate start = new LocalDate();
+        LocalDate end = start;
+
+        if (rcType == enumRCType.monthly) {
+
+            start = start.withYear(year);
+            start = start.withMonthOfYear(month);
+            start = start.withDayOfMonth(1);
+            end = start.plusMonths(4).minusDays(1);
+        }
+
+        switch (optionType){
+            case APP:
+                return pvSvc.getRCPerAppTop10(rcType, start.toDate(), end.toDate());
+            case API:
+                return pvSvc.getRCPerApiTop10(rcType, start.toDate(), end.toDate());
+        }
+
+        return null;
+    }
 
     //date ==> 2016-07-01
     @RequestMapping(value="{period}", method=RequestMethod.POST)

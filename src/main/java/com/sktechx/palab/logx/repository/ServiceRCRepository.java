@@ -24,4 +24,10 @@ public interface ServiceRCRepository extends JpaRepository<ServiceRequestCall, S
     @Query("select rc from ServiceRequestCall rc where rc.id.svcId = :svcId and rc.id.stsType=:stsType and rc.id.rcType = :rcType and rc.id.reqDt between :start and :end order by rc.id.reqDt")
     List<ServiceRequestCall> findBySvcIdAndStsTypeAndRcTypeAndBetween(@Param("svcId")String svcId, @Param("stsType") enumStatsType stsType,  @Param("rcType") enumRCType rcType, @Param("start") Date start, @Param("end") Date end);
 
+    @Query("select rc.id.svcId from ServiceRequestCall rc where rc.id.stsType='PV' and rc.id.rcType = :rcType and rc.id.reqDt between :start and :end " +
+            " group by rc.id.svcId order by sum(rc.count) desc")
+    List<String> findTop5Svc(@Param("rcType")enumRCType rcType, @Param("start") Date start, @Param("end") Date end);
+
+
+
 }

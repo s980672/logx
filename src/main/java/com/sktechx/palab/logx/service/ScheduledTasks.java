@@ -149,6 +149,7 @@ public class ScheduledTasks {
 
         logger.debug("start date : {} - end date : {}", date1, date2);
 
+        esService.generatePV(enumRCType.monthly, date1, date2);
         esService.generateSvcPV(enumRCType.monthly, date1, date2);
         esService.generateSvcOption1PV(enumOptionType.API, enumRCType.monthly, date1, date2);
         esService.generateSvcOption1PV(enumOptionType.APP, enumRCType.monthly, date1, date2);
