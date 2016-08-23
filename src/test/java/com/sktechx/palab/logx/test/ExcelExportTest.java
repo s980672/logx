@@ -40,9 +40,6 @@ public class ExcelExportTest extends AbstractJUnit4SpringMvcTests {
     ServiceRCRepository  svcRcRepo;
 
     @Autowired
-    SvcRepository svcRepo;
-
-    @Autowired
     SvcViewRepository svcViewRepo;
 
     @Autowired

@@ -8,4 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface SvcViewRepository extends JpaRepository<SvcView, String>{
 
+    SvcView findBySvcId(String svcId);
 }

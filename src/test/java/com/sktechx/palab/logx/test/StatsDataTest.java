@@ -35,9 +35,6 @@ public class StatsDataTest extends AbstractJUnit4SpringMvcTests {
     ServiceRCRepository  svcRcRepo;
 
     @Autowired
-    SvcRepository svcRepo;
-
-    @Autowired
     SvcViewRepository svcViewRepo;
 
     @Autowired
