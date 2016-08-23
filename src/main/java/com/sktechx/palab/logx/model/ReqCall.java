@@ -19,7 +19,7 @@ public class ReqCall implements Serializable {
     }
 
     public ReqCall(enumRCType type, Date reqDt, long count) {
-        key = new ReqCallPK(type, reqDt);
+        id = new ReqCallPK(type, reqDt);
         this.count = count;
     }
 
@@ -27,16 +27,16 @@ public class ReqCall implements Serializable {
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Date date = sdf.parse(reqDt);
-        key = new ReqCallPK(type, date);
+        id = new ReqCallPK(type, date);
         this.count = count;
 
     }
 
     @EmbeddedId
-    ReqCallPK key;
+    ReqCallPK id;
 
-    public ReqCallPK getKey() {
-        return key;
+    public ReqCallPK getId() {
+        return id;
     }
 
     private long count;
@@ -56,19 +56,19 @@ public class ReqCall implements Serializable {
 
         ReqCall reqCall = (ReqCall) o;
 
-        return getKey().equals(reqCall.getKey());
+        return getId().equals(reqCall.getId());
 
     }
 
     @Override
     public int hashCode() {
-        return getKey().hashCode();
+        return getId().hashCode();
     }
 
     @Override
     public String toString() {
         return "ReqCall{" +
-                "key=" + key +
+                "id=" + id +
                 ", count=" + count +
                 '}';
     }

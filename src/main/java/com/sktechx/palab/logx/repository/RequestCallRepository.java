@@ -15,13 +15,8 @@ import java.util.List;
  */
 public interface RequestCallRepository extends JpaRepository<ReqCall, ReqCallPK> {
 
-    //List<RequestCall> findByReqDt(Date date);
 
-
-    List<ReqCall> findByKey(ReqCallPK key);
-
-    @Query("select rc from ReqCall rc where rc.id.rcType = :rcType and rc.id.reqDt between :start and :end order by rc.id.reqDt desc")
+    @Query("select rc from ReqCall rc where rc.id.rcType = :rcType and rc.id.reqDt between :start and :end order by rc.id.reqDt asc")
     List<ReqCall> findByRcTypeAndBetween( @Param("rcType")enumRCType rcType, @Param("start")Date date1, @Param("end")Date date2);
 
-    //List<RequestCall> findByRcTypeAndLikeReqDt(enumRCType rcType, String date);
 }
