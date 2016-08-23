@@ -93,6 +93,9 @@ public class ExportExcelService {
             excelUtil = new ExportExcelUtil();
         }
 
+        //svcID를 이름으로 변경 - 엑셀 상단의 서비스명 출력
+        String svcText = changeNameIdService.getSvcName(svc);
+
         enumOptionType opType = ConvertOption1Option2ToOpType(option1, option2);
 
         String sheetName = opType +"_" + rcType + "_pv";
@@ -121,7 +124,7 @@ public class ExportExcelService {
                 }
 
                 changeNameIdService.fillNameOrIdOfAppOrSvc(opType, rcs);
-                needTotalSum = excelUtil.createData(sheetName, rcs, APP, rcType, startDate, endDate, svc);
+                needTotalSum = excelUtil.createData(sheetName, rcs, APP, rcType, startDate, endDate, svcText);
 
                 excelUtil.createHeader(sheetName, "APP별 " + tableType, rcType, startDate, endDate, headers, needTotalSum);
 
@@ -139,7 +142,7 @@ public class ExportExcelService {
                 }
 
                 changeNameIdService.fillNameOrIdOfAppOrSvc(opType, rcs);
-                needTotalSum = excelUtil.createData(sheetName, rcs, API, rcType, startDate, endDate, svc);
+                needTotalSum = excelUtil.createData(sheetName, rcs, API, rcType, startDate, endDate, svcText);
 
                 excelUtil.createHeader(sheetName, "API별 " + tableType, rcType, startDate, endDate, headers, needTotalSum);
 
@@ -158,7 +161,7 @@ public class ExportExcelService {
                 }
 
                 changeNameIdService.fillNameOrIdOfAppOrSvc(opType, rcs);
-                needTotalSum = excelUtil.createData(sheetName, rcs, ERROR, rcType, startDate, endDate, svc);
+                needTotalSum = excelUtil.createData(sheetName, rcs, ERROR, rcType, startDate, endDate, svcText);
 
                 excelUtil.createHeader(sheetName, "Error Count", rcType, startDate, endDate, headers, needTotalSum);
                 break;
@@ -177,7 +180,7 @@ public class ExportExcelService {
                     rcsAppApi = svcOption2RcRepo.findBySvcIdAndStsTypeAndOpTypeAndRcTypeAndBetween(svc, stsType, opType, rcType, startDate.toDate(), endDate.toDate());
                 }
                 changeNameIdService.fillNameOrIdOfAppOrSvc(opType, rcsAppApi);
-                needTotalSum = excelUtil.createData(sheetName, rcsAppApi, APP_API, rcType, startDate, endDate, svc);
+                needTotalSum = excelUtil.createData(sheetName, rcsAppApi, APP_API, rcType, startDate, endDate, svcText);
 
                 excelUtil.createHeader(sheetName, "APP별 " + tableType, rcType, startDate, endDate, headers, needTotalSum);
 
@@ -199,7 +202,7 @@ public class ExportExcelService {
                 }
 
                 changeNameIdService.fillNameOrIdOfAppOrSvc(opType, rcsApiApp);
-                needTotalSum = excelUtil.createData(sheetName, rcsApiApp, API_APP, rcType, startDate, endDate, svc);
+                needTotalSum = excelUtil.createData(sheetName, rcsApiApp, API_APP, rcType, startDate, endDate, svcText);
 
                 excelUtil.createHeader(sheetName, "API별 " + tableType, rcType, startDate, endDate, headers, needTotalSum);
 
@@ -214,7 +217,7 @@ public class ExportExcelService {
                 List<SvcOption2RC> rcsErrApp = svcOption2RcRepo.findBySvcIdAndStsTypeAndOpTypeAndRcTypeAndBetween(svc, stsType, opType, rcType, startDate.toDate(), endDate.toDate());
 
                 changeNameIdService.fillNameOrIdOfAppOrSvc(opType, rcsErrApp);
-                needTotalSum = excelUtil.createData(sheetName, rcsErrApp, ERROR_APP, rcType, startDate, endDate, svc);
+                needTotalSum = excelUtil.createData(sheetName, rcsErrApp, ERROR_APP, rcType, startDate, endDate, svcText);
 
                 excelUtil.createHeader(sheetName, "Error Count", rcType, startDate, endDate, headers, needTotalSum);
                 break;
@@ -229,7 +232,7 @@ public class ExportExcelService {
 
                 changeNameIdService.fillNameOrIdOfAppOrSvc(opType, rcsErrApi);
 
-                needTotalSum = excelUtil.createData(sheetName, rcsErrApi, ERROR_API, rcType, startDate, endDate, svc);
+                needTotalSum = excelUtil.createData(sheetName, rcsErrApi, ERROR_API, rcType, startDate, endDate, svcText);
 
                 excelUtil.createHeader(sheetName, "Error Count", rcType, startDate, endDate, headers, needTotalSum);
 
@@ -246,7 +249,7 @@ public class ExportExcelService {
                 }
 
                 changeNameIdService.fillNameOrIdOfAppOrSvc(opType, listSvcRC);
-                needTotalSum = excelUtil.createData(sheetName, listSvcRC, SVC, rcType, startDate, endDate, svc);
+                needTotalSum = excelUtil.createData(sheetName, listSvcRC, SVC, rcType, startDate, endDate, svcText);
                 excelUtil.createHeader(sheetName, "서비스 별 " + tableType, rcType, startDate, endDate, headers, needTotalSum);
 
 

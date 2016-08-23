@@ -2,6 +2,9 @@ package com.sktechx.palab.logx.service;
 
 import com.sktechx.palab.logx.model.enumOptionType;
 import com.sktechx.palab.logx.model.enumRCType;
+import org.joda.time.DateTimeConstants;
+import org.joda.time.LocalDate;
+import org.joda.time.format.DateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +16,6 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -87,7 +88,7 @@ public class ScheduledTasks {
         logger.debug("start every monthly!!");
         logger.debug("=========================");
 
-        LocalDate start = LocalDate.of(2016, 5, 1);
+        LocalDate start = LocalDate.parse("2016-05-01", DateTimeFormat.forPattern("yyyy-MM-dd"));
 
         //LocalDate tmp = LocalDate.now();
 
@@ -97,8 +98,8 @@ public class ScheduledTasks {
 
         for (; start.isBefore(end); start=start.plusMonths(1) ) {
 
-            String date1 = start.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            String date2 = start.plusMonths(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            String date1 = start.toString("yyyy-MM-dd");
+            String date2 = start.plusMonths(1).toString("yyyy-MM-dd");
 
             logger.debug("date1 : {} -- date2 : {} -- end : {}", date1, date2, end);
 
@@ -125,6 +126,25 @@ public class ScheduledTasks {
     }
 
 
+    @Scheduled(cron="0 20 0 1/1 * *")
+    public void saveWeeklyPV() throws IOException, ParseException {
+
+        logger.debug("=========================");
+        logger.debug("start generate weekly!!");
+        logger.debug("=========================");
+
+        LocalDate previousSunday = LocalDate.now().withDayOfWeek(DateTimeConstants.MONDAY).minusDays(1);
+
+        LocalDate start = previousSunday.minusDays(6);//MONDAY
+        LocalDate end = previousSunday;
+
+        String date1 = start.toString("yyyy-MM-dd");
+        String date2 = end.toString("yyyy-MM-dd");
+
+        logger.debug("weekly :: start date : {} - end date : {}", date1, date2);
+
+        esService.generateAllPV(enumRCType.weekly, date1, date2);
+    }
     //매월 1일 0시 5분 마다
     //@Scheduled(cron="0 5 0 1 1/1 ?")
     //@Scheduled(cron="0/3 * * * * *")
@@ -140,14 +160,15 @@ public class ScheduledTasks {
 
         LocalDate tmp = LocalDate.now();
 
-        LocalDate start = LocalDate.of(tmp.getYear(), tmp.getMonth(), 1);
+        LocalDate start = LocalDate.now();
+        start.withDayOfMonth(1);
 
         LocalDate end = start.plusMonths(1);
 
-        String date1 = start.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        String date2 = end.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        String date1 = start.toString("yyyy-MM-dd");
+        String date2 = end.toString("yyyy-MM-dd");
 
-        logger.debug("start date : {} - end date : {}", date1, date2);
+        logger.debug("monthly :: start date : {} - end date : {}", date1, date2);
 
         esService.generatePV(enumRCType.monthly, date1, date2);
         esService.generateSvcPV(enumRCType.monthly, date1, date2);

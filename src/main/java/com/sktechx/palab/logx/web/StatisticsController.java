@@ -1,6 +1,7 @@
 package com.sktechx.palab.logx.web;
 
 import com.sktechx.palab.logx.model.*;
+import com.sktechx.palab.logx.repository.SvcViewRepository;
 import com.sktechx.palab.logx.service.ElasticsearchPVAnalysisService;
 import com.sktechx.palab.logx.service.ElasticsearchUVAnalysisService;
 import com.sktechx.palab.logx.service.ExportExcelService;
@@ -39,30 +40,21 @@ public class StatisticsController {
     @Autowired
     ElasticsearchUVAnalysisService uvSvc;
 
+    @Autowired
+    SvcViewRepository svcRepo;
 
-
-    @RequestMapping(value="graph/{period}/svcRC", method =RequestMethod.GET)
-    public List<ServiceRequestCall> getServicePV(@PathVariable String period, @RequestParam Integer year, @RequestParam Integer month) {
-        enumRCType rcType = enumRCType.valueOf(period);
-
-        LocalDate start = new LocalDate();
-        LocalDate end = start;
-        if (rcType == enumRCType.monthly) {
-
-            start = start.withYear(year);
-            start = start.withMonthOfYear(month);
-            start = start.withDayOfMonth(1);
-            end = start.plusMonths(4).minusDays(1);
-        }
-
-        return pvSvc.getSvcPVTop5(rcType, start.toDate(), end.toDate());
-
-
+    @RequestMapping(value="services", method=RequestMethod.GET)
+    public List<SvcView> getServices(){
+        return svcRepo.findAll();
     }
+
 
     @RequestMapping(value="graph/{period}", method =RequestMethod.GET)
     public List<ReqCall> getPV(@PathVariable String period, @RequestParam(required=false) Integer year, @RequestParam(required=false) Integer month,
                                @RequestParam(required = false) String date) {
+
+        logger.debug("year : {} month : {} date : {}", year, month, date);
+
         enumRCType rcType = enumRCType.valueOf(period);
 
         LocalDate end = new LocalDate();
@@ -70,17 +62,21 @@ public class StatisticsController {
 
         //최근 4달
         if (rcType == enumRCType.monthly) {
+            if (year == null)
+                year = end.getYear();
+            if (month == null)
+                month = end.getMonthOfYear();
 
             end = end.withYear(year);
             end = end.withMonthOfYear(month);
             end = end.withDayOfMonth(2);//해당 월 까지
             start = end.minusMonths(4);
         }//최근 4주
-        else if (rcType == enumRCType.weekly ) {
-            if ( date == null )
+        else if (rcType == enumRCType.weekly) {
+            if (date == null)
                 throw new IllegalArgumentException("Weekly data needs date parameter!");
             end = LocalDate.parse(date, DateTimeFormat.forPattern("yyyy-MM-dd"));
-            end = end.withDayOfWeek(DateTimeConstants.MONDAY);
+            end = end.withDayOfWeek(DateTimeConstants.MONDAY).minusDays(1);
             start = end.minusWeeks(4);
 
             logger.debug("start : {} -- end : {}", start, end);
@@ -89,22 +85,89 @@ public class StatisticsController {
         return pvSvc.getPV(rcType, start.toDate(), end.toDate());
     }
 
+    //서비스별 RC(TOP5)
+    @RequestMapping(value="graph/{period}/svcRC", method =RequestMethod.GET)
+    public List<ServiceRequestCall> getServicePV(@PathVariable String period,@RequestParam(required=false) Integer year,
+                                                 @RequestParam(required=false) Integer month,
+                                                 @RequestParam(required = false) String date) {
+
+        logger.debug("year : {} month : {} date : {}", year, month, date);
+
+        enumRCType rcType = enumRCType.valueOf(period);
+
+        LocalDate end = new LocalDate();
+        LocalDate start = end;
+
+        if (rcType == enumRCType.monthly) {
+            if (year == null)
+                year = end.getYear();
+            if (month == null)
+                month = end.getMonthOfYear();
+
+            end = end.withYear(year);
+            end = end.withMonthOfYear(month);
+            end = end.withDayOfMonth(2);//해당 월 까지
+            start = end.minusMonths(4);
+
+        }//최근 4주
+        else if (rcType == enumRCType.weekly) {
+            if (date == null)
+                throw new IllegalArgumentException("Weekly data needs date parameter!");
+            end = LocalDate.parse(date, DateTimeFormat.forPattern("yyyy-MM-dd"));
+            end = end.withDayOfWeek(DateTimeConstants.MONDAY).minusDays(1);
+            start = end.minusWeeks(4);
+
+        }
+
+        logger.debug("start : {} -- end : {}", start, end);
+
+        return pvSvc.getSvcPVTop5(rcType, start.toDate(), end.toDate());
+
+
+    }
+
+
     @RequestMapping(value="graph/{period}/{opType}", method =RequestMethod.GET)
-    public List<SvcOption1RC> getAppApiPV(@PathVariable String period, @PathVariable String opType, @RequestParam Integer year, @RequestParam Integer month) {
+    public List<SvcOption1RC> getAppApiPV(@PathVariable String period, @PathVariable String opType, @RequestParam(required=false) Integer year, @RequestParam(required=false) Integer month,
+                                          @RequestParam(required = false) String date) {
+
+        logger.debug("year : {} month : {} date : {}", year, month, date);
 
         enumOptionType optionType = enumOptionType.valueOf(opType.toUpperCase());
         enumRCType rcType = enumRCType.valueOf(period);
 
-        LocalDate start = new LocalDate();
-        LocalDate end = start;
+        LocalDate end = new LocalDate();
+        LocalDate start = end;
 
+        //최근 한달
         if (rcType == enumRCType.monthly) {
-
+            LocalDate now = new LocalDate();
+            end = end.withYear(year);
             start = start.withYear(year);
-            start = start.withMonthOfYear(month);
-            start = start.withDayOfMonth(1);
-            end = start.plusMonths(4).minusDays(1);
+            //그 달의 첫째날
+            start = start.withMonthOfYear(month).withDayOfMonth(1);
+            //이전 데이터
+            if (now.getMonthOfYear() > month) {
+                end = end.withMonthOfYear(month).plusMonths(1);
+                end = end.withDayOfMonth(1);
+                end = end.minusDays(1);//그 달의 마지막 날
+            }//현재 달
+            else{
+                end = now;
+            }
+
+        }//최근 1 week
+        else if (rcType == enumRCType.weekly) {
+            if (date == null)
+                throw new IllegalArgumentException("Weekly data needs date parameter!");
+            end = LocalDate.parse(date, DateTimeFormat.forPattern("yyyy-MM-dd"));
+            //TODO check
+            end = end.withDayOfWeek(DateTimeConstants.MONDAY).minusDays(1);
+            start = end.minusDays(6);
+
         }
+
+        logger.debug("getAppApiPV({}): start : {} -- end : {}",opType, start, end);
 
         switch (optionType){
             case APP:
@@ -123,31 +186,45 @@ public class StatisticsController {
 
         enumRCType rcType = enumRCType.valueOf(period);
 
+        //for certain period
         if(startDate != null && endDate != null ){
             LocalDate sDate = LocalDate.parse(startDate, DateTimeFormat.forPattern("yyyy-MM-dd"));
             LocalDate eDate = LocalDate.parse(endDate, DateTimeFormat.forPattern("yyyy-MM-dd"));
 
             if(enumRCType.monthly==rcType) {
                 sDate = sDate.withDayOfMonth(1);
+            }else if ( enumRCType.weekly==rcType) {
+                sDate = sDate.withDayOfWeek(DateTimeConstants.MONDAY).minusWeeks(1);
             }
 
-            for (LocalDate d=sDate;d.equals(eDate)|| d.isBefore(eDate); d=(rcType==enumRCType.daily? d.plusDays(1):d.plusMonths(1))){
+            for (LocalDate d=sDate;d.equals(eDate)|| d.isBefore(eDate); ){
 
                 String date1 = d.toString(DateTimeFormat.forPattern("yyyy-MM-dd"));
                 String date2 = date1;
-                if(enumRCType.daily==rcType){
-                    date2 = d.plusDays(1).toString(DateTimeFormat.forPattern("yyyy-MM-dd"));
-
-                }else{
-                    date2 = d.plusMonths(1).toString(DateTimeFormat.forPattern("yyyy-MM-dd"));
-
+                switch(rcType){
+                    case daily:
+                        date2 = d.plusDays(1).toString(DateTimeFormat.forPattern("yyyy-MM-dd"));
+                        d = d.plusDays(1);
+                        break;
+                    case monthly:
+                        date2 = d.plusMonths(1).toString(DateTimeFormat.forPattern("yyyy-MM-dd"));
+                        d = d.plusMonths(1);
+                        break;
+                    case weekly:
+                        date2 = d.plusDays(6).toString(DateTimeFormat.forPattern("yyyy-MM-dd"));
+                        d = d.plusWeeks(1);
                 }
 
+                logger.debug("generateBatchData:: start : {} ~ end : {}", date1, date2);
+
                 pvSvc.generateAllPV(rcType, date1, date2);
-                uvSvc.generateAllUV(rcType, date1, date2);
+
+                if ( rcType != enumRCType.weekly )
+                    uvSvc.generateAllUV(rcType, date1, date2);
 
             }
         }
+        //for certain date
         else {
 
             LocalDate tmp = LocalDate.now();
@@ -167,15 +244,19 @@ public class StatisticsController {
             } else if (rcType == enumRCType.monthly) {
                 start = tmp.withDayOfMonth(1);
                 end = start.plusMonths(1);
+            } else if (rcType == enumRCType.weekly) {
+                end = tmp.withDayOfWeek(DateTimeConstants.MONDAY).minusDays(1);
+                start = end.minusDays(6);
             }
 
             String date1 = start.toString(DateTimeFormat.forPattern("yyyy-MM-dd"));
             String date2 = end.toString(DateTimeFormat.forPattern("yyyy-MM-dd"));
 
-            logger.debug("start date : {} - end date : {}", date1, date2);
+            logger.debug("generateBatchDataForCertainDay:: start date : {} - end date : {}", date1, date2);
 
             pvSvc.generateAllPV(rcType, date1, date2);
-            uvSvc.generateAllUV(rcType, date1, date2);
+            if ( rcType != enumRCType.weekly )
+                uvSvc.generateAllUV(rcType, date1, date2);
         }
     }
 

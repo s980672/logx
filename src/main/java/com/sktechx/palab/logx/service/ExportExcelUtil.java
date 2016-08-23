@@ -191,10 +191,7 @@ public class ExportExcelUtil extends abstractExportExcel {
         SvcOption1RC tmp = new SvcOption1RC();
 
         //엑셀 상단에 서비스를 찍는다
-        if(forSvcText.equals("ALL"))
-            setCellValue(sheet, 0, 1, "[서비스 : 전체서비스]", style);
-        else
-            setCellValue(sheet, 0, 1, "[서비스 : "+forSvcText+"]", style);
+        setCellValue(sheet, 0, 1, "[서비스 : "+forSvcText+"]", style);
 
 
         switch(opType){

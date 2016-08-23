@@ -24,6 +24,13 @@ public class ChangeNameIdService {
     @Autowired
     AppViewRepository appRepo;
 
+    public String getSvcName(String svcId) {
+        if ( svcRepo.findBySvcId(svcId) != null )
+            return svcRepo.findBySvcId(svcId).getName();
+
+        return "전체서비스";
+    }
+
     public void fillNameOrIdOfAppOrSvc(enumOptionType opType, Object data) {
 
 

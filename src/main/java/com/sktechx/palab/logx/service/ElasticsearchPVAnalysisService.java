@@ -44,6 +44,9 @@ public class ElasticsearchPVAnalysisService {
     @Autowired
     ElasticsearchCommonAnalysisService CommonAnalysisService;
 
+    @Autowired
+    ChangeNameIdService chgSvc;
+
 
     //최근 4주 또는 4달간 데이터를 리턴
     public List<ReqCall> getPV(enumRCType rcType, Date date1, Date date2){
@@ -55,6 +58,7 @@ public class ElasticsearchPVAnalysisService {
 
         List<ServiceRequestCall> result = Lists.newArrayList();
 
+
         top5Svc.stream().limit(5).forEach(svc -> {
             logger.debug("service : {}", svc);
 
@@ -62,6 +66,7 @@ public class ElasticsearchPVAnalysisService {
             result.addAll(lst);
         });
 
+        chgSvc.fillNameOrIdOfAppOrSvc(enumOptionType.SVC, result);
         return result;
     }
 
@@ -73,6 +78,7 @@ public class ElasticsearchPVAnalysisService {
             SvcOption1RC tmp = new SvcOption1RC();
             svcOption1RCRep.findByOption1AndRcTypeAndBetween(api, enumOptionType.API, rcType, date1, date2).forEach(rc -> {
                 tmp.setId(rc.getId());
+                //TODO check logic
                 tmp.setCount(tmp.getCount()+rc.getCount());
             });
             result.add(tmp);
@@ -94,7 +100,7 @@ public class ElasticsearchPVAnalysisService {
             });
             result.add(tmp);
         });
-
+        chgSvc.fillNameOrIdOfAppOrSvc(enumOptionType.APP, result);
         return result;
     }
 
