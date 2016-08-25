@@ -3,3 +3,5 @@
 .settings/
 .classpath
 .project
+*.xml
+logx.iml

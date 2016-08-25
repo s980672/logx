@@ -37,7 +37,8 @@ public class AggReqDSLs {
                 "    \"range\": {\n" +
                 "      \"reqDt\": {\n" +
                 "        \"gte\": \"" + start + "\",\n" +
-                "        \"lt\": \"" + end + "\"\n" +
+                "        \"lt\": \"" + end + "\",\n" +
+                "        \"time_zone\": \"+09:00\"\n" +
                 "      }\n" +
                 "    }\n" +
                 "  }\n" +
@@ -67,7 +68,8 @@ public class AggReqDSLs {
                 "    \"range\": {\n" +
                 "      \"reqDt\": {\n" +
                 "        \"gte\": \"" + start + "\", \n" +
-                "        \"lt\": \"" + end + "\" \n" +
+                "        \"lt\": \"" + end + "\", \n" +
+                "        \"time_zone\": \"+09:00\"\n" +
                 "      }\n" +
                 "    }\n" +
                 "  }\n" +
@@ -96,7 +98,8 @@ public class AggReqDSLs {
                 "    \"range\" : {\n" +
                 "      \"reqDt\": {\n" +
                 "        \"gte\": \"" + start + "\",\n" +
-                "        \"lt\": \"" + end + "\"\n" +
+                "        \"lt\": \"" + end + "\",\n" +
+                "        \"time_zone\": \"+09:00\"\n" +
                 "      }\n" +
                 "    }\n" +
                 "  }\n" +
@@ -126,7 +129,8 @@ public class AggReqDSLs {
                 "    \"range\" : {\n" +
                 "      \"reqDt\": {\n" +
                 "        \"gte\": \"" + start + "\",\n" +
-                "        \"lt\": \"" + end + "\"\n" +
+                "        \"lt\": \"" + end + "\",\n" +
+                "        \"time_zone\": \"+09:00\"\n" +
                 "      }\n" +
                 "    }\n" +
                 "  }\n" +
@@ -191,7 +195,8 @@ public class AggReqDSLs {
                 "    \"range\": {\n" +
                 "      \"reqDt\": {\n" +
                 "        \"gte\": \"" + start + "\",\n" +
-                "        \"lt\": \"" + end + "\"\n" +
+                "        \"lt\": \"" + end + "\",\n" +
+                "        \"time_zone\": \"+09:00\"\n" +
                 "      }\n" +
                 "    }\n" +
                 "  }\n" +
@@ -227,7 +232,8 @@ public class AggReqDSLs {
                 "    \"range\": {\n" +
                 "      \"reqDt\": {\n" +
                 "        \"gte\": \"" + start + "\",\n" +
-                "        \"lt\": \"" + end + "\"\n" +
+                "        \"lt\": \"" + end + "\",\n" +
+                "        \"time_zone\": \"+09:00\"\n" +
                 "      }\n" +
                 "    }\n" +
                 "  }\n" +
@@ -271,7 +277,8 @@ public class AggReqDSLs {
                  "    \"range\": {\n" +
                  "      \"reqDt\": {\n" +
                  "        \"gte\": \"" + start + "\",\n" +
-                 "        \"lt\": \"" + end + "\"\n" +
+                 "        \"lt\": \"" + end + "\",\n" +
+                 "        \"time_zone\": \"+09:00\"\n" +
                  "      }\n" +
                  "    }\n" +
                  "  }\n" +
@@ -305,7 +312,8 @@ public class AggReqDSLs {
                 "          \"range\": {\n" +
                 "            \"reqDt\": {\n" +
                 "              \"gte\": \"" + start + "\",\n" +
-                "              \"lt\": \"" + end + "\"\n" +
+                "              \"lt\": \"" + end + "\",\n" +
+                "              \"time_zone\": \"+09:00\"\n" +
                 "            }\n" +
                 "          }\n" +
                 "        }\n" +
@@ -338,7 +346,8 @@ public class AggReqDSLs {
                 "          \"range\": {\n" +
                 "            \"reqDt\": {\n" +
                 "              \"gte\": \"" + start + "\",\n" +
-                "              \"lt\": \"" + end + "\"\n" +
+                "              \"lt\": \"" + end + "\",\n" +
+                "              \"time_zone\": \"+09:00\"\n" +
                 "            }\n" +
                 "          }\n" +
                 "        }\n" +
@@ -379,7 +388,8 @@ public class AggReqDSLs {
                 "          \"range\": {\n" +
                 "            \"reqDt\": {\n" +
                 "              \"gte\": \"" + start + "\",\n" +
-                "              \"lt\": \"" + end + "\"\n" +
+                "              \"lt\": \"" + end + "\",\n" +
+                "              \"time_zone\": \"+09:00\"\n" +
                 "            }\n" +
                 "          }\n" +
                 "        }\n" +
@@ -420,7 +430,8 @@ public class AggReqDSLs {
                 "          \"range\": {\n" +
                 "            \"reqDt\": {\n" +
                 "              \"gte\": \"" + start + "\",\n" +
-                "              \"lt\": \"" + end + "\"\n" +
+                "              \"lt\": \"" + end + "\",\n" +
+                "              \"time_zone\": \"+09:00\"\n" +
                 "            }\n" +
                 "          }\n" +
                 "        }\n" +
