@@ -28,7 +28,8 @@ public class ScheduledTasks {
 
     private Logger logger = LoggerFactory.getLogger(ScheduledTasks.class);
 
-
+    @Autowired
+    ElasticsearchCommonAnalysisService commonService;
     @Autowired
     ElasticsearchPVAnalysisService esService;
 
@@ -39,7 +40,7 @@ public class ScheduledTasks {
 
     //매일 그날의 request call 수를 저장한다
     //매일 0시 5분에 전날 request call를 조회 및 저장
-    @Scheduled(cron="0 5 00 1/1 * *")
+    @Scheduled(cron = "0 5 00 1/1 * *")
     //@Scheduled(cron="0/30 * * * * *")
     public void savecDailyPVUV() throws ParseException {
 
@@ -52,7 +53,7 @@ public class ScheduledTasks {
         String date2 = df.format(cal.getTime());
 //        어제날짜
         cal.add(Calendar.DATE, -1);
-        String date1 = df.format(cal.getTime());    	
+        String date1 = df.format(cal.getTime());
 
         try {
 
@@ -96,7 +97,7 @@ public class ScheduledTasks {
 
         LocalDate end = start.plusMonths(5);
 
-        for (; start.isBefore(end); start=start.plusMonths(1) ) {
+        for (; start.isBefore(end); start = start.plusMonths(1)) {
 
             String date1 = start.toString("yyyy-MM-dd");
             String date2 = start.plusMonths(1).toString("yyyy-MM-dd");
@@ -126,7 +127,7 @@ public class ScheduledTasks {
     }
 
 
-    @Scheduled(cron="0 20 0 1/1 * *")
+    @Scheduled(cron = "0 20 0 1/1 * *")
     public void saveWeeklyPV() throws IOException, ParseException {
 
         logger.debug("=========================");
@@ -145,11 +146,12 @@ public class ScheduledTasks {
 
         esService.generateAllPV(enumRCType.weekly, date1, date2);
     }
+
     //매월 1일 0시 5분 마다
     //@Scheduled(cron="0 5 0 1 1/1 ?")
     //@Scheduled(cron="0/3 * * * * *")
     //매일 0시 30분에 전날 request call를 조회 및 저장
-    @Scheduled(cron="0 10 0 1/1 * *")
+    @Scheduled(cron = "0 10 0 1/1 * *")
     public void saveMonthlyPV() throws IOException, ParseException {
 
         logger.debug("=========================");
@@ -189,9 +191,52 @@ public class ScheduledTasks {
         esUVService.generateSvcOption2UV(enumOptionType.APP_API, enumRCType.monthly, date1, date2);
         esUVService.generateSvcOption2UV(enumOptionType.API_APP, enumRCType.monthly, date1, date2);
 
+    }
+
+    //전전달 한달치 index를 삭제한다
+    @Scheduled(cron = "0 30 0 1 * *")
+    public void deleteAMonthAgoIndices() throws IOException {
+
+        LocalDate date = LocalDate.now();
+
+        //매달 첫날에 돌지 않은 경우 대비
+        date = date.withDayOfMonth(1);
+        logger.debug("date : {}", date);
+
+        //전전달 데이터 삭제
+        LocalDate start = date.minusMonths(2);//전전달 1일 부터
+        LocalDate end = date.minusMonths(1).minusDays(1); //전전달 마지막날 까지 30일 또는 31일
+
+        logger.debug("start : {} ~~ end : {}", start, end);
+
+        LocalDate firstWeekOfLastMonth = date.minusMonths(1);
+
+        int weekYear = start.getWeekyear();
+
+        //4주전 데이터 4주치 삭제
+        int startWeek = start.getWeekOfWeekyear();
+        int endWeek = end.getWeekOfWeekyear();
+        int checkWeek = firstWeekOfLastMonth.getWeekOfWeekyear();
+
+        logger.debug("startWeek : {} ~~ endWeek : {} ~ checkWeek : {}", startWeek, endWeek, checkWeek);
+
+
+        if ( checkWeek == endWeek ){
+            endWeek--;
+        }
+
+        String indexName = "";
+
+        //4주치 데이터 삭제
+        for(int i = startWeek ; i <= endWeek ; i++){
+
+            indexName = "filebeat-"+weekYear+"-w"+ i;
+
+            logger.debug("@_@ delete index : {}", indexName);
+
+            commonService.deleteIndex(indexName);
+        }
 
 
     }
-
-
 }

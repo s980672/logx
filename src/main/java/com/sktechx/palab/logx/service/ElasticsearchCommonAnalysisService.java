@@ -1,8 +1,10 @@
 package com.sktechx.palab.logx.service;
 
 import io.searchbox.client.JestClient;
+import io.searchbox.client.JestResult;
 import io.searchbox.core.Search;
 import io.searchbox.core.SearchResult;
+import io.searchbox.indices.DeleteIndex;
 import io.searchbox.params.SearchType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,4 +38,13 @@ public class ElasticsearchCommonAnalysisService {
         return response;
     }
 
+    public void deleteIndex(String indexName) throws IOException {
+
+        DeleteIndex.Builder deleteIndex = new DeleteIndex.Builder(indexName);
+
+        JestResult result = client.execute(deleteIndex.build());
+
+        logger.debug(result.getJsonString());
+
+    }
 }
