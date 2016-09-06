@@ -33,18 +33,27 @@ public class ElasticsearchCommonAnalysisService {
 
         SearchResult response = client.execute(searchBuilder.build());
 
+        if ( response.getResponseCode() % 100 != 2 ) {
+            logger.error("{}", response.getErrorMessage());
+        }
+
         logger.debug(response.getJsonString());
 
         return response;
     }
 
-    public void deleteIndex(String indexName) throws IOException {
+    public JestResult deleteIndex(String indexName) throws IOException {
 
         DeleteIndex.Builder deleteIndex = new DeleteIndex.Builder(indexName);
 
         JestResult result = client.execute(deleteIndex.build());
 
+        if ( result.getResponseCode() % 100 != 2 ) {
+            logger.error("{}", result.getErrorMessage());
+        }
+
         logger.debug(result.getJsonString());
 
+        return result;
     }
 }
