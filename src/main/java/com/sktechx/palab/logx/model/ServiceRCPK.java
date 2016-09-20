@@ -13,11 +13,12 @@ public class ServiceRCPK implements Serializable{
 
     public ServiceRCPK(){};
 
-    public ServiceRCPK(enumStatsType stsType, enumRCType rcType, Date reqDt, String svcId) {
+    public ServiceRCPK(enumStatsType stsType, enumRCType rcType, Date reqDt, String svcId,String categoryId) {
     	this.stsType = stsType;
         this.rcType = rcType;
         this.reqDt = reqDt;
         this.svcId = svcId;
+        this.categoryId = categoryId;
 
     }
     
@@ -30,8 +31,11 @@ public class ServiceRCPK implements Serializable{
     @Temporal(TemporalType.DATE)
     private Date reqDt;
 
+    private String categoryId;
 
     private String svcId;
+
+
 
     public String getSvcId() {
         return svcId;
@@ -40,7 +44,15 @@ public class ServiceRCPK implements Serializable{
     public void setSvcId(String svcId) {
         this.svcId = svcId;
     }
-    
+
+
+    public String getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(String categoryId) {
+        this.categoryId = categoryId;
+    }
 
     public enumStatsType getStatsType() {
         return stsType;
@@ -78,6 +90,7 @@ public class ServiceRCPK implements Serializable{
         if (getRcType() != that.getRcType()) return false;
         if (getStatsType() != that.getStatsType()) return false;
         if (getReqDt() != null ? !getReqDt().equals(that.getReqDt()) : that.getReqDt() != null) return false;
+        if (getCategoryId() != null ? !getCategoryId().equals(that.getCategoryId()) : that.getCategoryId() != null) return false;
         return !(getSvcId() != null ? !getSvcId().equals(that.getSvcId()) : that.getSvcId() != null);
 
     }
@@ -96,7 +109,8 @@ public class ServiceRCPK implements Serializable{
                 "stsType=" + stsType +
                 "rcType=" + rcType +
                 ", reqDt=" + reqDt +
-                ", svcId='" + svcId + '\'' +
+                ", svcId=" + svcId +
+                ", categoryId='" + categoryId + '\'' +
                 '}';
     }
 }

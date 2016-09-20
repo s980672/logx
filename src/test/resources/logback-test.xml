@@ -16,6 +16,8 @@
 	<logger name="com.mangofactory" level="WARN" />
 	<logger name="java.sql.DatabaseMetaData" level="WARN" />
 	<logger name="org.apache.velocity" level="WARN" />
+	<logger name="org.apache" level="WARN" />
+	<logger name="io.searchbox" level="WARN" />
 
 	<logger name="com.sktechx" level="DEBUG">
 	</logger>
