@@ -2,7 +2,8 @@ package com.sktechx.palab.logx.service;
 
 import com.sktechx.palab.logx.model.*;
 import com.sktechx.palab.logx.repository.AppViewRepository;
-import com.sktechx.palab.logx.repository.SvcViewRepository;
+import com.sktechx.palab.logx.secondary.domain.Asset;
+import com.sktechx.palab.logx.secondary.domain.AssetRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,16 +20,21 @@ public class ChangeNameIdService {
     Logger logger = LoggerFactory.getLogger(ChangeNameIdService.class);
 
     @Autowired
-    SvcViewRepository svcRepo;
+    AssetRepository assetRepo;
 
     @Autowired
     AppViewRepository appRepo;
 
     public String getSvcName(String svcId) {
-        if ( svcRepo.findBySvcId(svcId) != null )
-            return svcRepo.findBySvcId(svcId).getName();
+        if ( svcId.equals("ALL") ){
+            return "전체서비스";
+        }
+        Asset one = assetRepo.findOne(Long.parseLong(svcId));
+        if (one != null)
+            return one.getName();
 
         return "전체서비스";
+
     }
 
     public void fillNameOrIdOfAppOrSvc(enumOptionType opType, Object data) {
@@ -110,12 +116,12 @@ public class ChangeNameIdService {
 
     private void fillServiceName(List<ServiceRequestCall> lst) {
 
-        List<SvcView> svcs = svcRepo.findAll();
+        List<Asset> svcs = assetRepo.findAll();
 
         lst.stream().map(rc -> rc.getId().getSvcId()).distinct().forEach(svcId -> {
-            svcs.stream().filter(svc -> svcId.equals(svc.getSvcId())).forEach(s -> {
+            svcs.stream().filter(svc -> svcId.equals(svc.getId()+"")).forEach(s -> {
 
-                        lst.stream().filter(rc -> rc.getId().getSvcId().equals(s.getSvcId())).forEach(rc -> {
+                        lst.stream().filter(rc -> rc.getId().getSvcId().equals(s.getId()+"")).forEach(rc -> {
                                     rc.setSvcName(s.getName());
                                 }
                         );
@@ -126,12 +132,12 @@ public class ChangeNameIdService {
 
     private void fillServiceNameForOption1(List<SvcOption1RC> lst) {
 
-        List<SvcView> svcs = svcRepo.findAll();
+        List<Asset> svcs = assetRepo.findAll();
 
         lst.stream().map(rc -> rc.getId().getSvcId()).distinct().forEach(svcId -> {
-            svcs.stream().filter(svc -> svcId.equals(svc.getSvcId())).forEach(s -> {
+            svcs.stream().filter(svc -> svcId.equals(svc.getId()+"")).forEach(s -> {
 
-                        lst.stream().filter(rc -> rc.getId().getSvcId().equals(s.getSvcId())).forEach(rc -> {
+                        lst.stream().filter(rc -> rc.getId().getSvcId().equals(s.getId()+"")).forEach(rc -> {
                                     rc.setSvcName(s.getName());
                                 }
                         );
@@ -142,12 +148,12 @@ public class ChangeNameIdService {
 
     private void fillServiceNameForOption2(List<SvcOption2RC> lst) {
 
-        List<SvcView> svcs = svcRepo.findAll();
+        List<Asset> svcs = assetRepo.findAll();
 
         lst.stream().map(rc -> rc.getId().getSvcId()).distinct().forEach(svcId -> {
-            svcs.stream().filter(svc -> svcId.equals(svc.getSvcId())).forEach(s -> {
+            svcs.stream().filter(svc -> svcId.equals(svc.getId()+"")).forEach(s -> {
 
-                        lst.stream().filter(rc -> rc.getId().getSvcId().equals(s.getSvcId())).forEach(rc -> {
+                        lst.stream().filter(rc -> rc.getId().getSvcId().equals(s.getId()+"")).forEach(rc -> {
                                     rc.setSvcName(s.getName());
                                 }
                         );
