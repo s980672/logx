@@ -27,6 +27,10 @@ public class ElasticsearchCommonAnalysisService {
     private final String INDEX = "logx";
     private final String INDEX_TYPE = "log";
 
+
+//    @Autowired
+//    SvcServiceIDRepository svcServiceIDRepo;
+
     public SearchResult getResult(String queryString) throws IOException {
 
         Search.Builder searchBuilder = new Search.Builder(queryString).addIndex(INDEX).addType(INDEX_TYPE).setSearchType(SearchType.COUNT);
@@ -56,4 +60,31 @@ public class ElasticsearchCommonAnalysisService {
 
         return result;
     }
+
+    public String  CheckServiceId( String serviceId ){
+
+        if( serviceId!=null && !serviceId.isEmpty() ) {
+            serviceId = serviceId;
+        }
+        else {
+            serviceId = "1";
+        }
+
+        return serviceId;
+
+    }
+
+//    public void GetServiceId() throws IOException{
+//
+//        List<SvcIdCall> findSvsIddCategoryId = svcServiceIDRepo.findSvsIddCategoryId();
+//
+//        for (int i=0; i<findSvsIddCategoryId.size(); i++){
+//
+//            System.out.println (findSvsIddCategoryId.get(i));
+//        }
+//
+//
+//        return ;
+//
+//    }
 }

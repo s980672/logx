@@ -15,13 +15,14 @@ public class SvcOption2RCPK implements Serializable{
 
     public SvcOption2RCPK(){};
 
-    public SvcOption2RCPK(enumStatsType stsType, enumRCType rcType, enumOptionType opType, Date reqDt, String svcId, String option1, String option2) {
+    public SvcOption2RCPK(enumStatsType stsType, enumRCType rcType, enumOptionType opType, Date reqDt, String svcId, String categoryId, String option1, String option2) {
         this.stsType = stsType;
         this.opType = opType;
         this.rcType = rcType;
         this.reqDt = reqDt;
         this.option1 = option1;
         this.svcId = svcId;
+        this.categoryId = categoryId;
         this.option2 = option2;
     }
     
@@ -80,12 +81,24 @@ public class SvcOption2RCPK implements Serializable{
 
     private String svcId;
 
+    @Column(length=100)
+    private String categoryId;
+
     public String getSvcId() {
         return svcId;
     }
 
     public void setSvcId(String svcId) {
         this.svcId = svcId;
+    }
+
+
+    public String getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(String categoryId) {
+        this.categoryId = categoryId;
     }
 
 
@@ -124,6 +137,7 @@ public class SvcOption2RCPK implements Serializable{
 //        if (!getReqDt().equals(that.getReqDt())) return false;
         if (!getOption1().equals(that.getOption1())) return false;
         if (!getOption2().equals(that.getOption2())) return false;
+        if (!getCategoryId().equals(that.getCategoryId())) return false;
         return getSvcId().equals(that.getSvcId());
 
     }
@@ -136,6 +150,7 @@ public class SvcOption2RCPK implements Serializable{
         result = 31 * result + getReqDt().hashCode();
         result = 31 * result + getOption1().hashCode();
         result = 31 * result + getOption2().hashCode();
+        result = 31 * result + getCategoryId().hashCode();
         result = 31 * result + getSvcId().hashCode();
         return result;
     }
@@ -149,7 +164,9 @@ public class SvcOption2RCPK implements Serializable{
                 ", reqDt=" + reqDt +
                 ", option1='" + option1 + '\'' +
                 ", option2='" + option2 + '\'' +
+                ", categoryId='" + categoryId + '\'' +
                 ", svcId='" + svcId + '\'' +
                 '}';
     }
+
 }

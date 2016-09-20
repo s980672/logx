@@ -34,26 +34,20 @@ public class ServiceRequestCall implements Serializable {
 
     }
 
-    public ServiceRequestCall(enumStatsType stsType, enumRCType rcType, Date reqDt, String svcId, long count) {
+    public ServiceRequestCall(enumStatsType stsType, enumRCType rcType, Date reqDt, String svcId,String categoryId, long count) {
 
-        id = new ServiceRCPK(stsType,rcType, reqDt, svcId);
-
+        id = new ServiceRCPK(stsType,rcType, reqDt, svcId,categoryId);
         this.count = count;
     }
 
-    public ServiceRequestCall(enumStatsType stsType, enumRCType rcType, String reqDt, String svcId, long count) throws ParseException {
+    public ServiceRequestCall(enumStatsType stsType, enumRCType rcType, String reqDt, String svcId, String categoryId, long count) throws ParseException {
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Date date = sdf.parse(reqDt);
-        id = new ServiceRCPK(stsType,rcType, date, svcId);
+        id = new ServiceRCPK(stsType,rcType, date, svcId, categoryId);
 
         this.count = count;
     }
-
-
-
-
-
 
     private long count;
 

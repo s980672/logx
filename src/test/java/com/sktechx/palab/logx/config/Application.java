@@ -27,7 +27,7 @@ import java.nio.charset.Charset;
 
 
 @EnableJpaRepositories( basePackages = "com.sktechx.palab.logx.repository" )
-@EntityScan(basePackages= {"com.sktechx.palab.logx.model"})
+@EntityScan(basePackages= {"com.sktechx.palab.logx.domain"})
 @EnableAutoConfiguration
 @ComponentScan(basePackages = {"com.sktechx.palab.logx.service", "com.sktechx.palab.logx.model"})
 @EnableGlobalMethodSecurity( prePostEnabled = true )

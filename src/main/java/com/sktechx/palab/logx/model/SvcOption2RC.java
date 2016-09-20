@@ -54,9 +54,9 @@ public class SvcOption2RC implements Serializable {
     public SvcOption2RC() {
     }
 
-    public SvcOption2RC(enumStatsType stsType, enumRCType rcType, enumOptionType opType, Date reqDt, String svcId, String option1, String option2, long count) {
+    public SvcOption2RC(enumStatsType stsType, enumRCType rcType, enumOptionType opType, Date reqDt, String svcId,String categoryId, String option1, String option2, long count) {
 
-        id = new SvcOption2RCPK(stsType,rcType, opType, reqDt, svcId, option1, option2);
+        id = new SvcOption2RCPK(stsType,rcType, opType, reqDt, svcId, categoryId, option1, option2);
 
         this.count = count;
     }

@@ -2,6 +2,7 @@ package com.sktechx.palab.logx.service;
 
 import com.sktechx.palab.logx.model.enumOptionType;
 import com.sktechx.palab.logx.model.enumRCType;
+import com.sktechx.palab.logx.secondary.service.SecondaryService;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
@@ -34,14 +35,18 @@ public class ScheduledTasks {
     ElasticsearchPVAnalysisService esService;
 
 
+
     @Autowired
     ElasticsearchUVAnalysisService esUVService;
+
+    @Autowired
+    SecondaryService secondaryService;
 
 
     //매일 그날의 request call 수를 저장한다
     //매일 0시 5분에 전날 request call를 조회 및 저장
     @Scheduled(cron = "0 5 00 1/1 * *")
-    //@Scheduled(cron="0/30 * * * * *")
+//    @Scheduled(cron="0/30 * * * * *")
     public void savecDailyPVUV() throws ParseException {
 
         Calendar cal = Calendar.getInstance();
@@ -82,7 +87,7 @@ public class ScheduledTasks {
 
     }
 
-    //@Scheduled(cron="0/3 * * * * *")
+//    @Scheduled(cron="0/3 * * * * *")
     public void testMonthlyPV() throws IOException, ParseException {
 
         logger.debug("=========================");
