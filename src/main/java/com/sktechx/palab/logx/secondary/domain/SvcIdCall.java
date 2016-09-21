@@ -15,14 +15,14 @@ public class SvcIdCall {
     @Id
     @Column(name="asset_id")
     String svcId;
-    String category_key;
+    String categoryKey;
     String type;
 
     public SvcIdCall(){}
 
-    public SvcIdCall(String svcId, String category_key){
+    public SvcIdCall(String svcId, String categoryKey){
         this.svcId = svcId;
-        this.category_key = category_key;
+        this.categoryKey = categoryKey;
     }
 
     public String getSvcId() {
@@ -34,11 +34,11 @@ public class SvcIdCall {
     }
 
     public String getCategoryId() {
-        return category_key;
+        return categoryKey;
     }
 
     public void setCategoryId(String category_key) {
-        this.category_key = category_key;
+        this.categoryKey = category_key;
     }
 
     public String gettype() {
@@ -53,7 +53,7 @@ public class SvcIdCall {
     public String toString() {
         return "SvcIdCall{" +
                 "svcId=" + svcId +
-                "category_key=" + category_key +
+                "categoryKey=" + categoryKey +
                 ", type=" + type +
                 '}';
     }
