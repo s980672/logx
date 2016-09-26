@@ -132,7 +132,7 @@ public class ScheduledTasks {
     }
 
 
-    @Scheduled(cron = "0 20 0 1/1 * *")
+    @Scheduled(cron = "0 20 00 1/1 * *")
     public void saveWeeklyPV() throws IOException, ParseException {
 
         logger.debug("=========================");
@@ -156,7 +156,7 @@ public class ScheduledTasks {
     //@Scheduled(cron="0 5 0 1 1/1 ?")
     //@Scheduled(cron="0/3 * * * * *")
     //매일 0시 30분에 전날 request call를 조회 및 저장
-    @Scheduled(cron = "0 10 0 1/1 * *")
+    @Scheduled(cron = "0 30 00 1/1 * *")
     public void saveMonthlyPV() throws IOException, ParseException {
 
         logger.debug("=========================");
@@ -168,7 +168,7 @@ public class ScheduledTasks {
         LocalDate tmp = LocalDate.now();
 
         LocalDate start = LocalDate.now();
-        start.withDayOfMonth(1);
+        start = start.withDayOfMonth(1);
 
         LocalDate end = start.plusMonths(1);
 
