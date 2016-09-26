@@ -5,7 +5,6 @@ import com.sktechx.palab.logx.secondary.domain.SvcIdCall;
 import com.sktechx.palab.logx.secondary.domain.SvcServiceIDRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -16,7 +15,6 @@ import java.util.Map;
  * Created by 1100299 on 2016-09-09.
  */
 @Service
-@Transactional("secondaryTransactionManager")
 public class SecondaryService {
     @Autowired
     private SvcServiceIDRepository svcIDRepository;

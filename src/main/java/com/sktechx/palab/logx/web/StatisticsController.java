@@ -1,7 +1,8 @@
 package com.sktechx.palab.logx.web;
 
 import com.sktechx.palab.logx.model.*;
-import com.sktechx.palab.logx.repository.SvcViewRepository;
+import com.sktechx.palab.logx.secondary.domain.Asset;
+import com.sktechx.palab.logx.secondary.domain.AssetRepository;
 import com.sktechx.palab.logx.service.ElasticsearchPVAnalysisService;
 import com.sktechx.palab.logx.service.ElasticsearchUVAnalysisService;
 import com.sktechx.palab.logx.service.ExportExcelService;
@@ -41,11 +42,12 @@ public class StatisticsController {
     ElasticsearchUVAnalysisService uvSvc;
 
     @Autowired
-    SvcViewRepository svcRepo;
+    AssetRepository assetRepo;
+
 
     @RequestMapping(value="services", method=RequestMethod.GET)
-    public List<SvcView> getServices(){
-        return svcRepo.findAll();
+    public List<Asset> getServices(){
+        return assetRepo.findAll();
     }
 
 

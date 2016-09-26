@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.sktechx.palab.logx.repository.AppViewRepository;
+import com.sktechx.palab.logx.secondary.domain.AssetRepository;
 import com.sktechx.palab.logx.service.ExportExcelService;
 import com.sktechx.palab.logx.web.StatisticsController;
 import io.searchbox.client.JestClient;
@@ -11,7 +13,8 @@ import io.searchbox.client.JestClientFactory;
 import io.searchbox.client.config.HttpClientConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration;
 import org.springframework.boot.orm.jpa.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -19,18 +22,17 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
 import javax.servlet.Filter;
 import java.nio.charset.Charset;
 
-
-@EnableJpaRepositories( basePackages = "com.sktechx.palab.logx.repository" )
-@EntityScan(basePackages= {"com.sktechx.palab.logx.domain"})
-@EnableAutoConfiguration
-@ComponentScan(basePackages = {"com.sktechx.palab.logx.service", "com.sktechx.palab.logx.model"})
-@EnableGlobalMethodSecurity( prePostEnabled = true )
+@ComponentScan(basePackages = {"com.sktechx.palab.logx.service", "com.sktechx.palab.logx.secondary.service"})
+@SpringBootApplication(exclude = JpaRepositoriesAutoConfiguration.class)
+@EnableJpaRepositories(
+        basePackageClasses = {AssetRepository.class, AppViewRepository.class}
+)
+@EntityScan(basePackages={"com.sktechx.palab.logx.secondary.domain", "com.sktechx.palab.logx.model"})
 public class Application
 {
 
