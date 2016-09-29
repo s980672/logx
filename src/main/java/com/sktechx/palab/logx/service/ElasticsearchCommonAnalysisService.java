@@ -37,7 +37,7 @@ public class ElasticsearchCommonAnalysisService {
 
         SearchResult response = client.execute(searchBuilder.build());
 
-        if ( response.getResponseCode() % 100 != 2 ) {
+        if ( response.getResponseCode() / 100 != 2 ) {
             logger.error("{}", response.getErrorMessage());
         }
 
@@ -52,7 +52,7 @@ public class ElasticsearchCommonAnalysisService {
 
         JestResult result = client.execute(deleteIndex.build());
 
-        if ( result.getResponseCode() % 100 != 2 ) {
+        if ( result.getResponseCode() / 100 != 2 ) {
             logger.error("{}", result.getErrorMessage());
         }
 
@@ -61,30 +61,4 @@ public class ElasticsearchCommonAnalysisService {
         return result;
     }
 
-    public String  CheckServiceId( String serviceId ){
-
-        if( serviceId!=null && !serviceId.isEmpty() ) {
-            serviceId = serviceId;
-        }
-        else {
-            serviceId = "1";
-        }
-
-        return serviceId;
-
-    }
-
-//    public void GetServiceId() throws IOException{
-//
-//        List<SvcIdCall> findSvsIddCategoryId = svcServiceIDRepo.findSvsIddCategoryId();
-//
-//        for (int i=0; i<findSvsIddCategoryId.size(); i++){
-//
-//            System.out.println (findSvsIddCategoryId.get(i));
-//        }
-//
-//
-//        return ;
-//
-//    }
 }

@@ -195,6 +195,7 @@ public class StatisticsController {
 
             if(enumRCType.monthly==rcType) {
                 sDate = sDate.withDayOfMonth(1);
+                eDate = eDate.withDayOfMonth(1).plusMonths(1);
             }else if ( enumRCType.weekly==rcType) {
                 sDate = sDate.withDayOfWeek(DateTimeConstants.MONDAY).minusWeeks(1);
             }

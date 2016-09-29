@@ -1,12 +1,14 @@
 package com.sktechx.palab.logx.service;
 
 import com.sktechx.palab.logx.model.*;
-import com.sktechx.palab.logx.repository.*;
-import com.sktechx.palab.logx.secondary.service.SecondaryService;
+import com.sktechx.palab.logx.repository.RequestCallRepository;
+import com.sktechx.palab.logx.repository.ServiceRCRepository;
+import com.sktechx.palab.logx.repository.SvcOption1RCRepository;
+import com.sktechx.palab.logx.repository.SvcOption2RCRepository;
+import com.sktechx.palab.logx.secondary.service.CategoryService;
 import io.searchbox.core.SearchResult;
 import io.searchbox.core.search.aggregation.CardinalityAggregation;
 import io.searchbox.core.search.aggregation.TermsAggregation;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +18,6 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Map;
 
 /**
  * Created by 1002382 on 2016. 7. 5..
@@ -42,7 +43,7 @@ public class ElasticsearchUVAnalysisService {
     ElasticsearchCommonAnalysisService CommonAnalysisService;
 
     @Autowired
-    SecondaryService secondaryService;
+    CategoryService categoryService;
 
 
     public void generateAllUV(enumRCType rcType, String date1, String date2) throws IOException, ParseException {
@@ -58,9 +59,6 @@ public class ElasticsearchUVAnalysisService {
 
     	 SearchResult result = CommonAnalysisService.getResult(AggReqDSLs.getQueryServiceUV(start, end));
 
-        //service id
-        Map<String,String> serviceId =  secondaryService.GetServiceId();
-
     	 TermsAggregation svcUV = result.getAggregations().getTermsAggregation("serviceRC");
     	 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
          Date date = sdf.parse(start);
@@ -70,9 +68,7 @@ public class ElasticsearchUVAnalysisService {
 			CardinalityAggregation count = svc.getCardinalityAggregation("uvCount");
 			ServiceRequestCall svcRC;
 
-//             check service id
-            String service_id = CommonAnalysisService.CheckServiceId(serviceId.get(svc.getKey().toString()));
-            svcRC = new ServiceRequestCall(enumStatsType.UV, dayType, date,  service_id, svc.getKey(), count.getCardinality());
+            svcRC = new ServiceRequestCall(enumStatsType.UV, dayType, date,  categoryService.getServiceId(svc.getKey()), svc.getKey(), count.getCardinality());
 			svcRCRepo.save(svcRC);
 
     	 });
@@ -95,21 +91,18 @@ public class ElasticsearchUVAnalysisService {
 
 
          TermsAggregation svcUV = result.getAggregations().getTermsAggregation("serviceRC");
-        //service id
-        Map<String,String> serviceId =  secondaryService.GetServiceId();
 
          svcUV.getBuckets().stream().forEach(svc-> {
 
              TermsAggregation option1RC = svc.getTermsAggregation("option1RC");
 
-             //             check service id
-             String service_id = CommonAnalysisService.CheckServiceId(serviceId.get(svc.getKey().toString()));
 
              option1RC.getBuckets().stream().forEach(svcsub -> {
 
             	 CardinalityAggregation count = svcsub.getCardinalityAggregation("uvCount");
 
-            	 SvcOption1RC svcOp1UV = new SvcOption1RC(enumStatsType.UV, dayType, opType, date,service_id, svc.getKey(), svcsub.getKey(), count.getCardinality());
+            	 SvcOption1RC svcOp1UV = new SvcOption1RC(enumStatsType.UV, dayType, opType, date,
+                         categoryService.getServiceId(svc.getKey()), svc.getKey(), svcsub.getKey(), count.getCardinality());
                  svcOption1RCRep.save(svcOp1UV);
 
              });
@@ -136,16 +129,10 @@ public class ElasticsearchUVAnalysisService {
 		SearchResult result = CommonAnalysisService.getResult(AggReqDSLs.getQueryServiceOption2UV(optionField,suboptionField,start, end));
 		TermsAggregation svcUV = result.getAggregations().getTermsAggregation("serviceRC");
 
-        //service id
-        Map<String,String> serviceId =  secondaryService.GetServiceId();
-
-
 
 		svcUV.getBuckets().stream().forEach(svc-> {
 			TermsAggregation option1RC = svc.getTermsAggregation("option1RC");
 
-            //             check service id
-            String service_id = CommonAnalysisService.CheckServiceId(serviceId.get(svc.getKey().toString()));
 
 			option1RC.getBuckets().stream().forEach(svcsub1 -> {
 				TermsAggregation option2RC = svcsub1.getTermsAggregation("option2RC");
@@ -153,7 +140,8 @@ public class ElasticsearchUVAnalysisService {
 				option2RC.getBuckets().stream().forEach(svcsub2 -> {
 					CardinalityAggregation count = svcsub2.getCardinalityAggregation("uvCount");
 
-					SvcOption2RC svcOp2UV = new SvcOption2RC(enumStatsType.UV, dayType, opType, date,service_id, svc.getKey(), svcsub1.getKey(), svcsub2.getKey(),count.getCardinality());
+					SvcOption2RC svcOp2UV = new SvcOption2RC(enumStatsType.UV, dayType, opType, date,
+                            categoryService.getServiceId(svc.getKey()), svc.getKey(), svcsub1.getKey(), svcsub2.getKey(),count.getCardinality());
 
 
 					logger.debug("##########################");
