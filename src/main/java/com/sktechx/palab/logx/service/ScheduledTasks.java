@@ -42,7 +42,7 @@ public class ScheduledTasks {
     @Autowired
     CategoryService categoryService;
 
-    
+
 
 
     //매일 그날의 request call 수를 저장한다
