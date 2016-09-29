@@ -43,6 +43,8 @@ public class ScheduledTasks {
     CategoryService categoryService;
 
 
+
+
     //매일 그날의 request call 수를 저장한다
     //매일 0시 5분에 전날 request call를 조회 및 저장
     @Scheduled(cron = "0 5 00 1/1 * *")
