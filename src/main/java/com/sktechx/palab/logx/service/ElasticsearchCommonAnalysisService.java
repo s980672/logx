@@ -4,6 +4,7 @@ import io.searchbox.client.JestClient;
 import io.searchbox.client.JestResult;
 import io.searchbox.core.Search;
 import io.searchbox.core.SearchResult;
+import io.searchbox.indices.CreateIndex;
 import io.searchbox.indices.DeleteIndex;
 import io.searchbox.params.SearchType;
 import org.slf4j.Logger;
@@ -56,6 +57,17 @@ public class ElasticsearchCommonAnalysisService {
             logger.error("{}", result.getErrorMessage());
         }
 
+        logger.debug(result.getJsonString());
+
+        return result;
+    }
+
+    public JestResult createIndex(String indexName) throws IOException {
+        CreateIndex.Builder createIndex = new CreateIndex.Builder(indexName);
+        JestResult result = client.execute(createIndex.build());
+        if ( result.getResponseCode()/100 !=2 ) {
+            logger.error("{}", result.getErrorMessage());
+        }
         logger.debug(result.getJsonString());
 
         return result;
