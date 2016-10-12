@@ -6,7 +6,7 @@ import com.sktechx.palab.logx.repository.RequestCallRepository;
 import com.sktechx.palab.logx.repository.ServiceRCRepository;
 import com.sktechx.palab.logx.repository.SvcOption1RCRepository;
 import com.sktechx.palab.logx.repository.SvcOption2RCRepository;
-import com.sktechx.palab.logx.secondary.service.SecondaryService;
+import com.sktechx.palab.logx.secondary.service.CategoryService;
 import io.searchbox.core.SearchResult;
 import io.searchbox.core.search.aggregation.TermsAggregation;
 import org.slf4j.Logger;
@@ -19,7 +19,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by 1002382 on 2016. 7. 5..
@@ -50,7 +49,7 @@ public class ElasticsearchPVAnalysisService {
     ChangeNameIdService chgSvc;
 
     @Autowired
-    SecondaryService secondaryService;
+    CategoryService categoryService;
 
 
     //최근 4주 또는 4달간 데이터를 리턴
@@ -84,7 +83,7 @@ public class ElasticsearchPVAnalysisService {
             svcOption1RCRep.findByOption1AndRcTypeAndBetween(api, enumOptionType.API, rcType, date1, date2).forEach(rc -> {
                 tmp.setId(rc.getId());
                 //TODO check logic
-                tmp.setCount(tmp.getCount()+rc.getCount());
+                tmp.setCount(tmp.getCount() + rc.getCount());
             });
             result.add(tmp);
         });
@@ -118,6 +117,9 @@ public class ElasticsearchPVAnalysisService {
         generateSvcOption1PV(enumOptionType.ERROR, rcType, date1, date2);
         generateSvcOption2PV(enumOptionType.APP_API, rcType, date1, date2);
         generateSvcOption2PV(enumOptionType.API_APP, rcType, date1, date2);
+        generateSvcOption2PV(enumOptionType.ERROR_API, rcType, date1, date2);
+        generateSvcOption2PV(enumOptionType.ERROR_APP, rcType, date1, date2);
+
         generateSvcOptionERROR(enumOptionType.ERROR_API, rcType, date1, date2);
         generateSvcOptionERROR(enumOptionType.ERROR_APP, rcType, date1, date2);
     }
@@ -143,7 +145,7 @@ public class ElasticsearchPVAnalysisService {
         SearchResult response = CommonAnalysisService.getResult(AggReqDSLs.getQueryServicePV(start, end));
 
         //service id
-        Map<String,String> serviceId =  secondaryService.GetServiceId();
+//        Map<String,String> serviceId =  secondaryService.GetServiceId();
 
         TermsAggregation svcPV = response.getAggregations().getTermsAggregation("serviceRC");
 
@@ -152,9 +154,15 @@ public class ElasticsearchPVAnalysisService {
 
         svcPV.getBuckets().stream().forEach(b -> {
 
-            ServiceRequestCall svcRC = new ServiceRequestCall(enumStatsType.PV, rcType, date,serviceId.get(b.getKey().toString()), b.getKey(), b.getCount());
+            try {
+                ServiceRequestCall svcRC = new ServiceRequestCall(enumStatsType.PV, rcType, date,
+                        categoryService.getServiceId(b.getKey())
+                        , b.getKey(), b.getCount());
 
-            svcRCRepo.save(svcRC);
+                svcRCRepo.save(svcRC);
+            }catch (Exception e) {
+                logger.error(e.getLocalizedMessage());
+            }
 
         });
     }
@@ -183,23 +191,18 @@ public class ElasticsearchPVAnalysisService {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Date date = sdf.parse(start);
 
-        //service id
-        Map<String,String> serviceId =  secondaryService.GetServiceId();
-
 
 		TermsAggregation svcPV = result.getAggregations().getTermsAggregation("serviceRC");
 		svcPV.getBuckets().stream().forEach(svc-> {
 
             TermsAggregation appRC = svc.getTermsAggregation("option1RC");
 
-//            service id 없을 경우
-            String service_id = CommonAnalysisService.CheckServiceId(serviceId.get(svc.getKey()));
 
             appRC.getBuckets().stream().forEach(app -> {
 
-                System.out.println("categoryId = "+svc.getKey()+"  service_id= "+service_id);;
 
-                SvcOption1RC svcOp1PV = new SvcOption1RC(enumStatsType.PV, dayType, opType, date, service_id, svc.getKey(),app.getKey(), app.getCount());
+                SvcOption1RC svcOp1PV = new SvcOption1RC(enumStatsType.PV, dayType, opType, date,
+                        categoryService.getServiceId(svc.getKey()), svc.getKey(),app.getKey(), app.getCount());
 
                 logger.debug("##########################");
                 logger.debug("SvcOption1RC : {}", svcOp1PV);
@@ -238,14 +241,10 @@ public class ElasticsearchPVAnalysisService {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Date date = sdf.parse(start);
 
-        //service id
-        Map<String,String> serviceId =  secondaryService.GetServiceId();
 
         svcPV.getBuckets().stream().forEach(svc-> {
             TermsAggregation apiRC = svc.getTermsAggregation("option1RC");
 
-            //             check service id
-            String service_id = CommonAnalysisService.CheckServiceId(serviceId.get(svc.getKey().toString()));
 
             apiRC.getBuckets().stream().forEach(api -> {
             	TermsAggregation appRC = api.getTermsAggregation("option2RC");
@@ -253,7 +252,8 @@ public class ElasticsearchPVAnalysisService {
             	appRC.getBuckets().stream().forEach(app ->{
             
                     		
-                    		SvcOption2RC svcOp2PV = new SvcOption2RC(enumStatsType.PV, dayType, opType, date,service_id,svc.getKey(), api.getKey(), app.getKey(), app.getCount());
+                    		SvcOption2RC svcOp2PV = new SvcOption2RC(enumStatsType.PV, dayType, opType, date,
+                                    categoryService.getServiceId(svc.getKey()),svc.getKey(), api.getKey(), app.getKey(), app.getCount());
                     	
                     		
 
@@ -288,18 +288,14 @@ public class ElasticsearchPVAnalysisService {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Date date = sdf.parse(start);
 
-        //service id
-        Map<String,String> serviceId =  secondaryService.GetServiceId();
-        
         svcPV.getBuckets().stream().forEach(svc-> {
     		TermsAggregation apiRC = svc.getTermsAggregation("option2RC");
 
-            //             check service id
-            String service_id = CommonAnalysisService.CheckServiceId(serviceId.get(svc.getKey().toString()));
 
             apiRC.getBuckets().stream().forEach(svcsub -> {
                     		
-	        	SvcOption2RC svcOp2PV = new SvcOption2RC(enumStatsType.PV, dayType, opType, date,service_id , "ALL",svc.getKey(), svcsub.getKey(), svcsub.getCount());
+	        	SvcOption2RC svcOp2PV = new SvcOption2RC(enumStatsType.PV, dayType, opType, date,
+                        "ALL", "ALL",svc.getKey(), svcsub.getKey(), svcsub.getCount());
 	        		
 	
 	            logger.debug("##########################");

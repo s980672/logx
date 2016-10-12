@@ -2,7 +2,7 @@ package com.sktechx.palab.logx.service;
 
 import com.sktechx.palab.logx.model.enumOptionType;
 import com.sktechx.palab.logx.model.enumRCType;
-import com.sktechx.palab.logx.secondary.service.SecondaryService;
+import com.sktechx.palab.logx.secondary.service.CategoryService;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +20,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by 1002382 on 2016. 7. 7..
@@ -34,20 +36,23 @@ public class ScheduledTasks {
     @Autowired
     ElasticsearchPVAnalysisService esService;
 
-
-
     @Autowired
     ElasticsearchUVAnalysisService esUVService;
 
     @Autowired
-    SecondaryService secondaryService;
+    CategoryService categoryService;
+
+    @Value("#{'${delete.indices}'.split(',')}")
+    List<String> indicesTodelete;
+
+
 
 
     //매일 그날의 request call 수를 저장한다
     //매일 0시 5분에 전날 request call를 조회 및 저장
     @Scheduled(cron = "0 5 00 1/1 * *")
 //    @Scheduled(cron="0/30 * * * * *")
-    public void savecDailyPVUV() throws ParseException {
+    public void saveDailyPVUV() throws ParseException {
 
         Calendar cal = Calendar.getInstance();
         cal.setTime(new Date());
@@ -61,21 +66,8 @@ public class ScheduledTasks {
         String date1 = df.format(cal.getTime());
 
         try {
-
-            esService.generatePV(enumRCType.daily, date1, date2);
-            esService.generateSvcOption1PV(enumOptionType.APP, enumRCType.daily, date1, date2);
-            esService.generateSvcOption1PV(enumOptionType.API, enumRCType.daily, date1, date2);
-            esService.generateSvcOption1PV(enumOptionType.ERROR, enumRCType.daily, date1, date2);
-            esService.generateSvcOption2PV(enumOptionType.APP_API, enumRCType.daily, date1, date2);
-            esService.generateSvcOption2PV(enumOptionType.API_APP, enumRCType.daily, date1, date2);
-            esService.generateSvcOptionERROR(enumOptionType.ERROR_API, enumRCType.daily, date1, date2);
-            esService.generateSvcOptionERROR(enumOptionType.ERROR_APP, enumRCType.daily, date1, date2);
-
-            esUVService.generateSvcUV(enumRCType.daily, date1, date2);
-            esUVService.generateSvcOption1UV(enumOptionType.API, enumRCType.daily, date1, date2);
-            esUVService.generateSvcOption1UV(enumOptionType.APP, enumRCType.daily, date1, date2);
-            esUVService.generateSvcOption2UV(enumOptionType.APP_API, enumRCType.daily, date1, date2);
-            esUVService.generateSvcOption2UV(enumOptionType.API_APP, enumRCType.daily, date1, date2);
+            esService.generateAllPV(enumRCType.daily, date1, date2);
+            esUVService.generateAllUV(enumRCType.daily, date1, date2);
 
 
         } catch (IOException e) {
@@ -87,7 +79,7 @@ public class ScheduledTasks {
 
     }
 
-//    @Scheduled(cron="0/3 * * * * *")
+    //    @Scheduled(cron="0/3 * * * * *")
     public void testMonthlyPV() throws IOException, ParseException {
 
         logger.debug("=========================");
@@ -132,7 +124,7 @@ public class ScheduledTasks {
     }
 
 
-    @Scheduled(cron = "0 20 0 1/1 * *")
+    @Scheduled(cron = "0 20 00 1/1 * *")
     public void saveWeeklyPV() throws IOException, ParseException {
 
         logger.debug("=========================");
@@ -156,7 +148,7 @@ public class ScheduledTasks {
     //@Scheduled(cron="0 5 0 1 1/1 ?")
     //@Scheduled(cron="0/3 * * * * *")
     //매일 0시 30분에 전날 request call를 조회 및 저장
-    @Scheduled(cron = "0 10 0 1/1 * *")
+    @Scheduled(cron = "0 30 00 1/1 * *")
     public void saveMonthlyPV() throws IOException, ParseException {
 
         logger.debug("=========================");
@@ -168,7 +160,7 @@ public class ScheduledTasks {
         LocalDate tmp = LocalDate.now();
 
         LocalDate start = LocalDate.now();
-        start.withDayOfMonth(1);
+        start = start.withDayOfMonth(1);
 
         LocalDate end = start.plusMonths(1);
 
@@ -176,25 +168,41 @@ public class ScheduledTasks {
         String date2 = end.toString("yyyy-MM-dd");
 
         logger.debug("monthly :: start date : {} - end date : {}", date1, date2);
+        esService.generateAllPV(enumRCType.monthly, date1, date2);
+        esUVService.generateAllUV(enumRCType.monthly, date1, date2);
 
-        esService.generatePV(enumRCType.monthly, date1, date2);
-        esService.generateSvcPV(enumRCType.monthly, date1, date2);
-        esService.generateSvcOption1PV(enumOptionType.API, enumRCType.monthly, date1, date2);
-        esService.generateSvcOption1PV(enumOptionType.APP, enumRCType.monthly, date1, date2);
-        esService.generateSvcOption1PV(enumOptionType.ERROR, enumRCType.monthly, date1, date2);
+    }
 
-        esService.generateSvcOption2PV(enumOptionType.APP_API, enumRCType.monthly, date1, date2);
-        esService.generateSvcOption2PV(enumOptionType.API_APP, enumRCType.monthly, date1, date2);
-        esService.generateSvcOption2PV(enumOptionType.ERROR_API, enumRCType.monthly, date1, date2);
-        esService.generateSvcOption2PV(enumOptionType.ERROR_APP, enumRCType.monthly, date1, date2);
-        esService.generateSvcOptionERROR(enumOptionType.ERROR_API, enumRCType.monthly, date1, date2);
-        esService.generateSvcOptionERROR(enumOptionType.ERROR_APP, enumRCType.monthly, date1, date2);
 
-        esUVService.generateSvcUV(enumRCType.monthly, date1, date2);
-        esUVService.generateSvcOption1UV(enumOptionType.API, enumRCType.monthly, date1, date2);
-        esUVService.generateSvcOption1UV(enumOptionType.APP, enumRCType.monthly, date1, date2);
-        esUVService.generateSvcOption2UV(enumOptionType.APP_API, enumRCType.monthly, date1, date2);
-        esUVService.generateSvcOption2UV(enumOptionType.API_APP, enumRCType.monthly, date1, date2);
+    //전전 달 모니터링(marvel) 데이터 삭제
+    @Scheduled(cron = "0 50 0 1 * *")
+    public void deleteAMonthAgoMonitoringIndices() throws IOException {
+        if( indicesTodelete == null || indicesTodelete.isEmpty() || indicesTodelete.get(0).isEmpty() )
+            return;
+
+        LocalDate date = LocalDate.now();
+        //매달 첫날에 돌지 않은 경우 대비
+        date = date.withDayOfMonth(1);
+        logger.debug("date : {}", date);
+
+        //전전달 데이터 삭제
+        LocalDate start = date.minusMonths(2);//전전달 1일 부터
+        LocalDate end = date.minusMonths(1).minusDays(1);; //전전달 마지막날 까지 30일 또는 31일
+
+        logger.debug("start : {} ~~ end : {}", start, end);
+
+        //4주치 데이터 삭제
+        indicesTodelete.stream().forEach(index -> {
+            for(LocalDate i = start ; i.isEqual(end) || i.isBefore(end) ; i=i.plusDays(1)){
+                String indexName = index + i.toString("yyyy.MM.dd");
+                logger.debug("@_@ delete index : {}", indexName);
+                try {
+                    commonService.deleteIndex(indexName);
+                } catch (IOException e) {
+                    logger.error(e.getLocalizedMessage());
+                }
+            }
+        });
 
     }
 

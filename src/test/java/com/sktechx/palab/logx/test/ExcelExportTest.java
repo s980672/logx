@@ -4,7 +4,12 @@ import com.google.common.collect.Lists;
 import com.sktechx.palab.logx.config.AbstractJUnit4SpringMvcTests;
 import com.sktechx.palab.logx.config.Application;
 import com.sktechx.palab.logx.model.*;
-import com.sktechx.palab.logx.repository.*;
+import com.sktechx.palab.logx.repository.AppViewRepository;
+import com.sktechx.palab.logx.repository.ServiceRCRepository;
+import com.sktechx.palab.logx.repository.SvcOption1RCRepository;
+import com.sktechx.palab.logx.repository.SvcOption2RCRepository;
+import com.sktechx.palab.logx.secondary.domain.Asset;
+import com.sktechx.palab.logx.secondary.domain.AssetRepository;
 import com.sktechx.palab.logx.service.ExportExcelService;
 import com.sktechx.palab.logx.service.ExportExcelUtil;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -40,11 +45,11 @@ public class ExcelExportTest extends AbstractJUnit4SpringMvcTests {
     ServiceRCRepository  svcRcRepo;
 
     @Autowired
-    SvcViewRepository svcViewRepo;
-
-    @Autowired
     AppViewRepository appRepo;
 
+
+    @Autowired
+    AssetRepository assetRepo;
 
 
     @Autowired
@@ -68,12 +73,17 @@ public class ExcelExportTest extends AbstractJUnit4SpringMvcTests {
         appRepo.save(new AppView("1", "test app1", "400001020"));
         appRepo.save(new AppView("2", "weather pong", "400001540"));
         appRepo.save(new AppView("3", "test app2", "400002323"));
+        appRepo.save(new AppView("4", "test app4", "400102030"));
+        appRepo.save(new AppView("5", "test app5", "400102031"));
 
-        svcViewRepo.save(new SvcView("10004", "weather"));
-        svcViewRepo.save(new SvcView("70004", "tmap"));
-        svcViewRepo.save(new SvcView("10002", "weather_cate1"));
-        svcViewRepo.save(new SvcView("10020", "weather_cate2"));
-
+//        assetRepo.save(new Asset(10004l, "weather"));
+        assetRepo.save(new Asset(11l, "tmap"));
+        assetRepo.save(new Asset(1l, "weather"));
+        assetRepo.save(new Asset(12l, "unknown service"));
+//        assetRepo.save(new Asset("70004", "tmap"));
+//        assetRepo.save(new Asset("10002", "weather_cate1"));
+//        assetRepo.save(new Asset("10020", "weather_cate2"));
+//
         ///////////////////////////////////////////////////////////
         //Test data for service request call
 
@@ -81,13 +91,13 @@ public class ExcelExportTest extends AbstractJUnit4SpringMvcTests {
 
         LocalDate date = LocalDate.parse("20160706", DateTimeFormat.forPattern("yyyyMMdd"));
 
-        ServiceRequestCall rc = new ServiceRequestCall(enumStatsType.PV,enumRCType.daily, date.toDate(),"11" , "10004", 100046l);
+        ServiceRequestCall rc = new ServiceRequestCall(enumStatsType.PV,enumRCType.daily, date.toDate(),"1" , "10004", 100046l);
         rcs.add(rc);
         rcs.add(new ServiceRequestCall(enumStatsType.PV,enumRCType.daily, date.toDate(),"11" , "70004", 700046l));
 
         date = date.plusDays(1);
 
-        rcs.add(new ServiceRequestCall(enumStatsType.PV,enumRCType.daily, date.toDate(), "11" ,"10004", 100047l));
+        rcs.add(new ServiceRequestCall(enumStatsType.PV,enumRCType.daily, date.toDate(), "1" ,"10004", 100047l));
         rcs.add(new ServiceRequestCall(enumStatsType.PV,enumRCType.daily, date.toDate(), "11" ,"70004", 700047l));
 
         svcRcRepo.save(rcs);
@@ -99,17 +109,17 @@ public class ExcelExportTest extends AbstractJUnit4SpringMvcTests {
 
         date = LocalDate.parse("20160701", DateTimeFormat.forPattern("yyyyMMdd"));
 
-        rcs.add(new ServiceRequestCall(enumStatsType.PV,enumRCType.monthly, date.toDate(),"11" , "10004", 100047l));
+        rcs.add(new ServiceRequestCall(enumStatsType.PV,enumRCType.monthly, date.toDate(),"1" , "10004", 100047l));
         rcs.add(new ServiceRequestCall(enumStatsType.PV,enumRCType.monthly, date.toDate(), "11" ,"70004", 700047l));
 
         date = date.plusMonths(1); //8월
 
-        rcs.add(new ServiceRequestCall(enumStatsType.PV,enumRCType.monthly, date.toDate(),"11" , "10004", 100048l));
+        rcs.add(new ServiceRequestCall(enumStatsType.PV,enumRCType.monthly, date.toDate(),"1" , "10004", 100048l));
         rcs.add(new ServiceRequestCall(enumStatsType.PV,enumRCType.monthly, date.toDate(), "11" ,"70004", 700048l));
 
         date = date.plusMonths(1); //9월
 
-        rcs.add(new ServiceRequestCall(enumStatsType.PV,enumRCType.monthly, date.toDate(),"11" , "10004", 100049l));
+        rcs.add(new ServiceRequestCall(enumStatsType.PV,enumRCType.monthly, date.toDate(),"1" , "10004", 100049l));
         rcs.add(new ServiceRequestCall(enumStatsType.PV,enumRCType.monthly, date.toDate(), "11" ,"70004", 700049l));
 
         svcRcRepo.save(rcs);
@@ -131,38 +141,38 @@ public class ExcelExportTest extends AbstractJUnit4SpringMvcTests {
         svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"1", "10004", "400023201",4l));
         svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"1", "10004", "400102021",5l));
         svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"1", "10004", "400102030", 6l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"1", "10020", "400001020",201l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"1", "10020", "400001540",202l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"1", "10020", "400002323",203l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"1", "10020", "400023201",204l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"1", "10020", "400102021", 205l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"1", "10020", "400102030", 206l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"1", "10073", "400001020",731l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"1", "10073", "400001540",732l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"1", "10073", "400002323",733l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"1", "10073", "400023201",734l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"1", "10073", "400102021",735l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"1", "10073", "400102030",736l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"12", "10020", "400001020",201l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"12", "10020", "400001540",202l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"12", "10020", "400002323",203l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"12", "10020", "400023201",204l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"12", "10020", "400102021", 205l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"12", "10020", "400102030", 206l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"11", "10073", "400001020",731l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"11", "10073", "400001540",732l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"11", "10073", "400002323",733l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"11", "10073", "400023201",734l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"11", "10073", "400102021",735l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"11", "10073", "400102030",736l));
         /////////////////////////////////
         //API
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10004", "400001020",1l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10004", "400001540",2l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10004", "400002323",3l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10004", "400023201",4l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10004", "400102021",5l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10004", "400102030", 6l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10020", "400001020",201l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10020", "400001540",202l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10020", "400002323",203l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10020", "400023201",204l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10020", "400102021", 205l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10020", "400102030", 206l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10073", "400001020",731l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10073", "400001540",732l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10073", "400002323",733l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10073", "400023201",734l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10073", "400102021",735l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10073", "400102030",736l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10004", "/gweather/cloudy",1l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10004", "/gweather/cloudy2",2l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10004", "/gweather/cloudy3",3l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10004", "/gweather/cloudy4",4l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10004", "/gweather/cloudy5",5l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10004", "/gweather/cloudy6", 6l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"12", "10020", "/svc/api2",201l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"12", "10020", "/svc/api21",202l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"12", "10020", "/svc/api22",203l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"12", "10020", "/svc/api23",204l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"12", "10020", "/svc/api24", 205l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"12", "10020", "/svc/api52", 206l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"11", "10073", "/tamp/poi1",731l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"11", "10073", "/tamp/poi11",732l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"11", "10073", "/tamp/poi13",733l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"11", "10073", "/tamp/poi12",734l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"11", "10073", "/tamp/poi14",735l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"11", "10073", "/tamp/poi15",736l));
 
 
         //ERROR
@@ -180,21 +190,20 @@ public class ExcelExportTest extends AbstractJUnit4SpringMvcTests {
         svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP_API, date.toDate(),"1", "100004", "400102030", "/weather/rainy", 30));
         svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP_API, date.toDate(),"1", "100004", "400102030", "/weather/windy", 40));
 
-        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP_API, date.toDate(),"1", "700004", "400102030", "/weather/dust", 10));
-        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP_API, date.toDate(),"1", "700004", "400102030", "/weather/clean", 20));
-        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP_API, date.toDate(),"1", "700004", "400102030", "/weather/rainy", 30));
-        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP_API, date.toDate(),"1", "700004", "400102030", "/weather/windy", 40));
+        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP_API, date.toDate(),"11", "700004", "400102030", "/weather/dust", 10));
+        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP_API, date.toDate(),"11", "700004", "400102030", "/weather/clean", 20));
+        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP_API, date.toDate(),"11", "700004", "400102030", "/weather/rainy", 30));
+        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP_API, date.toDate(),"11", "700004", "400102030", "/weather/windy", 40));
 
-        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP_API, date.toDate(),"1", "ALL", "400102030", "/weather/dust", 20));
-        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP_API, date.toDate(),"1", "ALL", "400102030", "/weather/clean", 40));
-        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP_API, date.toDate(),"1", "ALL", "400102030", "/weather/rainy", 60));
-        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP_API, date.toDate(),"1", "ALL", "400102030", "/weather/windy", 80));
+        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP_API, date.toDate(),"12", "ALL", "400102030", "/weather/dust", 20));
+        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP_API, date.toDate(),"12", "ALL", "400102030", "/weather/clean", 40));
+        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP_API, date.toDate(),"12", "ALL", "400102030", "/weather/rainy", 60));
+        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP_API, date.toDate(),"12", "ALL", "400102030", "/weather/windy", 80));
 
         //ERROR_API///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.ERROR_API, date.toDate(),"1", "100004",  "400","/weather/dust",1));
         svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.ERROR_API, date.toDate(),"1", "100004",  "400","/weather/windy",1));
         svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.ERROR_API, date.toDate(),"1", "100004",  "500","/weather/dust",2));
-
 
 
 
@@ -208,40 +217,40 @@ public class ExcelExportTest extends AbstractJUnit4SpringMvcTests {
         svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"1", "10004", "400023201",14l));
         svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"1", "10004", "400102021",15l));
         svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"1", "10004", "400102030", 16l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"1", "10020", "400001020",1201l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"1", "10020", "400001540",1202l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"1", "10020", "400002323",1203l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"1", "10020", "400023201",1204l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"1", "10020", "400102021", 1205l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"1", "10020", "400102030", 1206l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"1", "10073", "400001020",1731l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"1", "10073", "400001540",1732l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"1", "10073", "400002323",1733l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"1", "10073", "400023201",1734l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"1", "10073", "400102021",1735l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"1", "10073", "400102030",1736l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"12", "10020", "400001020",1201l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"12", "10020", "400001540",1202l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"12", "10020", "400002323",1203l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"12", "10020", "400023201",1204l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"12", "10020", "400102021", 1205l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"12", "10020", "400102030", 1206l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"11", "10073", "400001020",1731l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"11", "10073", "400001540",1732l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"11", "10073", "400002323",1733l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"11", "10073", "400023201",1734l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"11", "10073", "400102021",1735l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP, date.toDate(),"11", "10073", "400102030",1736l));
 
 
         //////////////////////////////////
         //API
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10004", "400001020",11l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10004", "400001540",12l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10004", "400002323",13l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10004", "400023201",14l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10004", "400102021",15l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10004", "400102030", 16l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10020", "400001020",1201l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10020", "400001540",1202l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10020", "400002323",1203l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10020", "400023201",1204l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10020", "400102021", 1205l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10020", "400102030", 1206l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10073", "400001020",1731l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10073", "400001540",1732l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10073", "400002323",1733l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10073", "400023201",1734l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10073", "400102021",1735l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10073", "400102030",1736l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10004", "/weather/rain",11l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10004", "/weather/rain2",12l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10004", "/weather/rain3",13l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10004", "/weather/rain4",14l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10004", "/weather/rain5",15l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"1", "10004", "/weather/rain6", 16l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"12", "10020", "/svc/api1",1201l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"12", "10020", "/svc/api12",1202l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"12", "10020", "/svc/api13",1203l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"12", "10020", "/svc/api14",1204l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"12", "10020", "/svc/api15", 1205l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"12", "10020", "/svc/api16", 1206l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"11", "10073", "/tmap/route1",1731l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"11", "10073", "/tmap/route11",1732l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"11", "10073", "/tmap/route12",1733l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"11", "10073", "/tmap/route13",1734l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"11", "10073", "/tmap/route14",1735l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API, date.toDate(),"11", "10073", "/tmap/route15",1736l));
 
 
         //ERROR
@@ -253,12 +262,12 @@ public class ExcelExportTest extends AbstractJUnit4SpringMvcTests {
         svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.ERROR, date.toDate(),"1", "10004", "406", 16l));
 
         //ERROR
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.ERROR, date.toDate(),"1", "70004", "500",711l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.ERROR, date.toDate(),"1", "70004", "401",712l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.ERROR, date.toDate(),"1", "70004", "402",713l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.ERROR, date.toDate(),"1", "70004", "403",714l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.ERROR, date.toDate(),"1", "70004", "404",715l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.ERROR, date.toDate(),"1", "70004", "406",716l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.ERROR, date.toDate(),"12", "70004", "500",711l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.ERROR, date.toDate(),"12", "70004", "401",712l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.ERROR, date.toDate(),"12", "70004", "402",713l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.ERROR, date.toDate(),"12", "70004", "403",714l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.ERROR, date.toDate(),"12", "70004", "404",715l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.ERROR, date.toDate(),"12", "70004", "406",716l));
 
 
         //APP_API//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -267,15 +276,15 @@ public class ExcelExportTest extends AbstractJUnit4SpringMvcTests {
         svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP_API, date.toDate(),"1", "100004", "400102030", "/weather/rainy", 3));
         svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP_API, date.toDate(),"1", "100004", "400102030", "/weather/windy", 4));
 
-        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP_API, date.toDate(),"1", "700004", "400102030", "/weather/dust", 1));
-        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP_API, date.toDate(),"1", "700004", "400102030", "/weather/clean", 2));
-        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP_API, date.toDate(),"1", "700004", "400102030", "/weather/rainy", 3));
-        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP_API, date.toDate(),"1", "700004", "400102030", "/weather/windy", 4));
+        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP_API, date.toDate(),"11", "700004", "400102030", "/weather/dust", 1));
+        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP_API, date.toDate(),"11", "700004", "400102030", "/weather/clean", 2));
+        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP_API, date.toDate(),"11", "700004", "400102030", "/weather/rainy", 3));
+        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP_API, date.toDate(),"11", "700004", "400102030", "/weather/windy", 4));
 
-        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP_API, date.toDate(),"1", "ALL", "400102030", "/weather/dust", 2));
-        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP_API, date.toDate(),"1", "ALL", "400102030", "/weather/clean", 4));
-        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP_API, date.toDate(),"1", "ALL", "400102030", "/weather/rainy", 6));
-        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP_API, date.toDate(),"1", "ALL", "400102030", "/weather/windy", 8));
+        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP_API, date.toDate(),"12", "ALL", "400102030", "/weather/dust", 2));
+        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP_API, date.toDate(),"12", "ALL", "400102030", "/weather/clean", 4));
+        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP_API, date.toDate(),"12", "ALL", "400102030", "/weather/rainy", 6));
+        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP_API, date.toDate(),"12", "ALL", "400102030", "/weather/windy", 8));
 
 
         //API_APP///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -285,17 +294,17 @@ public class ExcelExportTest extends AbstractJUnit4SpringMvcTests {
         svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API_APP, date.toDate(),"1", "100004",  "/weather/rainy","5d1577fc692843aa6f49c0cf49b1ee15",3));
         svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API_APP, date.toDate(),"1", "100004",  "/weather/windy","5d1577fc692843aa6f49c0cf49b1ee15",4));
 
-        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API_APP, date.toDate(),"1", "700004",  "/tmap/route" ,"5d1577fc692843aa6f49c0cf49b1ee15",1));
-        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API_APP, date.toDate(),"1", "700004",  "/tmap/traffic","5d1577fc692843aa6f49c0cf49b1ee15",2));
-        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API_APP, date.toDate(),"1", "700004",  "/tmap/traffic","692843aa692843aa6f49c0cf49b1ee15",22));
-        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API_APP, date.toDate(),"1", "700004",  "/tmap/poi","5d1577fc692843aa6f49c0cf49b1ee15",3));
-        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API_APP, date.toDate(),"1", "700004",  "/tmp/landmark","5d1577fc692843aa6f49c0cf49b1ee15",4));
+        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API_APP, date.toDate(),"11", "700004",  "/tmap/route" ,"5d1577fc692843aa6f49c0cf49b1ee15",1));
+        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API_APP, date.toDate(),"11", "700004",  "/tmap/traffic","5d1577fc692843aa6f49c0cf49b1ee15",2));
+        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API_APP, date.toDate(),"11", "700004",  "/tmap/traffic","692843aa692843aa6f49c0cf49b1ee15",22));
+        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API_APP, date.toDate(),"11", "700004",  "/tmap/poi","5d1577fc692843aa6f49c0cf49b1ee15",3));
+        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API_APP, date.toDate(),"11", "700004",  "/tmp/landmark","5d1577fc692843aa6f49c0cf49b1ee15",4));
 
 
-        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API_APP, date.toDate(),"1", "800004",  "/tmap2/route" ,"5d1577fc692843aa6f49c0cf49b1ee15",1));
-        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API_APP, date.toDate(),"1", "800004",  "/tmap2/traffic","5d1577fc692843aa6f49c0cf49b1ee15",2));
-        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API_APP, date.toDate(),"1", "800004",  "/tmap2/poi","5d1577fc692843aa6f49c0cf49b1ee15",3));
-        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API_APP, date.toDate(),"1", "800004",  "/tmp2/landmark","5d1577fc692843aa6f49c0cf49b1ee15",4));
+        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API_APP, date.toDate(),"12", "800004",  "/tmap2/route" ,"5d1577fc692843aa6f49c0cf49b1ee15",1));
+        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API_APP, date.toDate(),"12", "800004",  "/tmap2/traffic","5d1577fc692843aa6f49c0cf49b1ee15",2));
+        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API_APP, date.toDate(),"12", "800004",  "/tmap2/poi","5d1577fc692843aa6f49c0cf49b1ee15",3));
+        svcOption2.add(new SvcOption2RC(enumStatsType.PV,enumRCType.daily, enumOptionType.API_APP, date.toDate(),"12", "800004",  "/tmp2/landmark","5d1577fc692843aa6f49c0cf49b1ee15",4));
 
 
 
@@ -336,22 +345,22 @@ public class ExcelExportTest extends AbstractJUnit4SpringMvcTests {
         date = LocalDate.parse("201607", DateTimeFormat.forPattern("yyyyMM"));
 
         svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.monthly, enumOptionType.APP, date.toDate(),"1", "10004", "400001020", 18l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.monthly, enumOptionType.APP, date.toDate(),"1", "10002", "400001020", 2l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.monthly, enumOptionType.APP, date.toDate(),"12", "10002", "400001020", 2l));
         date = date.plusMonths(1);//8                     enumOption1Type.APP,
         svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.monthly, enumOptionType.APP, date.toDate(),"1", "10004", "400001020", 19l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.monthly, enumOptionType.APP, date.toDate(),"1", "10002", "400001020", 2l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.monthly, enumOptionType.APP, date.toDate(),"12", "10002", "400001020", 2l));
         date = date.plusMonths(1);//9                     enumOption1Type.APP,
         svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.monthly, enumOptionType.APP, date.toDate(),"1", "10004", "400001020", 20l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.monthly, enumOptionType.APP, date.toDate(),"1", "10002", "400001020", 2l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.monthly, enumOptionType.APP, date.toDate(),"12", "10002", "400001020", 2l));
         date = date.plusMonths(1);//10                    enumOption1Type.APP,
         svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.monthly, enumOptionType.APP, date.toDate(),"1","10004", "400001020",21l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.monthly, enumOptionType.APP, date.toDate(),"1","10002", "400001020", 2l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.monthly, enumOptionType.APP, date.toDate(),"12","10002", "400001020", 2l));
         date = date.plusMonths(1);//11                    enumOption1Type.APP,
         svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.monthly, enumOptionType.APP, date.toDate(),"1","10004", "400001020",22l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.monthly, enumOptionType.APP, date.toDate(),"1","10002", "400001020", 2l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.monthly, enumOptionType.APP, date.toDate(),"12","10002", "400001020", 2l));
         date = date.plusMonths(1);//12                    enumOption1Type.APP,
         svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.monthly, enumOptionType.APP, date.toDate(),"1","10004", "400001020", 23l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.monthly, enumOptionType.APP, date.toDate(),"1","10002", "400001020", 2l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.monthly, enumOptionType.APP, date.toDate(),"12","10002", "400001020", 2l));
 
 
         svcOption1RcRepo.save(svcAppRcs);
@@ -410,10 +419,10 @@ public class ExcelExportTest extends AbstractJUnit4SpringMvcTests {
 
         FileOutputStream fileOut = new FileOutputStream("stat_monthly_svc_app_pv.xlsx");
 
-        LocalDate start = LocalDate.parse("20160706", DateTimeFormat.forPattern("yyyyMMdd"));
-        LocalDate end = LocalDate.parse("20160707", DateTimeFormat.forPattern("yyyyMMdd"));
+        LocalDate start = LocalDate.parse("20160701", DateTimeFormat.forPattern("yyyyMMdd"));
+        LocalDate end = start.plusMonths(2);
 
-        wb = excelExportService.exportExcel("weather", "app", null, enumStatsType.PV, enumRCType.monthly, start, end);
+        wb = excelExportService.exportExcel("1", "app", null, enumStatsType.PV, enumRCType.monthly, start, end);
 
         wb.write(fileOut);
     }
@@ -422,8 +431,8 @@ public class ExcelExportTest extends AbstractJUnit4SpringMvcTests {
     public void getMonthlySvcPV() throws IOException {
 
         FileOutputStream fileOut = new FileOutputStream("stat_monthly_svc_pv.xlsx");
-        LocalDate start = LocalDate.parse("20160706", DateTimeFormat.forPattern("yyyyMMdd"));
-        LocalDate end = LocalDate.parse("20160707", DateTimeFormat.forPattern("yyyyMMdd"));
+        LocalDate start = LocalDate.parse("20160701", DateTimeFormat.forPattern("yyyyMMdd"));
+        LocalDate end = start.plusMonths(3);
 
         wb = excelExportService.exportExcel("ALL", null, null, enumStatsType.PV, enumRCType.monthly, start, end);
 
@@ -436,12 +445,12 @@ public class ExcelExportTest extends AbstractJUnit4SpringMvcTests {
     @Test
     public void getSvcPV() throws IOException {
 
-        FileOutputStream fileOut = new FileOutputStream("stat_daily_svc_pv_10004.xlsx");
+        FileOutputStream fileOut = new FileOutputStream("stat_daily_svc_pv_weather.xlsx");
 
         LocalDate start = LocalDate.parse("20160706", DateTimeFormat.forPattern("yyyyMMdd"));
         LocalDate end = LocalDate.parse("20160707", DateTimeFormat.forPattern("yyyyMMdd"));
 
-        wb = excelExportService.exportExcel("10004", null, null, enumStatsType.PV, enumRCType.daily, start, end);
+        wb = excelExportService.exportExcel("1", null, null, enumStatsType.PV, enumRCType.daily, start, end);
 
         wb.write(fileOut);
 
@@ -455,7 +464,6 @@ public class ExcelExportTest extends AbstractJUnit4SpringMvcTests {
 
 
 
-        //TODO 현재는 한파일에 여러 시트를 넣을 수 없게 되어 있음. 추후 수정 필요
     @Test
     public void getOption1PvServeralFiles() throws IOException {
 
@@ -472,20 +480,20 @@ public class ExcelExportTest extends AbstractJUnit4SpringMvcTests {
 
         FileOutputStream fileOut2 = new FileOutputStream("stat_daily_svc_app_pv.xlsx");
 
-        wb = excelExportService.exportExcel("10004", "APP", null, enumStatsType.PV, enumRCType.daily, start, end);
+        wb = excelExportService.exportExcel("1", "APP", null, enumStatsType.PV, enumRCType.daily, start, end);
 
         wb.write(fileOut2);
         wb.close();
         FileOutputStream fileOut3 = new FileOutputStream("stat_daily_svc_api_pv.xlsx");
 
-        wb = excelExportService.exportExcel("10004", "API", null, enumStatsType.PV, enumRCType.daily, start, end);
+        wb = excelExportService.exportExcel("1", "API", null, enumStatsType.PV, enumRCType.daily, start, end);
 
         wb.write(fileOut3);
         wb.close();
 
         FileOutputStream fileOut4 = new FileOutputStream("stat_daily_svc_err.xlsx");
 
-        wb = excelExportService.exportExcel("10004", "ERROR", null, enumStatsType.PV, enumRCType.daily, start, end);
+        wb = excelExportService.exportExcel("1", "ERROR", null, enumStatsType.PV, enumRCType.daily, start, end);
 
         wb.write(fileOut4);
         wb.close();

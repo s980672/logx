@@ -2,6 +2,7 @@ package com.sktechx.palab.logx.test;
 
 import com.google.common.collect.Lists;
 import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.response.Response;
 import com.sktechx.palab.logx.config.Application;
 import com.sktechx.palab.logx.model.*;
 import com.sktechx.palab.logx.repository.ServiceRCRepository;
@@ -25,12 +26,10 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Application.class)
 @WebAppConfiguration
-@IntegrationTest("server.port:9101")
+@IntegrationTest("server.port:9000")
 public class StatisticsContollerIT {
 
 	Logger logger = LoggerFactory.getLogger(StatisticsContollerIT.class);
@@ -87,18 +86,18 @@ public class StatisticsContollerIT {
         svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP,date.toDate(), "1","10004", "400023201",4l));
         svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP,date.toDate(), "1","10004", "400102021",5l));
         svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP,date.toDate(), "1","10004", "400102030", 6l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP,date.toDate(), "1","10020", "400001020",201l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP,date.toDate(), "1","10020", "400001540",202l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP,date.toDate(), "1","10020", "400002323",203l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP,date.toDate(), "1","10020", "400023201",204l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP,date.toDate(), "1","10020", "400102021", 205l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP,date.toDate(), "1","10020", "400102030", 206l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP,date.toDate(), "1","10073", "400001020",731l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP,date.toDate(), "1","10073", "400001540",732l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP,date.toDate(), "1","10073", "400002323",733l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP,date.toDate(), "1","10073", "400023201",734l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP,date.toDate(), "1","10073", "400102021",735l));
-        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP,date.toDate(), "1","10073", "400102030",736l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP,date.toDate(), "12","10020", "400001020",201l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP,date.toDate(), "12","10020", "400001540",202l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP,date.toDate(), "12","10020", "400002323",203l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP,date.toDate(), "12","10020", "400023201",204l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP,date.toDate(), "12","10020", "400102021", 205l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP,date.toDate(), "12","10020", "400102030", 206l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP,date.toDate(), "11","10073", "400001020",731l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP,date.toDate(), "11","10073", "400001540",732l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP,date.toDate(), "11","10073", "400002323",733l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP,date.toDate(), "11","10073", "400023201",734l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP,date.toDate(), "11","10073", "400102021",735l));
+        svcAppRcs.add(new SvcOption1RC(enumStatsType.PV,enumRCType.daily, enumOptionType.APP,date.toDate(), "11","10073", "400102030",736l));
 
         date = date.plusDays(1);
 
@@ -127,27 +126,30 @@ public class StatisticsContollerIT {
 
 	}
 
-	@Test
-	public void healthEndpoint_isAvailableToEveryone() {
-		RestAssured.given().
-				header("Content-Type", "application/json").
-				when().get("/health").
-				then().statusCode(HttpStatus.SC_OK).body("status", is("UP"));
-	}
+//	@Test
+//	public void healthEndpoint_isAvailableToEveryone() {
+//        Response response = RestAssured.given().
+//                //header("Content-Type", "application/json").
+//                when().get("/health");
+//        response.prettyPrint();
+//        response.then().statusCode(HttpStatus.SC_OK).body("status", is("UP"));
+//	}
 
 
 	@Test
 	public void canDownloadExcelFile() {
 
-		RestAssured.given().
-				//header("Content-Type", "application/json").
-                param("startDate", "20160706").
-                param("endDate", "20160707").
-                param("option1","app").
-                param("service","").
+        Response response = RestAssured.given().
+                //header("Content-Type", "application/json").
+                        param("year", "2016").
+                param("month", "7").
+                param("option1", "app").
+                param("service", "ALL").
                 when().
-				get("/stats/{period}/pv","daily").
-                then().statusCode(HttpStatus.SC_OK);
+                get("/stats/{period}/pv", "daily");
+        response.prettyPrint();
+        response.then()
+                .statusCode(HttpStatus.SC_OK);
 
 	}
 

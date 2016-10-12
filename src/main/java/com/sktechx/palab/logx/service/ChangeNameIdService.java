@@ -29,9 +29,13 @@ public class ChangeNameIdService {
         if ( svcId.equals("ALL") ){
             return "전체서비스";
         }
-        Asset one = assetRepo.findOne(Long.parseLong(svcId));
-        if (one != null)
-            return one.getName();
+        try {
+            Asset one = assetRepo.findOne(Long.parseLong(svcId));
+            if (one != null)
+                return one.getName();
+        }catch(NumberFormatException e) {
+            logger.error(e.getLocalizedMessage());
+        }
 
         return "전체서비스";
 

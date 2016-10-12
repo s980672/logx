@@ -12,5 +12,6 @@ import java.util.List;
 public interface SvcServiceIDRepository extends JpaRepository<SvcIdCall, String>{
 
     List<SvcIdCall> findAll();
+    SvcIdCall findDistinctByCategoryKey(String categoryKey);
 
 }

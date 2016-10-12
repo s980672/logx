@@ -16,6 +16,16 @@ public class Asset {
 
     public Asset(){}
 
+    public Asset(Long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public Asset(String id, String name) {
+        this.id = Long.parseLong(id);
+        this.name = name;
+    }
+
     public String getName() {
         return name;
     }
