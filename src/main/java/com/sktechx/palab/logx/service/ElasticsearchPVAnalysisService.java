@@ -66,9 +66,11 @@ public class ElasticsearchPVAnalysisService {
         top5Svc.stream().limit(5).forEach(svc -> {
             logger.debug("service : {}", svc);
 
-            List<ServiceRequestCall> lst = svcRCRepo.findBySvcIdAndStsTypeAndRcTypeAndBetween(svc, enumStatsType.PV, rcType, date1, date2);
+            List<ServiceRequestCall> lst = svcRCRepo.findSumGroupBySvcIdBySvcIdAndStsTypeAndRcTypeAndBetween(svc, enumStatsType.PV, rcType, date1, date2);
             result.addAll(lst);
         });
+
+        result.stream().forEach(r -> logger.debug("{}", r));
 
         chgSvc.fillNameOrIdOfAppOrSvc(enumOptionType.SVC, result);
         return result;
