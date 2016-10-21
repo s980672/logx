@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.security.InvalidKeyException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -203,14 +204,20 @@ public class ElasticsearchPVAnalysisService {
             appRC.getBuckets().stream().forEach(app -> {
 
 
-                SvcOption1RC svcOp1PV = new SvcOption1RC(enumStatsType.PV, dayType, opType, date,
-                        categoryService.getServiceId(svc.getKey()), svc.getKey(),app.getKey(), app.getCount());
+                try {
+                    SvcOption1RC svcOp1PV = new SvcOption1RC(enumStatsType.PV, dayType, opType, date,
+                            categoryService.getServiceId(svc.getKey()), svc.getKey(),app.getKey(), app.getCount());
 
-                logger.debug("##########################");
-                logger.debug("SvcOption1RC : {}", svcOp1PV);
-                logger.debug("##########################");
+                    logger.debug("##########################");
+                    logger.debug("SvcOption1RC : {}", svcOp1PV);
+                    logger.debug("##########################");
 
-                svcOption1RCRep.save(svcOp1PV);
+                    svcOption1RCRep.save(svcOp1PV);
+
+                } catch (InvalidKeyException e) {
+                    logger.error(e.getLocalizedMessage());
+
+                }
             });
 
 
@@ -252,18 +259,23 @@ public class ElasticsearchPVAnalysisService {
             	TermsAggregation appRC = api.getTermsAggregation("option2RC");
 
             	appRC.getBuckets().stream().forEach(app ->{
-            
-                    		
-                    		SvcOption2RC svcOp2PV = new SvcOption2RC(enumStatsType.PV, dayType, opType, date,
+
+
+                            try {
+                                SvcOption2RC svcOp2PV = new SvcOption2RC(enumStatsType.PV, dayType, opType, date,
                                     categoryService.getServiceId(svc.getKey()),svc.getKey(), api.getKey(), app.getKey(), app.getCount());
-                    	
-                    		
+                                logger.debug("##########################");
+                                logger.debug("SvcOption2RC : {}", svcOp2PV);
+                                logger.debug("##########################");
 
-	                    logger.debug("##########################");
-	                    logger.debug("SvcOption2RC : {}", svcOp2PV);
-	                    logger.debug("##########################");
+                                svcOption2RCRep.save(svcOp2PV);
 
-	                    svcOption2RCRep.save(svcOp2PV);
+                            } catch (InvalidKeyException e) {
+                                logger.debug(e.getLocalizedMessage());
+
+                            }
+
+
 
             		}
             	);

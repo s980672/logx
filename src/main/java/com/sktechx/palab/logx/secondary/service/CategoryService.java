@@ -7,6 +7,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.security.InvalidKeyException;
+
 /**
  * Created by 1100299 on 2016-09-09.
  */
@@ -19,13 +21,12 @@ public class CategoryService {
 
     public CategoryService(){}
 
-    public String getServiceId(String categoryId){
+    public String getServiceId(String categoryId) throws InvalidKeyException {
         SvcIdCall distinctByCategoryKey = svcIDRepository.findDistinctByCategoryKey(categoryId);
         if ( distinctByCategoryKey != null )
             return distinctByCategoryKey.getSvcId();
 
-        logger.error("categoryId({}) is invalid!", categoryId);
-        return "ERROR";
-
+        logger.debug("categoryId({}) is invalid!", categoryId);
+        throw new InvalidKeyException("Category("+ categoryId +") is not existed!");
     }
 }
