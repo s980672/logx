@@ -78,35 +78,18 @@ public class ElasticsearchPVAnalysisService {
     }
 
     public List<SvcOption1RC> getRCPerApiTop10(enumRCType rcType, Date date1, Date date2) {
-        //RC 갯수로 top10 API를 구한다
-        List<String> top10Api = svcOption1RCRep.findTop10Option1(enumOptionType.API, rcType, date1, date2);
+        //RC 순으로 top10 API를 구한다
+        List<SvcOption1RC> top10Api = svcOption1RCRep.findByOpTypeAndRcTypeAndDateBetweenOrderByCount(enumOptionType.API, rcType, date1, date2);
         List<SvcOption1RC> result = Lists.newArrayList();
-        top10Api.stream().limit(10).forEach(api -> {
-            SvcOption1RC tmp = new SvcOption1RC();
-            svcOption1RCRep.findByOption1AndRcTypeAndBetween(api, enumOptionType.API, rcType, date1, date2).forEach(rc -> {
-                tmp.setId(rc.getId());
-                //TODO check logic
-                tmp.setCount(tmp.getCount() + rc.getCount());
-            });
-            result.add(tmp);
-        });
-
+        top10Api.stream().limit(10).forEach(result::add);
         return result;
     }
 
     public List<SvcOption1RC> getRCPerAppTop10(enumRCType rcType, Date date1, Date date2){
-        //RC 갯수로 top10 APP를 구한다
-        List<String> top10Api = svcOption1RCRep.findTop10Option1(enumOptionType.APP, rcType, date1, date2);
+        //RC 순으로 top10 API를 구한다
+        List<SvcOption1RC> top10Api = svcOption1RCRep.findByOpTypeAndRcTypeAndDateBetweenOrderByCount(enumOptionType.APP, rcType, date1, date2);
         List<SvcOption1RC> result = Lists.newArrayList();
-        top10Api.stream().limit(10).forEach(app -> {
-            SvcOption1RC tmp = new SvcOption1RC();
-            svcOption1RCRep.findByOption1AndRcTypeAndBetween(app, enumOptionType.APP, rcType, date1, date2).stream().forEach(rc -> {
-                tmp.setId(rc.getId());
-                //서비스 별로 구분되는 값을 모두 더함
-                tmp.setCount(tmp.getCount() + rc.getCount());
-            });
-            result.add(tmp);
-        });
+        top10Api.stream().limit(10).forEach(result::add);
         chgSvc.fillNameOrIdOfAppOrSvc(enumOptionType.APP, result);
         return result;
     }
