@@ -1,5 +1,6 @@
 package com.sktechx.palab.logx.service;
 
+import org.apache.poi.hssf.usermodel.HSSFDataFormat;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -131,6 +132,31 @@ public abstract class abstractExportExcel {
     }
 
     protected void setCellValue(Sheet sh, int row, int col, String value, CellStyle style){
+        if ( sh.getRow(row) == null ) {
+            Row row1 = sh.createRow(row);
+            if ( row1.getCell(col) == null ) {
+                Cell cell = row1.createCell(col);
+                cell.setCellValue(value);
+            }else{
+                row1.getCell(col).setCellValue(value);
+            }
+        }else{
+            if ( sh.getRow(row).getCell(col) == null ){
+                sh.getRow(row).createCell(col).setCellValue(value);
+            }
+            else{
+                sh.getRow(row).getCell(col).setCellValue(value);
+            }
+        }
+
+        if ( style != null ){
+            sh.getRow(row).getCell(col).setCellStyle(style);
+        }
+
+    }
+
+    protected void setCellValue(Sheet sh, int row, int col, Long value, CellStyle style){
+        style.setDataFormat(HSSFDataFormat.getBuiltinFormat("#,##0"));
         if ( sh.getRow(row) == null ) {
             Row row1 = sh.createRow(row);
             if ( row1.getCell(col) == null ) {

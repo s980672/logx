@@ -273,7 +273,7 @@ public class ExportExcelUtil extends abstractExportExcel {
                         //합계
                         sheet.addMergedRegion(new CellRangeAddress(mergeEx.row, ex.row-1, mergeEx.col, mergeEx.col));
 
-                        setCellValue(sheet, mergeEx.row, mergeEx.col, ex.total + "", style);
+                        setCellValue(sheet, mergeEx.row, mergeEx.col, ex.total, style);
 
                         setCellStyle(sheet, mergeEx.row, ex.row-1, mergeEx.col, mergeEx.col, style);
 
@@ -338,7 +338,7 @@ public class ExportExcelUtil extends abstractExportExcel {
                         sheet.addMergedRegion(new CellRangeAddress(mergeEx.row, ex.row-1, mergeEx.col/*합계 컬럼*/, mergeEx.col));
 
                         //합계 -
-                        setCellValue(sheet, mergeEx.row, mergeEx.col, ex.total + "", style);
+                        setCellValue(sheet, mergeEx.row, mergeEx.col, ex.total , style);
 
                         setCellStyle(sheet, mergeEx.row, ex.row - 1, mergeEx.col, mergeEx.col, style);
                         ex.total = 0;
@@ -401,7 +401,7 @@ public class ExportExcelUtil extends abstractExportExcel {
 
                         //합계
                         sheet.addMergedRegion(new CellRangeAddress(mergeEx.row, ex.row - 1, mergeEx.col/*total sum*/, mergeEx.col));
-                        setCellValue(sheet, mergeEx.row, mergeEx.col, ex.total + "", style);
+                        setCellValue(sheet, mergeEx.row, mergeEx.col, ex.total, style);
                         setCellStyle(sheet, mergeEx.row, ex.row-1, mergeEx.col/*total sum*/, mergeEx.col, style );
 
                         ex.total = 0;
@@ -465,14 +465,14 @@ public class ExportExcelUtil extends abstractExportExcel {
         Iterator<Map.Entry<Date, Long>> iterator = entries.iterator();
         while (iterator.hasNext()) {
             Map.Entry me = iterator.next();
-            setCellValue(sheet, ex.row, ex.col++, me.getValue() + "", style);
+            setCellValue(sheet, ex.row, ex.col++, (Long) me.getValue(), style);
             logger.debug("row:{} col:{} value:{} date: {}", ex.row, ex.col, me.getValue(), me.getKey().toString());
 
             ex.subTotal += (long) me.getValue();
         }
 
         //소계
-        setCellValue(sheet, ex.row, ex.col++, ex.subTotal + "", style);
+        setCellValue(sheet, ex.row, ex.col++, ex.subTotal, style);
         ex.total += ex.subTotal;
         //한 라인 출력 후 초기화
         ex.subTotal = 0;
@@ -554,7 +554,7 @@ public class ExportExcelUtil extends abstractExportExcel {
                     Iterator<Map.Entry<Date, Long>> iterator = entries.iterator();
                     while (iterator.hasNext()) {
                         Map.Entry me = iterator.next();
-                        setCellValue(sheet, ex.row, ex.col++, me.getValue() + "", style);
+                        setCellValue(sheet, ex.row, ex.col++, (long)me.getValue() , style);
                         logger.debug("row:{} col:{} op1 : {}, op2 : {}, value:{} date: {}", ex.row, ex.col, op1, op2, me.getValue(), me.getKey().toString());
 
                         ex.subTotal += (long) me.getValue();
@@ -564,7 +564,7 @@ public class ExportExcelUtil extends abstractExportExcel {
                     map.clear();
 
                     //소계
-                    setCellValue(sheet, ex.row, ex.col, ex.subTotal + "", style);
+                    setCellValue(sheet, ex.row, ex.col, ex.subTotal , style);
                     logger.debug("row:{} col:{} subtotal:{}", ex.row, ex.col, ex.subTotal);
 
                     ex.total += ex.subTotal;
@@ -586,7 +586,7 @@ public class ExportExcelUtil extends abstractExportExcel {
                 mergeEx.col += 1;
                 logger.debug("mergeEx.col : {} ex.total: {}", mergeEx.col, ex.total);
                 sheet.addMergedRegion(new CellRangeAddress(mergeEx.row, ex.row - 1, mergeEx.col/*total sum column*/, mergeEx.col));
-                setCellValue(sheet, mergeEx.row, mergeEx.col, ex.total + "", style);
+                setCellValue(sheet, mergeEx.row, mergeEx.col, ex.total , style);
                 setCellStyle(sheet, mergeEx.row, ex.row - 1, mergeEx.col, mergeEx.col, style);
 
                 //이 라인이 없으면 서비스 병합 시 마지막 행이 깨짐
@@ -659,7 +659,7 @@ public class ExportExcelUtil extends abstractExportExcel {
                                     Iterator<Map.Entry<Date, Long>> iterator = entries.iterator();
                                     while (iterator.hasNext()) {
                                         Map.Entry me = iterator.next();
-                                        setCellValue(sheet, ex.row, ex.col++, me.getValue() + "", style);
+                                        setCellValue(sheet, ex.row, ex.col++, (long)me.getValue(), style);
                                         logger.debug("row:{} col:{} op1 : {}, op2 : {}, value:{} date: {}", ex.row, ex.col, op1, op2, me.getValue(), me.getKey().toString());
 
                                         ex.subTotal += (long) me.getValue();
@@ -669,7 +669,7 @@ public class ExportExcelUtil extends abstractExportExcel {
                                     map.clear();
 
                                     //소계
-                                    setCellValue(sheet, ex.row, ex.col, ex.subTotal + "", style);
+                                    setCellValue(sheet, ex.row, ex.col, ex.subTotal , style);
                                     logger.debug("row:{} col:{} subtotal:{}", ex.row, ex.col, ex.subTotal);
 
                                     ex.total += ex.subTotal;
@@ -690,7 +690,7 @@ public class ExportExcelUtil extends abstractExportExcel {
                         mergeEx.col += 1;
                         logger.debug("mergeEx.col : {} ex.total: {}", mergeEx.col, ex.total);
                         sheet.addMergedRegion(new CellRangeAddress(mergeEx.row, ex.row - 1, mergeEx.col/*total sum column*/, mergeEx.col));
-                        setCellValue(sheet, mergeEx.row, mergeEx.col, ex.total + "", style);
+                        setCellValue(sheet, mergeEx.row, mergeEx.col, ex.total , style);
                         setCellStyle(sheet, mergeEx.row, ex.row - 1, mergeEx.col, mergeEx.col, style);
 
                         //이 라인이 없으면 서비스 병합 시 마지막 행이 깨짐
@@ -773,7 +773,7 @@ public class ExportExcelUtil extends abstractExportExcel {
                     Iterator<Map.Entry<Date, Long>> iterator = entries.iterator();
                     while (iterator.hasNext()) {
                         Map.Entry me = iterator.next();
-                        setCellValue(sheet, ex.row, ex.col++, me.getValue() + "", style);
+                        setCellValue(sheet, ex.row, ex.col++, (long)me.getValue(), style);
                         logger.debug("row:{} col:{} op1 : {}, op2 : {}, value:{} date: {}", ex.row, ex.col, op1, op2, me.getValue(), me.getKey().toString());
 
                         ex.subTotal += (long) me.getValue();
@@ -783,7 +783,7 @@ public class ExportExcelUtil extends abstractExportExcel {
                     map.clear();
 
                     //소계
-                    setCellValue(sheet, ex.row, ex.col, ex.subTotal + "", style);
+                    setCellValue(sheet, ex.row, ex.col, ex.subTotal , style);
                     logger.debug("row:{} col:{} subtotal:{}", ex.row, ex.col, ex.subTotal);
 
                     ex.total += ex.subTotal;
@@ -805,7 +805,7 @@ public class ExportExcelUtil extends abstractExportExcel {
                 mergeEx.col += 1;
                 logger.debug("mergeEx.col : {} ex.total: {}", mergeEx.col, ex.total);
                 sheet.addMergedRegion(new CellRangeAddress(mergeEx.row, ex.row - 1, mergeEx.col/*total sum column*/, mergeEx.col));
-                setCellValue(sheet, mergeEx.row, mergeEx.col, ex.total + "", style);
+                setCellValue(sheet, mergeEx.row, mergeEx.col, ex.total , style);
                 setCellStyle(sheet, mergeEx.row, ex.row - 1, mergeEx.col, mergeEx.col, style);
 
                 ex.total = 0;
