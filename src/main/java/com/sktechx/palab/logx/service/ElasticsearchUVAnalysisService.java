@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.security.InvalidKeyException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -66,10 +67,13 @@ public class ElasticsearchUVAnalysisService {
     	 svcUV.getBuckets().stream().forEach(svc -> {
 
 			CardinalityAggregation count = svc.getCardinalityAggregation("uvCount");
-			ServiceRequestCall svcRC;
 
-            svcRC = new ServiceRequestCall(enumStatsType.UV, dayType, date,  categoryService.getServiceId(svc.getKey()), svc.getKey(), count.getCardinality());
-			svcRCRepo.save(svcRC);
+             try {
+                 ServiceRequestCall svcRC = new ServiceRequestCall(enumStatsType.UV, dayType, date,  categoryService.getServiceId(svc.getKey()), svc.getKey(), count.getCardinality());
+                 svcRCRepo.save(svcRC);
+             } catch (InvalidKeyException e) {
+                 logger.debug(e.getLocalizedMessage());
+             }
 
     	 });
     }
@@ -101,9 +105,13 @@ public class ElasticsearchUVAnalysisService {
 
             	 CardinalityAggregation count = svcsub.getCardinalityAggregation("uvCount");
 
-            	 SvcOption1RC svcOp1UV = new SvcOption1RC(enumStatsType.UV, dayType, opType, date,
-                         categoryService.getServiceId(svc.getKey()), svc.getKey(), svcsub.getKey(), count.getCardinality());
-                 svcOption1RCRep.save(svcOp1UV);
+                 try {
+                     SvcOption1RC svcOp1UV = new SvcOption1RC(enumStatsType.UV, dayType, opType, date,
+                        categoryService.getServiceId(svc.getKey()), svc.getKey(), svcsub.getKey(), count.getCardinality());
+                     svcOption1RCRep.save(svcOp1UV);
+                 } catch (InvalidKeyException e) {
+                     logger.debug(e.getLocalizedMessage());
+                 }
 
              });
          });
@@ -140,15 +148,19 @@ public class ElasticsearchUVAnalysisService {
 				option2RC.getBuckets().stream().forEach(svcsub2 -> {
 					CardinalityAggregation count = svcsub2.getCardinalityAggregation("uvCount");
 
-					SvcOption2RC svcOp2UV = new SvcOption2RC(enumStatsType.UV, dayType, opType, date,
+                    try {
+                        SvcOption2RC svcOp2UV = new SvcOption2RC(enumStatsType.UV, dayType, opType, date,
                             categoryService.getServiceId(svc.getKey()), svc.getKey(), svcsub1.getKey(), svcsub2.getKey(),count.getCardinality());
+                        logger.debug("##########################");
+                        logger.debug("SvcOption1RC : {}", svcOp2UV);
+                        logger.debug("##########################");
 
+                        svcOption2RCRep.save(svcOp2UV);
 
-					logger.debug("##########################");
-					logger.debug("SvcOption1RC : {}", svcOp2UV);
-					logger.debug("##########################");
+                    } catch (InvalidKeyException e) {
+                        e.printStackTrace();
+                    }
 
-					svcOption2RCRep.save(svcOp2UV);
                });
 
            });

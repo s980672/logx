@@ -8,7 +8,7 @@ import javax.persistence.Table;
 /**
  * Created by 1002382 on 2016. 7. 20..
  */
-@Table(name="category")
+@Table(name="category_aud")
 @Entity
 public class SvcIdCall {
 
@@ -17,6 +17,25 @@ public class SvcIdCall {
     String svcId;
     String categoryKey;
     String type;
+
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    Integer revtype;
+
+    public Integer getRevtype() {
+        return revtype;
+    }
+
+    public void setRevtype(Integer revtype) {
+        this.revtype = revtype;
+    }
 
     public SvcIdCall(){}
 
@@ -33,29 +52,21 @@ public class SvcIdCall {
         this.svcId = svcId;
     }
 
-    public String getCategoryId() {
+    public String getCategoryKey() {
         return categoryKey;
     }
 
-    public void setCategoryId(String category_key) {
-        this.categoryKey = category_key;
-    }
-
-    public String gettype() {
-        return type;
-    }
-
-    public void settype(String type) {
-        this.type = type;
+    public void setCategoryKey(String categoryKey) {
+        this.categoryKey = categoryKey;
     }
 
     @Override
     public String toString() {
         return "SvcIdCall{" +
-                "svcId=" + svcId +
-                "categoryKey=" + categoryKey +
-                ", type=" + type +
+                "svcId='" + svcId + '\'' +
+                ", categoryKey='" + categoryKey + '\'' +
+                ", type='" + type + '\'' +
+                ", revtype=" + revtype +
                 '}';
     }
-
 }

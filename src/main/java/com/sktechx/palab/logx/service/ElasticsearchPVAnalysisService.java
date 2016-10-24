@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.security.InvalidKeyException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -66,44 +67,29 @@ public class ElasticsearchPVAnalysisService {
         top5Svc.stream().limit(5).forEach(svc -> {
             logger.debug("service : {}", svc);
 
-            List<ServiceRequestCall> lst = svcRCRepo.findBySvcIdAndStsTypeAndRcTypeAndBetween(svc, enumStatsType.PV, rcType, date1, date2);
+            List<ServiceRequestCall> lst = svcRCRepo.findSumGroupBySvcIdBySvcIdAndStsTypeAndRcTypeAndBetween(svc, enumStatsType.PV, rcType, date1, date2);
             result.addAll(lst);
         });
+
+        result.stream().forEach(r -> logger.debug("{}", r));
 
         chgSvc.fillNameOrIdOfAppOrSvc(enumOptionType.SVC, result);
         return result;
     }
 
     public List<SvcOption1RC> getRCPerApiTop10(enumRCType rcType, Date date1, Date date2) {
-        //RC 갯수로 top10 API를 구한다
-        List<String> top10Api = svcOption1RCRep.findTop10Option1(enumOptionType.API, rcType, date1, date2);
+        //RC 순으로 top10 API를 구한다
+        List<SvcOption1RC> top10Api = svcOption1RCRep.findByOpTypeAndRcTypeAndDateBetweenOrderByCount(enumOptionType.API, rcType, date1, date2);
         List<SvcOption1RC> result = Lists.newArrayList();
-        top10Api.stream().limit(10).forEach(api -> {
-            SvcOption1RC tmp = new SvcOption1RC();
-            svcOption1RCRep.findByOption1AndRcTypeAndBetween(api, enumOptionType.API, rcType, date1, date2).forEach(rc -> {
-                tmp.setId(rc.getId());
-                //TODO check logic
-                tmp.setCount(tmp.getCount() + rc.getCount());
-            });
-            result.add(tmp);
-        });
-
+        top10Api.stream().limit(10).forEach(result::add);
         return result;
     }
 
     public List<SvcOption1RC> getRCPerAppTop10(enumRCType rcType, Date date1, Date date2){
-        //RC 갯수로 top10 APP를 구한다
-        List<String> top10Api = svcOption1RCRep.findTop10Option1(enumOptionType.APP, rcType, date1, date2);
+        //RC 순으로 top10 API를 구한다
+        List<SvcOption1RC> top10Api = svcOption1RCRep.findByOpTypeAndRcTypeAndDateBetweenOrderByCount(enumOptionType.APP, rcType, date1, date2);
         List<SvcOption1RC> result = Lists.newArrayList();
-        top10Api.stream().limit(10).forEach(app -> {
-            SvcOption1RC tmp = new SvcOption1RC();
-            svcOption1RCRep.findByOption1AndRcTypeAndBetween(app, enumOptionType.APP, rcType, date1, date2).stream().forEach(rc -> {
-                tmp.setId(rc.getId());
-                //서비스 별로 구분되는 값을 모두 더함
-                tmp.setCount(tmp.getCount() + rc.getCount());
-            });
-            result.add(tmp);
-        });
+        top10Api.stream().limit(10).forEach(result::add);
         chgSvc.fillNameOrIdOfAppOrSvc(enumOptionType.APP, result);
         return result;
     }
@@ -201,14 +187,20 @@ public class ElasticsearchPVAnalysisService {
             appRC.getBuckets().stream().forEach(app -> {
 
 
-                SvcOption1RC svcOp1PV = new SvcOption1RC(enumStatsType.PV, dayType, opType, date,
-                        categoryService.getServiceId(svc.getKey()), svc.getKey(),app.getKey(), app.getCount());
+                try {
+                    SvcOption1RC svcOp1PV = new SvcOption1RC(enumStatsType.PV, dayType, opType, date,
+                            categoryService.getServiceId(svc.getKey()), svc.getKey(),app.getKey(), app.getCount());
 
-                logger.debug("##########################");
-                logger.debug("SvcOption1RC : {}", svcOp1PV);
-                logger.debug("##########################");
+                    logger.debug("##########################");
+                    logger.debug("SvcOption1RC : {}", svcOp1PV);
+                    logger.debug("##########################");
 
-                svcOption1RCRep.save(svcOp1PV);
+                    svcOption1RCRep.save(svcOp1PV);
+
+                } catch (InvalidKeyException e) {
+                    logger.error(e.getLocalizedMessage());
+
+                }
             });
 
 
@@ -250,18 +242,23 @@ public class ElasticsearchPVAnalysisService {
             	TermsAggregation appRC = api.getTermsAggregation("option2RC");
 
             	appRC.getBuckets().stream().forEach(app ->{
-            
-                    		
-                    		SvcOption2RC svcOp2PV = new SvcOption2RC(enumStatsType.PV, dayType, opType, date,
+
+
+                            try {
+                                SvcOption2RC svcOp2PV = new SvcOption2RC(enumStatsType.PV, dayType, opType, date,
                                     categoryService.getServiceId(svc.getKey()),svc.getKey(), api.getKey(), app.getKey(), app.getCount());
-                    	
-                    		
+                                logger.debug("##########################");
+                                logger.debug("SvcOption2RC : {}", svcOp2PV);
+                                logger.debug("##########################");
 
-	                    logger.debug("##########################");
-	                    logger.debug("SvcOption2RC : {}", svcOp2PV);
-	                    logger.debug("##########################");
+                                svcOption2RCRep.save(svcOp2PV);
 
-	                    svcOption2RCRep.save(svcOp2PV);
+                            } catch (InvalidKeyException e) {
+                                logger.debug(e.getLocalizedMessage());
+
+                            }
+
+
 
             		}
             	);

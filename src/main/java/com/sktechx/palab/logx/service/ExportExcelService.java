@@ -243,9 +243,9 @@ public class ExportExcelService {
                 headers.put(1, "서비스");
                 List<ServiceRequestCall> listSvcRC;
                 if( svc.equals("ALL")) {
-                    listSvcRC = svcRCRepo.findByStsTypeAndRcTypeAndBetween(stsType, rcType, startDate.toDate(), endDate.toDate());
+                    listSvcRC = svcRCRepo.findSumGroupBySvcIdByStsTypeAndRcTypeAndBetween(stsType, rcType, startDate.toDate(), endDate.toDate());
                 }else {
-                    listSvcRC = svcRCRepo.findBySvcIdAndStsTypeAndRcTypeAndBetween(svc, stsType, rcType, startDate.toDate(), endDate.toDate());
+                    listSvcRC = svcRCRepo.findSumGroupBySvcIdBySvcIdAndStsTypeAndRcTypeAndBetween(svc, stsType, rcType, startDate.toDate(), endDate.toDate());
                 }
 
                 changeNameIdService.fillNameOrIdOfAppOrSvc(opType, listSvcRC);
