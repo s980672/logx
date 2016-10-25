@@ -132,6 +132,10 @@ public class ExportExcelUtil extends abstractExportExcel {
         sh.addMergedRegion(new CellRangeAddress(2, 2, dataStartCol, dataStartCol+colNum)); //두번째 row => 2015년 or 2015년 7월
 
 
+        //column auto sizing
+        for ( int col=0; col < 20 ; col++ ){
+            sh.autoSizeColumn(col, true); //
+        }
 
     }
 
@@ -191,7 +195,7 @@ public class ExportExcelUtil extends abstractExportExcel {
         SvcOption1RC tmp = new SvcOption1RC();
 
         //엑셀 상단에 서비스를 찍는다
-        setCellValue(sheet, 0, 1, "[서비스 : "+forSvcText+"]", style);
+        setCellValue(sheet, 0, 1, "[서비스 : " + forSvcText + "]", style);
 
 
         switch(opType){
