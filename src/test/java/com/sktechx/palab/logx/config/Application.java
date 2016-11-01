@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.sktechx.palab.logx.repository.AdminUserRepository;
 import com.sktechx.palab.logx.repository.AppViewRepository;
 import com.sktechx.palab.logx.secondary.domain.AssetRepository;
 import com.sktechx.palab.logx.service.ExportExcelService;
+import com.sktechx.palab.logx.service.UserAuthenticationService;
 import com.sktechx.palab.logx.web.StatisticsController;
 import io.searchbox.client.JestClient;
 import io.searchbox.client.JestClientFactory;
@@ -30,7 +32,7 @@ import java.nio.charset.Charset;
 @ComponentScan(basePackages = {"com.sktechx.palab.logx.service", "com.sktechx.palab.logx.secondary.service"})
 @SpringBootApplication(exclude = JpaRepositoriesAutoConfiguration.class)
 @EnableJpaRepositories(
-        basePackageClasses = {AssetRepository.class, AppViewRepository.class}
+        basePackageClasses = {AssetRepository.class, AppViewRepository.class, AdminUserRepository.class}
 )
 @EntityScan(basePackages={"com.sktechx.palab.logx.secondary.domain", "com.sktechx.palab.logx.model"})
 public class Application
@@ -45,7 +47,7 @@ public class Application
     public ExportExcelService excelExportService() {
         return new ExportExcelService();
     }
-
+    
     @Value("${elasticsearch.search.endpoint}")
     private String address = "http://172.21.85.33/";
 
@@ -57,7 +59,7 @@ public class Application
 
     @Value("${elasticsearch.search.read_timeout}")
     private int readTimeout = 3000;
-
+    
     @Bean
     public JestClient jestClient(){
         // Configuration
@@ -84,13 +86,17 @@ public class Application
     public StatisticsController statisticsController(){
         return new StatisticsController();
     }
-
+    
+    @Bean 
+    public UserAuthenticationService userAuthenticationService() {
+    	return new UserAuthenticationService();
+    }
+    
     @Bean
     public HttpMessageConverter<String> responseBodyConverter()
     {
         return new StringHttpMessageConverter( Charset.forName( "UTF-8" ) );
     }
-
 
     @Bean
     MappingJackson2HttpMessageConverter converter()
