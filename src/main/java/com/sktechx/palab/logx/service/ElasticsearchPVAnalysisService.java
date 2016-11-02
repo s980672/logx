@@ -157,7 +157,6 @@ public class ElasticsearchPVAnalysisService {
 
         
         String queryDsl = null;
-        String queryOption1AllSvcPV = null;
         switch(opType){
             case APP:
                 queryDsl = AggReqDSLs.getQueryServiceOption1PV("appKey", start, end);   

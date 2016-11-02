@@ -15,6 +15,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -45,6 +47,8 @@ public class ScheduledTasks {
     @Value("#{'${delete.indices}'.split(',')}")
     List<String> indicesTodelete;
 
+    @Value("${hostname.batch}")
+    String hostNameForBatch;
 
 
 
@@ -52,7 +56,15 @@ public class ScheduledTasks {
     //매일 0시 5분에 전날 request call를 조회 및 저장
     @Scheduled(cron = "0 5 00 1/1 * *")
 //    @Scheduled(cron="0/30 * * * * *")
-    public void saveDailyPVUV() throws ParseException {
+    public void saveDailyPVUV() throws ParseException, UnknownHostException {
+
+        String hostName = InetAddress.getLocalHost().getHostName();
+        logger.debug("hostnameForBatch : {}", hostNameForBatch);
+        logger.debug("server host name : {}", hostName);
+
+        if ( !hostName.equals(hostNameForBatch) ){
+            return;
+        }
 
         Calendar cal = Calendar.getInstance();
         cal.setTime(new Date());
@@ -127,6 +139,13 @@ public class ScheduledTasks {
     @Scheduled(cron = "0 20 00 1/1 * *")
     public void saveWeeklyPV() throws IOException, ParseException {
 
+        String hostName = InetAddress.getLocalHost().getHostName();
+        logger.debug("hostnameForBatch : {}", hostNameForBatch);
+        logger.debug("server host name : {}", hostName);
+
+        if ( !hostName.equals(hostNameForBatch) ){
+            return;
+        }
         logger.debug("=========================");
         logger.debug("start generate weekly!!");
         logger.debug("=========================");
@@ -151,6 +170,13 @@ public class ScheduledTasks {
     @Scheduled(cron = "0 30 00 1/1 * *")
     public void saveMonthlyPV() throws IOException, ParseException {
 
+        String hostName = InetAddress.getLocalHost().getHostName();
+        logger.debug("hostnameForBatch : {}", hostNameForBatch);
+        logger.debug("server host name : {}", hostName);
+
+        if ( !hostName.equals(hostNameForBatch) ){
+            return;
+        }
         logger.debug("=========================");
         logger.debug("start every monthly!!");
         logger.debug("=========================");
@@ -177,6 +203,14 @@ public class ScheduledTasks {
     //전전 달 모니터링(marvel) 데이터 삭제
     @Scheduled(cron = "0 50 0 1 * *")
     public void deleteAMonthAgoMonitoringIndices() throws IOException {
+        String hostName = InetAddress.getLocalHost().getHostName();
+        logger.debug("hostnameForBatch : {}", hostNameForBatch);
+        logger.debug("server host name : {}", hostName);
+
+        if ( !hostName.equals(hostNameForBatch) ){
+            return;
+        }
+
         if( indicesTodelete == null || indicesTodelete.isEmpty() || indicesTodelete.get(0).isEmpty() )
             return;
 
@@ -209,6 +243,13 @@ public class ScheduledTasks {
     //전전달 한달치 index를 삭제한다
     @Scheduled(cron = "0 30 0 1 * *")
     public void deleteAMonthAgoIndices() throws IOException {
+        String hostName = InetAddress.getLocalHost().getHostName();
+        logger.debug("hostnameForBatch : {}", hostNameForBatch);
+        logger.debug("server host name : {}", hostName);
+
+        if ( !hostName.equals(hostNameForBatch) ){
+            return;
+        }
 
         LocalDate date = LocalDate.now();
 
