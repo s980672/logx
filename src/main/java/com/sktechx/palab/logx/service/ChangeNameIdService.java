@@ -70,6 +70,7 @@ public class ChangeNameIdService {
             case APP_API:
                 List<SvcOption2RC> lstApp2 = (List<SvcOption2RC>) data;
                 fillAppIdAndName(opType, lstApp2);
+                fillServiceNameForOption2(lstApp2);
                 break;
         }
 

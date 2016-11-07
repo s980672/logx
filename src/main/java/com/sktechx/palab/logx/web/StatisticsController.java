@@ -45,14 +45,14 @@ public class StatisticsController {
     AssetRepository assetRepo;
 
 
-    @RequestMapping(value="services", method=RequestMethod.GET)
-    public List<Asset> getServices(){
+    @RequestMapping(value = "services", method = RequestMethod.GET)
+    public List<Asset> getServices() {
         return assetRepo.findAll();
     }
 
 
-    @RequestMapping(value="graph/{period}", method =RequestMethod.GET)
-    public List<ReqCall> getPV(@PathVariable String period, @RequestParam(required=false) Integer year, @RequestParam(required=false) Integer month,
+    @RequestMapping(value = "graph/{period}", method = RequestMethod.GET)
+    public List<ReqCall> getPV(@PathVariable String period, @RequestParam(required = false) Integer year, @RequestParam(required = false) Integer month,
                                @RequestParam(required = false) String date) {
 
         logger.debug("year : {} month : {} date : {}", year, month, date);
@@ -88,9 +88,9 @@ public class StatisticsController {
     }
 
     //서비스별 RC(TOP5)
-    @RequestMapping(value="graph/{period}/svcRC", method =RequestMethod.GET)
-    public List<ServiceRequestCall> getServicePV(@PathVariable String period,@RequestParam(required=false) Integer year,
-                                                 @RequestParam(required=false) Integer month,
+    @RequestMapping(value = "graph/{period}/svcRC", method = RequestMethod.GET)
+    public List<ServiceRequestCall> getServicePV(@PathVariable String period, @RequestParam(required = false) Integer year,
+                                                 @RequestParam(required = false) Integer month,
                                                  @RequestParam(required = false) String date) {
 
         logger.debug("year : {} month : {} date : {}", year, month, date);
@@ -129,8 +129,8 @@ public class StatisticsController {
     }
 
 
-    @RequestMapping(value="graph/{period}/{opType}", method =RequestMethod.GET)
-    public List<SvcOption1RC> getAppApiPV(@PathVariable String period, @PathVariable String opType, @RequestParam(required=false) Integer year, @RequestParam(required=false) Integer month,
+    @RequestMapping(value = "graph/{period}/{opType}", method = RequestMethod.GET)
+    public List<SvcOption1RC> getAppApiPV(@PathVariable String period, @PathVariable String opType, @RequestParam(required = false) Integer year, @RequestParam(required = false) Integer month,
                                           @RequestParam(required = false) String date) {
 
         logger.debug("year : {} month : {} date : {}", year, month, date);
@@ -154,7 +154,7 @@ public class StatisticsController {
                 end = end.withDayOfMonth(1);
                 end = end.minusDays(1);//그 달의 마지막 날
             }//현재 달
-            else{
+            else {
                 end = now;
             }
 
@@ -169,9 +169,9 @@ public class StatisticsController {
 
         }
 
-        logger.debug("getAppApiPV({}): start : {} -- end : {}",opType, start, end);
+        logger.debug("getAppApiPV({}): start : {} -- end : {}", opType, start, end);
 
-        switch (optionType){
+        switch (optionType) {
             case APP:
                 return pvSvc.getRCPerAppTop10(rcType, start.toDate(), end.toDate());
             case API:
@@ -182,29 +182,29 @@ public class StatisticsController {
     }
 
     //date ==> 2016-07-01
-    @RequestMapping(value="{period}", method=RequestMethod.POST)
-    public void generateBatchData(@PathVariable String period, @RequestParam(required=false) String date,
-                                  @RequestParam(required=false) String startDate, @RequestParam(required=false) String endDate) throws IOException, ParseException {
+    @RequestMapping(value = "{period}", method = RequestMethod.POST)
+    public void generateBatchData(@PathVariable String period, @RequestParam(required = false) String date,
+                                  @RequestParam(required = false) String startDate, @RequestParam(required = false) String endDate) throws IOException, ParseException {
 
         enumRCType rcType = enumRCType.valueOf(period);
 
         //for certain period
-        if(startDate != null && endDate != null ){
+        if (startDate != null && endDate != null) {
             LocalDate sDate = LocalDate.parse(startDate, DateTimeFormat.forPattern("yyyy-MM-dd"));
             LocalDate eDate = LocalDate.parse(endDate, DateTimeFormat.forPattern("yyyy-MM-dd"));
 
-            if(enumRCType.monthly==rcType) {
+            if (enumRCType.monthly == rcType) {
                 sDate = sDate.withDayOfMonth(1);
                 eDate = eDate.withDayOfMonth(1).plusMonths(1);
-            }else if ( enumRCType.weekly==rcType) {
+            } else if (enumRCType.weekly == rcType) {
                 sDate = sDate.withDayOfWeek(DateTimeConstants.MONDAY).minusWeeks(1);
             }
 
-            for (LocalDate d=sDate;d.equals(eDate)|| d.isBefore(eDate); ){
+            for (LocalDate d = sDate; d.equals(eDate) || d.isBefore(eDate); ) {
 
                 String date1 = d.toString(DateTimeFormat.forPattern("yyyy-MM-dd"));
                 String date2 = date1;
-                switch(rcType){
+                switch (rcType) {
                     case daily:
                         date2 = d.plusDays(1).toString(DateTimeFormat.forPattern("yyyy-MM-dd"));
                         d = d.plusDays(1);
@@ -222,7 +222,7 @@ public class StatisticsController {
 
                 pvSvc.generateAllPV(rcType, date1, date2);
 
-                if ( rcType != enumRCType.weekly )
+                if (rcType != enumRCType.weekly)
                     uvSvc.generateAllUV(rcType, date1, date2);
 
             }
@@ -258,18 +258,18 @@ public class StatisticsController {
             logger.debug("generateBatchDataForCertainDay:: start date : {} - end date : {}", date1, date2);
 
             pvSvc.generateAllPV(rcType, date1, date2);
-            if ( rcType != enumRCType.weekly )
+            if (rcType != enumRCType.weekly)
                 uvSvc.generateAllUV(rcType, date1, date2);
         }
     }
 
 
     //period = {monthly, daily}
-    @RequestMapping(value="{period}/{pvOrUv}", method= RequestMethod.GET)
+    @RequestMapping(value = "{period}/{pvOrUv}", method = RequestMethod.GET)
     public void getStatisticsExcel(@PathVariable String period, @PathVariable String pvOrUv,
                                    @RequestParam String service,
                                    @RequestParam(required = false) String option1,
-                                   @RequestParam(required=false) String option2,
+                                   @RequestParam(required = false) String option2,
                                    @RequestParam Integer year, @RequestParam Integer month, HttpServletResponse response) throws IOException {
 
 
@@ -277,20 +277,20 @@ public class StatisticsController {
         logger.debug("service : {} ", service);
         logger.debug("option1 : {} option2: {}", option1, option2);
         logger.debug("year : {} month: {}", year, month);
-        logger.debug("monthly or daily : {}", period );
+        logger.debug("monthly or daily : {}", period);
 
         enumRCType rcType = enumRCType.valueOf(period);
 
         LocalDate start = new LocalDate();
         LocalDate end;
 
-        if ( rcType == enumRCType.daily ) {
+        if (rcType == enumRCType.daily) {
             start = start.withYear(year);
             start = start.withMonthOfYear(month);
             start = start.withDayOfMonth(1);
 
             end = start.plusMonths(1).minusDays(1);
-        }else{
+        } else {
             start = start.withYear(year);
             start = start.withMonthOfYear(1);
             start = start.withDayOfMonth(1);
@@ -298,7 +298,7 @@ public class StatisticsController {
             end = start.plusYears(1).minusDays(1);
         }
 
-        logger.debug("start : {} - end: {}", start, end );
+        logger.debug("start : {} - end: {}", start, end);
 
         pvOrUv = pvOrUv.toUpperCase();
 
@@ -334,10 +334,17 @@ public class StatisticsController {
 
     }
 
+    //앱 상세화면에 앱 통계 정보 조회
+    @RequestMapping(value = "app/{period}", method = RequestMethod.GET)
+    public List<AppStats> getAppStatistics(@PathVariable String period,
+                                 @RequestParam(required=false) String svcId,
+                                 @RequestParam String appKey,
+                                 @RequestParam Integer year, @RequestParam Integer month) throws IOException {
 
+        //daily/hourly
+        enumRCType rcType = enumRCType.valueOf(period);
 
+        return pvSvc.getAppStats(appKey, svcId, year, month, rcType);
 
-
-
-
+    }
 }

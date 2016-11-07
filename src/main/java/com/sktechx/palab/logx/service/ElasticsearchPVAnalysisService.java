@@ -9,6 +9,8 @@ import com.sktechx.palab.logx.repository.SvcOption2RCRepository;
 import com.sktechx.palab.logx.secondary.service.CategoryService;
 import io.searchbox.core.SearchResult;
 import io.searchbox.core.search.aggregation.TermsAggregation;
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Created by 1002382 on 2016. 7. 5..
@@ -94,6 +97,46 @@ public class ElasticsearchPVAnalysisService {
         return result;
     }
 
+    /*
+    특정 앱의 통계 정보를 조회한다
+    daily/houly
+     */
+    public List<AppStats> getAppStats(String appKey, String svcId, int year, int month, enumRCType rcType){
+
+        LocalDate start = new LocalDate(year, month, 1);
+        LocalDate end = start.plusMonths(1).minusDays(1);
+
+        List<SvcOption2RC> result;
+        if (StringUtils.isEmpty(svcId) || svcId.equals("ALL")) {
+            result = svcOption2RCRep.findByAppKeyAndStsTypeAndOpTypeAndRcTypeAndBetween(appKey, enumStatsType.PV, enumOptionType.APP_API, rcType, start.toDate(), end.toDate());
+        }else {
+            result = svcOption2RCRep.findByAppKeyAndSvcIdAndStsTypeAndOpTypeAndRcTypeAndBetween(appKey, svcId, enumStatsType.PV, enumOptionType.APP_API, rcType, start.toDate(), end.toDate());
+        }
+
+        chgSvc.fillNameOrIdOfAppOrSvc(enumOptionType.APP_API, result);
+
+        Stream<String> distinctApi = result.stream().map(pv -> pv.getId().getOption2()).distinct();
+
+        //public SvcOption2RC(enumStatsType stsType, enumRCType rcType, enumOptionType opType, Date reqDt, String svcId,String categoryId, String option1, String option2, long count) {
+        List<AppStats> appStats = Lists.newArrayList();
+
+        distinctApi.forEach(api -> {
+            AppStats rc = new AppStats();
+            result.stream().filter(pv -> pv.getId().getOption2().equals(api)).forEach(pv -> {
+                rc.setApiPath(api);
+                rc.setAppId(pv.getAppId());
+                rc.setAppName(pv.getAppName());
+                rc.setSvcName(pv.getSvcName());
+                rc.addCount(pv.getId().getReqDt(), pv.getCount());
+            });
+            appStats.add(rc);
+        });
+
+
+
+        return appStats;
+
+    }
 
     public void generateAllPV(enumRCType rcType, String date1, String date2) throws IOException, ParseException {
         generatePV(rcType, date1, date2);
