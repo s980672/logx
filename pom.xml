@@ -24,7 +24,7 @@
         <start-class>com.sktechx.palab.logx.Application</start-class>
 		<java.version>1.8</java.version>
         <type.encoding>UTF-8</type.encoding>
-        <docker.image.prefix>palab</docker.image.prefix>
+        <docker.image.prefix>quay.io/sktx</docker.image.prefix>
 	</properties>
 
 	<dependencies>

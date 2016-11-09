@@ -63,12 +63,6 @@ public class SvcOption1RC implements Serializable {
         this.count = count;
     }
 
-    public SvcOption1RC(SvcOption1RCPK id, long count) {
-
-        setId(id);
-        this.count = count;
-    }
-
     public SvcOption1RCPK getId() {
         return id;
     }
